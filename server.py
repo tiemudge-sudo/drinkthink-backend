@@ -282,6 +282,28 @@ async def get_drink(drink_id: int):
     return Drink(**doc)
 
 
+class DrinkSearchResult(BaseModel):
+    id: int
+    name: str
+    glass: str = ""
+
+
+@api_router.get("/drinks/search", response_model=List[DrinkSearchResult])
+async def search_drinks(q: str, limit: int = 20):
+    """Search the full drinks catalog by name (case-insensitive substring)."""
+    q = (q or "").strip()
+    if not q:
+        return []
+    if limit < 1 or limit > 50:
+        limit = 20
+    cursor = db.drinks.find(
+        {"name": {"$regex": q, "$options": "i"}},
+        {"_id": 0, "id": 1, "name": 1, "glass": 1},
+    ).limit(limit)
+    docs = await cursor.to_list(length=limit)
+    return [DrinkSearchResult(**d) for d in docs]
+
+
 # ================================================================
 #                     AUTH — Emergent Google OAuth
 # ================================================================
@@ -500,6 +522,112 @@ async def list_blocked(user: User = Depends(current_user)):
         async for d in db.drinks.find({"id": {"$in": ids}}, {"_id": 0})
     }
     return [Drink(**drinks_by_id[i]) for i in ids if i in drinks_by_id]
+
+
+# ================================================================
+#                     SHARE — in-app drink sharing
+# ================================================================
+
+class ShareDrinkRequest(BaseModel):
+    drink_id: int
+    recipient_email: str
+
+
+class PendingShare(BaseModel):
+    share_id: str
+    drink_id: int
+    drink_name: str
+    sender_name: str
+    sender_email: str
+    created_at: str
+
+
+@api_router.post("/share/drink")
+async def share_drink(body: ShareDrinkRequest, user: User = Depends(current_user)):
+    await _drink_exists_or_404(body.drink_id)
+    recipient_email = (body.recipient_email or "").strip().lower()
+    if not recipient_email:
+        raise HTTPException(status_code=400, detail="recipient_email required")
+    if recipient_email == user.email:
+        raise HTTPException(status_code=400, detail="Can't share a drink with yourself")
+
+    recipient = await db.users.find_one({"email": recipient_email}, {"_id": 0})
+    if not recipient:
+        # Per product decision: no invite-to-download flow here — the
+        # frontend directs the sender to the native "Send" option instead.
+        raise HTTPException(
+            status_code=404,
+            detail="That email isn't a registered DrinkThink user",
+        )
+
+    share_id = f"share_{uuid.uuid4().hex[:12]}"
+    await db.pending_shares.insert_one({
+        "share_id": share_id,
+        "drink_id": body.drink_id,
+        "sender_user_id": user.user_id,
+        "sender_name": user.name or user.email,
+        "sender_email": user.email,
+        "recipient_user_id": recipient["user_id"],
+        "recipient_email": recipient_email,
+        "status": "pending",
+        "created_at": _now(),
+    })
+    return {"ok": True, "share_id": share_id}
+
+
+@api_router.get("/me/pending-shares", response_model=List[PendingShare])
+async def list_pending_shares(user: User = Depends(current_user)):
+    rows = await db.pending_shares.find(
+        {"recipient_user_id": user.user_id, "status": "pending"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(length=None)
+    if not rows:
+        return []
+    ids = [r["drink_id"] for r in rows]
+    names_by_id = {
+        d["id"]: d["name"]
+        async for d in db.drinks.find({"id": {"$in": ids}}, {"_id": 0, "id": 1, "name": 1})
+    }
+    return [
+        PendingShare(
+            share_id=r["share_id"],
+            drink_id=r["drink_id"],
+            drink_name=names_by_id.get(r["drink_id"], "Unknown drink"),
+            sender_name=r["sender_name"],
+            sender_email=r["sender_email"],
+            created_at=r["created_at"].isoformat() if isinstance(r["created_at"], datetime) else str(r["created_at"]),
+        )
+        for r in rows
+    ]
+
+
+@api_router.post("/me/pending-shares/{share_id}/accept")
+async def accept_pending_share(share_id: str, user: User = Depends(current_user)):
+    share = await db.pending_shares.find_one(
+        {"share_id": share_id, "recipient_user_id": user.user_id, "status": "pending"},
+        {"_id": 0},
+    )
+    if not share:
+        raise HTTPException(status_code=404, detail="Pending share not found")
+    await db.favorites.update_one(
+        {"user_id": user.user_id, "drink_id": share["drink_id"]},
+        {"$setOnInsert": {"created_at": _now()}},
+        upsert=True,
+    )
+    await db.pending_shares.update_one(
+        {"share_id": share_id}, {"$set": {"status": "accepted"}}
+    )
+    return {"ok": True}
+
+
+@api_router.post("/me/pending-shares/{share_id}/decline")
+async def decline_pending_share(share_id: str, user: User = Depends(current_user)):
+    result = await db.pending_shares.update_one(
+        {"share_id": share_id, "recipient_user_id": user.user_id, "status": "pending"},
+        {"$set": {"status": "declined"}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Pending share not found")
+    return {"ok": True}
 
 
 app.include_router(api_router)
