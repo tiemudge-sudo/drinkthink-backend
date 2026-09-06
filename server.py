@@ -278,6 +278,7 @@ class DrinkSearchResult(BaseModel):
     id: int
     name: str
     glass: str = ""
+    ingredients: str = ""
 
 
 @api_router.get("/drinks/search", response_model=List[DrinkSearchResult])
@@ -290,7 +291,7 @@ async def search_drinks(q: str, limit: int = 20):
         limit = 20
     cursor = db.drinks.find(
         {"name": {"$regex": q, "$options": "i"}},
-        {"_id": 0, "id": 1, "name": 1, "glass": 1},
+        {"_id": 0, "id": 1, "name": 1, "glass": 1, "ingredients": 1},
     ).limit(limit)
     docs = await cursor.to_list(length=limit)
     return [DrinkSearchResult(**d) for d in docs]
