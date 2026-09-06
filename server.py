@@ -274,14 +274,6 @@ async def match_drink(
     )
 
 
-@api_router.get("/drinks/{drink_id}", response_model=Drink)
-async def get_drink(drink_id: int):
-    doc = await db.drinks.find_one({"id": drink_id}, {"_id": 0})
-    if not doc:
-        raise HTTPException(status_code=404, detail="Drink not found")
-    return Drink(**doc)
-
-
 class DrinkSearchResult(BaseModel):
     id: int
     name: str
@@ -302,6 +294,17 @@ async def search_drinks(q: str, limit: int = 20):
     ).limit(limit)
     docs = await cursor.to_list(length=limit)
     return [DrinkSearchResult(**d) for d in docs]
+
+
+# NOTE: this catch-all-by-id route must stay AFTER /drinks/search —
+# FastAPI matches routes in registration order, and {drink_id} would
+# otherwise swallow "/drinks/search" as if "search" were the id.
+@api_router.get("/drinks/{drink_id}", response_model=Drink)
+async def get_drink(drink_id: int):
+    doc = await db.drinks.find_one({"id": drink_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Drink not found")
+    return Drink(**doc)
 
 
 # ================================================================
