@@ -130,8 +130,10 @@ async def match_drink(
 
     When authenticated (Bearer token, optional):
       * Blocked drinks are excluded from results.
-      * The best-scoring favorite drink is guaranteed to appear at position
-        `limit` (last), demoting the last regular match if needed.
+      * The best-scoring favorite drink is guaranteed to appear at slot #5
+        (index 4) if no favorite is already present in the natural top 5.
+        Other favorites elsewhere in the results stay at their natural
+        ranked position.
     """
     if scoring not in ("differential", "alternate"):
         raise HTTPException(status_code=400,
@@ -243,19 +245,22 @@ async def match_drink(
     )
     top = scored_all[:limit]
 
-    # Feature 3+4: pin best-matching favorite at position `limit` (last)
-    # if not already present in the top slice.
-    if favorite_ids and top:
-        top_ids = {d["id"] for d, _ in top}
-        need_pin = not (favorite_ids & top_ids)
+    # Favorite pinning: the single best-scoring favorite gets moved up into
+    # slot #5 (index 4) if — and only if — no favorite already appears
+    # anywhere in the natural top 5. Any other favorites elsewhere in the
+    # returned set are left exactly where their score naturally placed them
+    # (still flagged is_favorite, just not repositioned).
+    PIN_SLOT = 4  # zero-indexed -> slot number 5
+    if favorite_ids and len(top) > PIN_SLOT:
+        top5_ids = {d["id"] for d, _ in top[:5]}
+        need_pin = not (favorite_ids & top5_ids)
         if need_pin:
             best_fav_pair = next(
                 ((d, s) for d, s in scored_all if d["id"] in favorite_ids),
                 None,
             )
             if best_fav_pair:
-                # Demote the last slot for the favorite tail.
-                top = top[: max(0, limit - 1)] + [best_fav_pair]
+                top = (top[:PIN_SLOT] + [best_fav_pair] + top[PIN_SLOT:])[:limit]
 
     results = [
         MatchItem(
@@ -465,9 +470,11 @@ async def add_favorite(drink_id: int, user: User = Depends(current_user)):
     await _drink_exists_or_404(drink_id)
     # Adding a favorite un-blocks it (mutually exclusive states).
     await db.blocked.delete_one({"user_id": user.user_id, "drink_id": drink_id})
+    # New favorites go to the end of the user's custom order.
+    existing_count = await db.favorites.count_documents({"user_id": user.user_id})
     await db.favorites.update_one(
         {"user_id": user.user_id, "drink_id": drink_id},
-        {"$setOnInsert": {"created_at": _now()}},
+        {"$setOnInsert": {"created_at": _now(), "order": existing_count}},
         upsert=True,
     )
     return {"ok": True}
@@ -479,11 +486,27 @@ async def remove_favorite(drink_id: int, user: User = Depends(current_user)):
     return {"ok": True}
 
 
+class ReorderFavoritesRequest(BaseModel):
+    drink_ids: List[int]
+
+
+@api_router.post("/me/favorites/reorder")
+async def reorder_favorites(body: ReorderFavoritesRequest, user: User = Depends(current_user)):
+    """Persist a user's custom drag-and-drop order for their favorites list.
+    drink_ids must be the full, ordered list of the user's favorite ids."""
+    for position, drink_id in enumerate(body.drink_ids):
+        await db.favorites.update_one(
+            {"user_id": user.user_id, "drink_id": drink_id},
+            {"$set": {"order": position}},
+        )
+    return {"ok": True}
+
+
 @api_router.get("/me/favorites", response_model=List[Drink])
 async def list_favorites(user: User = Depends(current_user)):
     rows = await db.favorites.find(
         {"user_id": user.user_id}, {"_id": 0}
-    ).sort("created_at", -1).to_list(length=None)
+    ).sort([("order", 1), ("created_at", 1)]).to_list(length=None)
     if not rows:
         return []
     ids = [r["drink_id"] for r in rows]
