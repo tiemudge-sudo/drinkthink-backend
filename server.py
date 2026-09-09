@@ -657,6 +657,46 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
     return {"ok": True}
 
 
+# ================================================================
+#                REMOTE FEATURE FLAGS (toggle without republishing)
+# ================================================================
+# Single document in app_config holds every flag. The app fetches this on
+# startup; flipping a flag here takes effect immediately for all users,
+# no new build or store review needed. Toggle it either by editing the
+# document directly in MongoDB Atlas's UI, or via the protected POST
+# endpoint below using ADMIN_TOGGLE_KEY.
+
+DEFAULT_FLAGS = {
+    "new_filters_enabled": False,
+}
+
+
+@api_router.get("/config")
+async def get_remote_config():
+    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
+    flags = {**DEFAULT_FLAGS, **(doc or {})}
+    return flags
+
+
+class UpdateFlagsRequest(BaseModel):
+    flags: dict
+    admin_key: str
+
+
+@api_router.post("/config")
+async def update_remote_config(body: UpdateFlagsRequest):
+    expected_key = os.environ.get("ADMIN_TOGGLE_KEY")
+    if not expected_key or body.admin_key != expected_key:
+        raise HTTPException(status_code=403, detail="Invalid admin key")
+    await db.app_config.update_one(
+        {"_id": "flags"},
+        {"$set": body.flags},
+        upsert=True,
+    )
+    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
+    return {**DEFAULT_FLAGS, **(doc or {})}
+
+
 app.include_router(api_router)
 
 app.add_middleware(
