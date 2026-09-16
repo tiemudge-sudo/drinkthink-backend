@@ -668,6 +668,8 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
 
 DEFAULT_FLAGS = {
     "new_filters_enabled": False,
+    # New feature — per policy, ships ON in dev, flip to False before release.
+    "cupboard_filter_enabled": True,
 }
 
 
@@ -697,6 +699,35 @@ async def update_remote_config(body: UpdateFlagsRequest):
     return {**DEFAULT_FLAGS, **(doc or {})}
 
 
+@api_router.get("/ingredients")
+async def get_ingredients_tree():
+    """The full 3-level ingredient hierarchy for the cupboard filter screen:
+    [{id, name, primaries: [{id, name, items: [{id, name}]}]}]"""
+    doc = await db.ingredients_tree.find_one({"_id": "tree"}, {"_id": 0})
+    return doc.get("data", []) if doc else []
+
+
+class CupboardRequest(BaseModel):
+    item_ids: List[str]
+    active: bool
+
+
+@api_router.get("/me/cupboard")
+async def get_cupboard(user: User = Depends(current_user)):
+    doc = await db.user_cupboard.find_one({"user_id": user.user_id}, {"_id": 0})
+    return {"item_ids": (doc or {}).get("item_ids", []), "active": (doc or {}).get("active", False)}
+
+
+@api_router.post("/me/cupboard")
+async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user)):
+    await db.user_cupboard.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"item_ids": body.item_ids, "active": body.active}},
+        upsert=True,
+    )
+    return {"ok": True}
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -712,6 +743,29 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 logger = logging.getLogger(__name__)
+
+
+@app.on_event("startup")
+async def seed_ingredients():
+    """Load the 3-level ingredient hierarchy (Category -> Primary -> specific
+    items) used by the cupboard filter feature. Re-seeds whenever the stored
+    copy's version differs, so updates to the CSV-derived tree propagate."""
+    data_path = ROOT_DIR / "data" / "ingredients_tree.json"
+    if not data_path.exists():
+        logger.warning("ingredients_tree.json missing; skipping seed")
+        return
+    with open(data_path) as f:
+        tree = json.load(f)
+    doc = await db.ingredients_tree.find_one({"_id": "tree"})
+    if doc and doc.get("data") == tree:
+        logger.info("ingredients_tree already up to date")
+        return
+    await db.ingredients_tree.update_one(
+        {"_id": "tree"},
+        {"$set": {"data": tree}},
+        upsert=True,
+    )
+    logger.info(f"Seeded ingredients_tree ({len(tree)} categories)")
 
 
 @app.on_event("startup")

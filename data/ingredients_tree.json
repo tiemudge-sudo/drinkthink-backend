@@ -1,0 +1,5454 @@
+[
+  {
+    "id": "beer",
+    "name": "Beer",
+    "primaries": [
+      {
+        "id": "beer",
+        "name": "beer",
+        "items": [
+          {
+            "id": "beer__ale",
+            "name": "ale"
+          },
+          {
+            "id": "beer__beer",
+            "name": "beer"
+          },
+          {
+            "id": "beer__light-beer",
+            "name": "light beer"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixer",
+    "name": "Mixer",
+    "primaries": [
+      {
+        "id": "bitters",
+        "name": "bitters",
+        "items": [
+          {
+            "id": "bitters__amer-picon-orange-bitters",
+            "name": "amer picon orange bitters"
+          },
+          {
+            "id": "bitters__angostura-bitters",
+            "name": "angostura bitters"
+          },
+          {
+            "id": "bitters__bitters",
+            "name": "bitters"
+          },
+          {
+            "id": "bitters__campari-bitters",
+            "name": "campari bitters"
+          },
+          {
+            "id": "bitters__fernet-branca-bitters",
+            "name": "fernet branca bitters"
+          },
+          {
+            "id": "bitters__old-fashioned-bitters",
+            "name": "old-fashioned bitters"
+          },
+          {
+            "id": "bitters__orange-bitters",
+            "name": "orange bitters"
+          },
+          {
+            "id": "bitters__peach-bitters",
+            "name": "peach bitters"
+          },
+          {
+            "id": "bitters__peychaud-bitters",
+            "name": "peychaud bitters"
+          },
+          {
+            "id": "bitters__underberg-bitters",
+            "name": "underberg bitters"
+          }
+        ]
+      },
+      {
+        "id": "coffee",
+        "name": "coffee",
+        "items": [
+          {
+            "id": "coffee__coffee",
+            "name": "coffee"
+          },
+          {
+            "id": "coffee__coffee-powder",
+            "name": "coffee powder"
+          },
+          {
+            "id": "coffee__coffeemate",
+            "name": "coffeemate"
+          },
+          {
+            "id": "coffee__instant-coffee",
+            "name": "instant coffee"
+          }
+        ]
+      },
+      {
+        "id": "drink-mix",
+        "name": "drink mix",
+        "items": [
+          {
+            "id": "drink-mix__bacardi-pina-colada-mixer",
+            "name": "bacardi pina-colada mixer"
+          },
+          {
+            "id": "drink-mix__bar-lime-mix",
+            "name": "bar lime mix"
+          },
+          {
+            "id": "drink-mix__bloody-mary-mix",
+            "name": "bloody mary mix"
+          },
+          {
+            "id": "drink-mix__blue-raspberry-mixer",
+            "name": "blue raspberry mixer"
+          },
+          {
+            "id": "drink-mix__blueberry-cocktail-mix",
+            "name": "blueberry cocktail mix"
+          },
+          {
+            "id": "drink-mix__collins-mix",
+            "name": "collins mix"
+          },
+          {
+            "id": "drink-mix__cosmopolitan-mix",
+            "name": "cosmopolitan mix"
+          },
+          {
+            "id": "drink-mix__daiquiri-mix",
+            "name": "daiquiri mix"
+          },
+          {
+            "id": "drink-mix__long-island-iced-tea-mix",
+            "name": "long island iced tea mix"
+          },
+          {
+            "id": "drink-mix__mango-mix",
+            "name": "mango mix"
+          },
+          {
+            "id": "drink-mix__margarita-mix",
+            "name": "margarita mix"
+          }
+        ]
+      },
+      {
+        "id": "energy-drink",
+        "name": "energy drink",
+        "items": [
+          {
+            "id": "energy-drink__red-bull",
+            "name": "red bull"
+          }
+        ]
+      },
+      {
+        "id": "ginger",
+        "name": "ginger",
+        "items": [
+          {
+            "id": "ginger__ginger",
+            "name": "ginger"
+          }
+        ]
+      },
+      {
+        "id": "ginger-ale",
+        "name": "ginger ale",
+        "items": [
+          {
+            "id": "ginger-ale__ginger-ale",
+            "name": "ginger ale"
+          },
+          {
+            "id": "ginger-ale__raspberry-ginger-ale",
+            "name": "raspberry ginger ale"
+          }
+        ]
+      },
+      {
+        "id": "ginger-beer",
+        "name": "ginger beer",
+        "items": [
+          {
+            "id": "ginger-beer__ginger-beer",
+            "name": "ginger beer"
+          }
+        ]
+      },
+      {
+        "id": "ginseng-extract",
+        "name": "ginseng extract",
+        "items": [
+          {
+            "id": "ginseng-extract__ginseng-extract",
+            "name": "ginseng extract"
+          }
+        ]
+      },
+      {
+        "id": "iced-tea",
+        "name": "iced tea",
+        "items": [
+          {
+            "id": "iced-tea__iced-tea",
+            "name": "iced tea"
+          },
+          {
+            "id": "iced-tea__lemon-iced-tea",
+            "name": "lemon iced tea"
+          },
+          {
+            "id": "iced-tea__peach-iced-tea",
+            "name": "peach iced tea"
+          },
+          {
+            "id": "iced-tea__raspberry-iced-tea",
+            "name": "raspberry iced tea"
+          }
+        ]
+      },
+      {
+        "id": "juice",
+        "name": "juice",
+        "items": [
+          {
+            "id": "juice__acai-juice",
+            "name": "acai juice"
+          },
+          {
+            "id": "juice__agave-juice",
+            "name": "agave juice"
+          },
+          {
+            "id": "juice__apple-juice",
+            "name": "apple juice"
+          },
+          {
+            "id": "juice__apple-cranberry-juice",
+            "name": "apple-cranberry juice"
+          },
+          {
+            "id": "juice__apricot-juice",
+            "name": "apricot juice"
+          },
+          {
+            "id": "juice__aqualibra-fruit-juice",
+            "name": "aqualibra fruit juice"
+          },
+          {
+            "id": "juice__banana-juice",
+            "name": "banana juice"
+          },
+          {
+            "id": "juice__blackberry-juice",
+            "name": "blackberry juice"
+          },
+          {
+            "id": "juice__blackcurrant-juice",
+            "name": "blackcurrant juice"
+          },
+          {
+            "id": "juice__blood-orange-juice",
+            "name": "blood-orange juice"
+          },
+          {
+            "id": "juice__blueberry-juice",
+            "name": "blueberry juice"
+          },
+          {
+            "id": "juice__cactus-fruit-juice",
+            "name": "cactus fruit juice"
+          },
+          {
+            "id": "juice__california-style-orange-juice",
+            "name": "california style orange juice"
+          },
+          {
+            "id": "juice__capri-sun-wild-cherry-juice",
+            "name": "capri sun wild cherry juice"
+          },
+          {
+            "id": "juice__carrot-juice",
+            "name": "carrot juice"
+          },
+          {
+            "id": "juice__ceres-guava-juice",
+            "name": "ceres guava juice"
+          },
+          {
+            "id": "juice__ceres-passion-fruit-juice",
+            "name": "ceres passion-fruit juice"
+          },
+          {
+            "id": "juice__cherry-juice",
+            "name": "cherry juice"
+          },
+          {
+            "id": "juice__citrus-juice",
+            "name": "citrus juice"
+          },
+          {
+            "id": "juice__clam-juice",
+            "name": "clam juice"
+          },
+          {
+            "id": "juice__clamato-juice",
+            "name": "clamato juice"
+          },
+          {
+            "id": "juice__coconut-juice",
+            "name": "coconut juice"
+          },
+          {
+            "id": "juice__cran-grape-juice",
+            "name": "cran-grape juice"
+          },
+          {
+            "id": "juice__cranberry-juice",
+            "name": "cranberry juice"
+          },
+          {
+            "id": "juice__cranberry-apple-juice",
+            "name": "cranberry-apple juice"
+          },
+          {
+            "id": "juice__cranberry-cherry-juice",
+            "name": "cranberry-cherry juice"
+          },
+          {
+            "id": "juice__cranberry-grape-juice",
+            "name": "cranberry-grape juice"
+          },
+          {
+            "id": "juice__cranberry-raspberry-juice",
+            "name": "cranberry-raspberry juice"
+          },
+          {
+            "id": "juice__dill-juice",
+            "name": "dill juice"
+          },
+          {
+            "id": "juice__dole-grapefruit-juice",
+            "name": "dole grapefruit juice"
+          },
+          {
+            "id": "juice__dole-orange-juice",
+            "name": "dole orange juice"
+          },
+          {
+            "id": "juice__dole-orange-peach-mango-juice",
+            "name": "dole orange peach-mango juice"
+          },
+          {
+            "id": "juice__dole-pine-orange-banana-juice",
+            "name": "dole pine-orange-banana juice"
+          },
+          {
+            "id": "juice__dole-pineapple-juice",
+            "name": "dole pineapple juice"
+          },
+          {
+            "id": "juice__dole-pineapple-passion-mango-juice",
+            "name": "dole pineapple passion mango juice"
+          },
+          {
+            "id": "juice__fieldberry-juice",
+            "name": "fieldberry juice"
+          },
+          {
+            "id": "juice__florida-style-orange-juice",
+            "name": "florida style orange juice"
+          },
+          {
+            "id": "juice__fruit-juice",
+            "name": "fruit juice"
+          },
+          {
+            "id": "juice__grape-juice",
+            "name": "grape juice"
+          },
+          {
+            "id": "juice__grapefruit-juice",
+            "name": "grapefruit juice"
+          },
+          {
+            "id": "juice__guava-juice",
+            "name": "guava juice"
+          },
+          {
+            "id": "juice__juice",
+            "name": "juice"
+          },
+          {
+            "id": "juice__key-lime-juice",
+            "name": "key lime juice"
+          },
+          {
+            "id": "juice__kiwi-juice",
+            "name": "kiwi juice"
+          },
+          {
+            "id": "juice__kiwi-strawberry-juice",
+            "name": "kiwi-strawberry juice"
+          },
+          {
+            "id": "juice__lemon-and-lime-juice",
+            "name": "lemon and lime juice"
+          },
+          {
+            "id": "juice__lemon-juice",
+            "name": "lemon juice"
+          },
+          {
+            "id": "juice__lime-juice",
+            "name": "lime juice"
+          },
+          {
+            "id": "juice__lime-juice-cordial",
+            "name": "lime juice cordial"
+          },
+          {
+            "id": "juice__lychee-juice",
+            "name": "lychee juice"
+          },
+          {
+            "id": "juice__mandarin-juice",
+            "name": "mandarin juice"
+          },
+          {
+            "id": "juice__mango-juice",
+            "name": "mango juice"
+          },
+          {
+            "id": "juice__mango-twist-fruit-juice",
+            "name": "mango twist fruit juice"
+          },
+          {
+            "id": "juice__maracuja-juice",
+            "name": "maracuja juice"
+          },
+          {
+            "id": "juice__maraschino-cherry-juice",
+            "name": "maraschino cherry juice"
+          },
+          {
+            "id": "juice__meyer-lemon-juice",
+            "name": "meyer lemon juice"
+          },
+          {
+            "id": "juice__mott-s-clamato-juice",
+            "name": "mott's clamato juice"
+          },
+          {
+            "id": "juice__naked-juice-mighty-mango-smoothie",
+            "name": "naked juice mighty mango smoothie"
+          },
+          {
+            "id": "juice__nellie-joe-s-key-west-lime-juice",
+            "name": "nellie & joe's key west lime juice"
+          },
+          {
+            "id": "juice__old-orchard-pomegranate-blueberry-juice",
+            "name": "old orchard pomegranate blueberry juice"
+          },
+          {
+            "id": "juice__olive-juice",
+            "name": "olive juice"
+          },
+          {
+            "id": "juice__orange-juice",
+            "name": "orange juice"
+          },
+          {
+            "id": "juice__orange-strawberry-banana-juice",
+            "name": "orange strawberry banana juice"
+          },
+          {
+            "id": "juice__orange-tangerine-juice",
+            "name": "orange tangerine juice"
+          },
+          {
+            "id": "juice__orange-pineapple-juice",
+            "name": "orange-pineapple juice"
+          },
+          {
+            "id": "juice__papaya-juice",
+            "name": "papaya juice"
+          },
+          {
+            "id": "juice__passion-fruit-juice",
+            "name": "passion fruit juice"
+          },
+          {
+            "id": "juice__peach-juice",
+            "name": "peach juice"
+          },
+          {
+            "id": "juice__peach-papaya-juice",
+            "name": "peach papaya juice"
+          },
+          {
+            "id": "juice__pear-juice",
+            "name": "pear juice"
+          },
+          {
+            "id": "juice__pickle-juice",
+            "name": "pickle juice"
+          },
+          {
+            "id": "juice__pimp-apple-juice",
+            "name": "pimp apple juice"
+          },
+          {
+            "id": "juice__pine-mango-guava-juice",
+            "name": "pine-mango-guava juice"
+          },
+          {
+            "id": "juice__pine-orange-banana-juice",
+            "name": "pine-orange-banana juice"
+          },
+          {
+            "id": "juice__pineapple-juice",
+            "name": "pineapple juice"
+          },
+          {
+            "id": "juice__pineapple-coconut-juice",
+            "name": "pineapple-coconut juice"
+          },
+          {
+            "id": "juice__pineapple-orange-juice",
+            "name": "pineapple-orange juice"
+          },
+          {
+            "id": "juice__pineapple-orange-banana-juice",
+            "name": "pineapple-orange-banana juice"
+          },
+          {
+            "id": "juice__pineapple-starfruit-juice",
+            "name": "pineapple-starfruit juice"
+          },
+          {
+            "id": "juice__pink-grapefruit-juice",
+            "name": "pink grapefruit juice"
+          },
+          {
+            "id": "juice__plum-juice",
+            "name": "plum juice"
+          },
+          {
+            "id": "juice__pom-pomegranate-juice",
+            "name": "pom pomegranate juice"
+          },
+          {
+            "id": "juice__pomegranate-juice",
+            "name": "pomegranate juice"
+          },
+          {
+            "id": "juice__prune-juice",
+            "name": "prune juice"
+          },
+          {
+            "id": "juice__raspberry-juice",
+            "name": "raspberry juice"
+          },
+          {
+            "id": "juice__red-grapefruit-juice",
+            "name": "red grapefruit juice"
+          },
+          {
+            "id": "juice__redcurrant-juice",
+            "name": "redcurrant juice"
+          },
+          {
+            "id": "juice__ruby-grapefruit-juice",
+            "name": "ruby grapefruit juice"
+          },
+          {
+            "id": "juice__ruby-red-grapefruit-juice",
+            "name": "ruby red grapefruit juice"
+          },
+          {
+            "id": "juice__sobe-lizard-blizzard-juice",
+            "name": "sobe lizard blizzard juice"
+          },
+          {
+            "id": "juice__sobe-synergy-mango-orange-juice",
+            "name": "sobe synergy mango-orange juice"
+          },
+          {
+            "id": "juice__sobe-tsunami-orange-juice",
+            "name": "sobe tsunami orange juice"
+          },
+          {
+            "id": "juice__sour-cherry-juice",
+            "name": "sour cherry juice"
+          },
+          {
+            "id": "juice__sparkling-apple-juice",
+            "name": "sparkling apple juice"
+          },
+          {
+            "id": "juice__spicy-hot-v8-juice",
+            "name": "spicy hot v8 juice"
+          },
+          {
+            "id": "juice__stewart-s-key-lime-juice",
+            "name": "stewart's key lime juice"
+          },
+          {
+            "id": "juice__strawberry-juice",
+            "name": "strawberry juice"
+          },
+          {
+            "id": "juice__sugar-cane-juice",
+            "name": "sugar cane juice"
+          },
+          {
+            "id": "juice__sweetened-lime-juice",
+            "name": "sweetened lime juice"
+          },
+          {
+            "id": "juice__tampico-orange-juice",
+            "name": "tampico orange juice"
+          },
+          {
+            "id": "juice__tangerine-juice",
+            "name": "tangerine juice"
+          },
+          {
+            "id": "juice__tangerine-grapefruit-juice",
+            "name": "tangerine-grapefruit juice"
+          },
+          {
+            "id": "juice__texsun-orange-pineapple-juice",
+            "name": "texsun orange pineapple juice"
+          },
+          {
+            "id": "juice__tomato-juice",
+            "name": "tomato juice"
+          },
+          {
+            "id": "juice__tropical-juice",
+            "name": "tropical juice"
+          },
+          {
+            "id": "juice__v8-juice",
+            "name": "v8 juice"
+          },
+          {
+            "id": "juice__v8-vegetable-juice",
+            "name": "v8 vegetable juice"
+          },
+          {
+            "id": "juice__watermelon-juice",
+            "name": "watermelon juice"
+          },
+          {
+            "id": "juice__wheatgrass-juice",
+            "name": "wheatgrass juice"
+          },
+          {
+            "id": "juice__white-cranberry-juice",
+            "name": "white cranberry juice"
+          },
+          {
+            "id": "juice__white-grape-juice",
+            "name": "white grape juice"
+          }
+        ]
+      },
+      {
+        "id": "punch",
+        "name": "punch",
+        "items": [
+          {
+            "id": "punch__berry-punch",
+            "name": "berry punch"
+          },
+          {
+            "id": "punch__cherry-punch",
+            "name": "cherry punch"
+          },
+          {
+            "id": "punch__citrus-punch",
+            "name": "citrus punch"
+          },
+          {
+            "id": "punch__crystal-light-sunrise-classic-orange-mix",
+            "name": "crystal light sunrise classic orange mix"
+          },
+          {
+            "id": "punch__fruit-punch",
+            "name": "fruit punch"
+          },
+          {
+            "id": "punch__grape-punch",
+            "name": "grape punch"
+          },
+          {
+            "id": "punch__hawaiian-punch",
+            "name": "hawaiian punch"
+          },
+          {
+            "id": "punch__hawaiian-punch-blue-berry-typhoon",
+            "name": "hawaiian punch blue berry typhoon"
+          },
+          {
+            "id": "punch__hawaiian-punch-fruit-juicy-red",
+            "name": "hawaiian punch fruit juicy red"
+          },
+          {
+            "id": "punch__hawaiian-punch-green-berry-rush",
+            "name": "hawaiian punch green berry rush"
+          },
+          {
+            "id": "punch__jack-daniel-s-downhome-punch",
+            "name": "jack daniel's downhome punch"
+          },
+          {
+            "id": "punch__kool-aid-berry-blue-mix",
+            "name": "kool-aid berry blue mix"
+          },
+          {
+            "id": "punch__kool-aid-blue-raspberry-mix",
+            "name": "kool-aid blue raspberry mix"
+          },
+          {
+            "id": "punch__kool-aid-cherry-mix",
+            "name": "kool-aid cherry mix"
+          },
+          {
+            "id": "punch__kool-aid-grape-mix",
+            "name": "kool-aid grape mix"
+          },
+          {
+            "id": "punch__kool-aid-lemon-lime-mix",
+            "name": "kool-aid lemon-lime mix"
+          },
+          {
+            "id": "punch__kool-aid-lemonade-tea-mix",
+            "name": "kool-aid lemonade tea mix"
+          },
+          {
+            "id": "punch__kool-aid-orange-mix",
+            "name": "kool-aid orange mix"
+          },
+          {
+            "id": "punch__kool-aid-strawberry-mix",
+            "name": "kool-aid strawberry mix"
+          },
+          {
+            "id": "punch__kool-aid-tangerine-mix",
+            "name": "kool-aid tangerine mix"
+          },
+          {
+            "id": "punch__kool-aid-tropical-punch-mix",
+            "name": "kool-aid tropical punch mix"
+          },
+          {
+            "id": "punch__lemon-mix",
+            "name": "lemon mix"
+          },
+          {
+            "id": "punch__lemon-lime-mix",
+            "name": "lemon-lime mix"
+          },
+          {
+            "id": "punch__lemonade",
+            "name": "lemonade"
+          },
+          {
+            "id": "punch__lime-mix",
+            "name": "lime mix"
+          },
+          {
+            "id": "punch__mixed-berry-marinade",
+            "name": "mixed-berry marinade"
+          },
+          {
+            "id": "punch__mr-mrs-t-s-pina-colada-mix",
+            "name": "mr & mrs t's pina colada mix"
+          },
+          {
+            "id": "punch__mudslide-mix",
+            "name": "mudslide mix"
+          },
+          {
+            "id": "punch__old-fashioned-mix",
+            "name": "old-fashioned mix"
+          },
+          {
+            "id": "punch__peach-orchard-punch-juice",
+            "name": "peach orchard punch juice"
+          },
+          {
+            "id": "punch__pimm-s-summer-punch",
+            "name": "pimm's summer punch"
+          },
+          {
+            "id": "punch__pina-colada-mix",
+            "name": "pina colada mix"
+          },
+          {
+            "id": "punch__simply-lemonade",
+            "name": "simply lemonade"
+          },
+          {
+            "id": "punch__sour-apple-mix",
+            "name": "sour apple mix"
+          },
+          {
+            "id": "punch__sour-mix",
+            "name": "sour mix"
+          },
+          {
+            "id": "punch__strawberry-daquiri-mix",
+            "name": "strawberry daquiri mix"
+          },
+          {
+            "id": "punch__strawberry-mix",
+            "name": "strawberry mix"
+          },
+          {
+            "id": "punch__sweet-and-sour-mix",
+            "name": "sweet and sour mix"
+          },
+          {
+            "id": "punch__tampico-fruit-punch",
+            "name": "tampico fruit punch"
+          },
+          {
+            "id": "punch__watermelon-mix",
+            "name": "watermelon mix"
+          },
+          {
+            "id": "punch__whiskey-sour-mix",
+            "name": "whiskey sour mix"
+          }
+        ]
+      },
+      {
+        "id": "soda",
+        "name": "soda",
+        "items": [
+          {
+            "id": "soda__ale-8-one-soda",
+            "name": "ale-8-one soda"
+          },
+          {
+            "id": "soda__baja-blast-lime-soda",
+            "name": "baja blast lime soda"
+          },
+          {
+            "id": "soda__berry-lemonade-soda",
+            "name": "berry lemonade soda"
+          },
+          {
+            "id": "soda__bitter-lemon-soda",
+            "name": "bitter lemon soda"
+          },
+          {
+            "id": "soda__black-cherry-soda",
+            "name": "black cherry soda"
+          },
+          {
+            "id": "soda__blue-bubble-gum-soda",
+            "name": "blue bubble-gum soda"
+          },
+          {
+            "id": "soda__blueberry-soda",
+            "name": "blueberry soda"
+          },
+          {
+            "id": "soda__canada-dry-cranberry-soda",
+            "name": "canada dry cranberry soda"
+          },
+          {
+            "id": "soda__cherry-cider-soda",
+            "name": "cherry cider soda"
+          },
+          {
+            "id": "soda__cherry-soda",
+            "name": "cherry soda"
+          },
+          {
+            "id": "soda__chinotto-soda",
+            "name": "chinotto soda"
+          },
+          {
+            "id": "soda__citrus-soda",
+            "name": "citrus soda"
+          },
+          {
+            "id": "soda__club-soda",
+            "name": "club soda"
+          },
+          {
+            "id": "soda__code-red-soda",
+            "name": "code red soda"
+          },
+          {
+            "id": "soda__cranberry-soda",
+            "name": "cranberry soda"
+          },
+          {
+            "id": "soda__cream-soda",
+            "name": "cream soda"
+          },
+          {
+            "id": "soda__dr-pepper-cherry-vanilla-soda",
+            "name": "dr. pepper cherry vanilla soda"
+          },
+          {
+            "id": "soda__dr-pepper-soda",
+            "name": "dr. pepper soda"
+          },
+          {
+            "id": "soda__dr-pepper-vanilla-soda",
+            "name": "dr. pepper vanilla soda"
+          },
+          {
+            "id": "soda__duet-soda",
+            "name": "duet soda"
+          },
+          {
+            "id": "soda__earth-soda",
+            "name": "earth soda"
+          },
+          {
+            "id": "soda__fanta-blueberry-soda",
+            "name": "fanta blueberry soda"
+          },
+          {
+            "id": "soda__fanta-orange-soda",
+            "name": "fanta orange soda"
+          },
+          {
+            "id": "soda__faxe-kondi-soda",
+            "name": "faxe kondi soda"
+          },
+          {
+            "id": "soda__fresca-black-cherry-soda",
+            "name": "fresca black cherry soda"
+          },
+          {
+            "id": "soda__fresca-citrus-soda",
+            "name": "fresca citrus soda"
+          },
+          {
+            "id": "soda__fresca-grapefruit-soda",
+            "name": "fresca grapefruit soda"
+          },
+          {
+            "id": "soda__fresca-lemon-lime-soda",
+            "name": "fresca lemon-lime soda"
+          },
+          {
+            "id": "soda__fresca-peach-soda",
+            "name": "fresca peach soda"
+          },
+          {
+            "id": "soda__fufu-berry-soda",
+            "name": "fufu berry soda"
+          },
+          {
+            "id": "soda__gatorade-orange-soda",
+            "name": "gatorade orange soda"
+          },
+          {
+            "id": "soda__grape-soda",
+            "name": "grape soda"
+          },
+          {
+            "id": "soda__grapefruit-soda",
+            "name": "grapefruit soda"
+          },
+          {
+            "id": "soda__grapefruit-lemon-soda",
+            "name": "grapefruit-lemon soda"
+          },
+          {
+            "id": "soda__green-apple-soda",
+            "name": "green apple soda"
+          },
+          {
+            "id": "soda__island-fruit-soda",
+            "name": "island fruit soda"
+          },
+          {
+            "id": "soda__kiwi-strawberry-soda",
+            "name": "kiwi-strawberry soda"
+          },
+          {
+            "id": "soda__lemon-soda",
+            "name": "lemon soda"
+          },
+          {
+            "id": "soda__lemon-lime-soda",
+            "name": "lemon-lime soda"
+          },
+          {
+            "id": "soda__lemonade-soda",
+            "name": "lemonade soda"
+          },
+          {
+            "id": "soda__lightning-soda",
+            "name": "lightning soda"
+          },
+          {
+            "id": "soda__lime-soda",
+            "name": "lime soda"
+          },
+          {
+            "id": "soda__limeade-soda",
+            "name": "limeade soda"
+          },
+          {
+            "id": "soda__limonata-soda",
+            "name": "limonata soda"
+          },
+          {
+            "id": "soda__lychee-soda",
+            "name": "lychee soda"
+          },
+          {
+            "id": "soda__mandarin-soda",
+            "name": "mandarin soda"
+          },
+          {
+            "id": "soda__mango-madness-soda",
+            "name": "mango madness soda"
+          },
+          {
+            "id": "soda__mello-yello-citrus-soda",
+            "name": "mello yello citrus soda"
+          },
+          {
+            "id": "soda__nugrape-soda",
+            "name": "nugrape soda"
+          },
+          {
+            "id": "soda__orange-slice-soda",
+            "name": "orange slice soda"
+          },
+          {
+            "id": "soda__orange-soda",
+            "name": "orange soda"
+          },
+          {
+            "id": "soda__orange-pineapple-soda",
+            "name": "orange-pineapple soda"
+          },
+          {
+            "id": "soda__peach-soda",
+            "name": "peach soda"
+          },
+          {
+            "id": "soda__perrier-lemon-soda-water",
+            "name": "perrier lemon soda water"
+          },
+          {
+            "id": "soda__perrier-lime-soda-water",
+            "name": "perrier lime soda water"
+          },
+          {
+            "id": "soda__perrier-soda-water",
+            "name": "perrier soda water"
+          },
+          {
+            "id": "soda__pineapple-soda",
+            "name": "pineapple soda"
+          },
+          {
+            "id": "soda__pitch-black-soda",
+            "name": "pitch black soda"
+          },
+          {
+            "id": "soda__rain-soda",
+            "name": "rain soda"
+          },
+          {
+            "id": "soda__raspberry-iced-tea-soda",
+            "name": "raspberry iced tea soda"
+          },
+          {
+            "id": "soda__raspberry-soda",
+            "name": "raspberry soda"
+          },
+          {
+            "id": "soda__raspberry-soda-water",
+            "name": "raspberry soda water"
+          },
+          {
+            "id": "soda__rock-rye-soda",
+            "name": "rock & rye soda"
+          },
+          {
+            "id": "soda__root-beer",
+            "name": "root beer"
+          },
+          {
+            "id": "soda__sierra-mist-soda",
+            "name": "sierra mist soda"
+          },
+          {
+            "id": "soda__slice-soda",
+            "name": "slice soda"
+          },
+          {
+            "id": "soda__soda",
+            "name": "soda"
+          },
+          {
+            "id": "soda__soda-water",
+            "name": "soda water"
+          },
+          {
+            "id": "soda__sprite-soda",
+            "name": "sprite soda"
+          },
+          {
+            "id": "soda__sprite-zero-soda",
+            "name": "sprite zero soda"
+          },
+          {
+            "id": "soda__squirt-citrus-soda",
+            "name": "squirt citrus soda"
+          },
+          {
+            "id": "soda__stewart-s-orange-n-cream-soda",
+            "name": "stewart's orange 'n cream soda"
+          },
+          {
+            "id": "soda__strawberry-soda",
+            "name": "strawberry soda"
+          },
+          {
+            "id": "soda__sun-drop-citrus-soda",
+            "name": "sun drop citrus soda"
+          },
+          {
+            "id": "soda__sunkist-orange-soda",
+            "name": "sunkist orange soda"
+          },
+          {
+            "id": "soda__surge-citrus-soda",
+            "name": "surge citrus soda"
+          },
+          {
+            "id": "soda__vess-cream-soda",
+            "name": "vess cream soda"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "primary-liquor",
+    "name": "Primary liquor",
+    "primaries": [
+      {
+        "id": "gin",
+        "name": "gin",
+        "items": [
+          {
+            "id": "gin__gin",
+            "name": "gin"
+          },
+          {
+            "id": "gin__lemon-gin",
+            "name": "lemon gin"
+          },
+          {
+            "id": "gin__lime-gin",
+            "name": "lime gin"
+          },
+          {
+            "id": "gin__orange-flavored-gin",
+            "name": "orange flavored gin"
+          }
+        ]
+      },
+      {
+        "id": "rum",
+        "name": "rum",
+        "items": [
+          {
+            "id": "rum__151-proof-rum",
+            "name": "151 proof rum"
+          },
+          {
+            "id": "rum__aged-rum",
+            "name": "aged rum"
+          },
+          {
+            "id": "rum__amber-rum",
+            "name": "amber rum"
+          },
+          {
+            "id": "rum__anejo-rum",
+            "name": "anejo rum"
+          },
+          {
+            "id": "rum__apple-rum",
+            "name": "apple rum"
+          },
+          {
+            "id": "rum__banana-rum",
+            "name": "banana rum"
+          },
+          {
+            "id": "rum__black-rum",
+            "name": "black rum"
+          },
+          {
+            "id": "rum__caribbean-rum",
+            "name": "caribbean rum"
+          },
+          {
+            "id": "rum__ciclon-gold-rum",
+            "name": "ciclon gold rum"
+          },
+          {
+            "id": "rum__coco-rum",
+            "name": "coco rum"
+          },
+          {
+            "id": "rum__coconut-rum",
+            "name": "coconut rum"
+          },
+          {
+            "id": "rum__cocoribe-coconut-rum",
+            "name": "cocoribe coconut rum"
+          },
+          {
+            "id": "rum__dark-rum",
+            "name": "dark rum"
+          },
+          {
+            "id": "rum__gold-rum",
+            "name": "gold rum"
+          },
+          {
+            "id": "rum__jamaican-rum-cream",
+            "name": "jamaican rum cream"
+          },
+          {
+            "id": "rum__lemon-rum",
+            "name": "lemon rum"
+          },
+          {
+            "id": "rum__light-rum",
+            "name": "light rum"
+          },
+          {
+            "id": "rum__limon-rum",
+            "name": "limon rum"
+          },
+          {
+            "id": "rum__mango-rum",
+            "name": "mango rum"
+          },
+          {
+            "id": "rum__manila-dark-rum",
+            "name": "manila dark rum"
+          },
+          {
+            "id": "rum__martinique-rum",
+            "name": "martinique rum"
+          },
+          {
+            "id": "rum__orange-rum",
+            "name": "orange rum"
+          },
+          {
+            "id": "rum__passion-fruit-rum",
+            "name": "passion fruit rum"
+          },
+          {
+            "id": "rum__peach-red-rum",
+            "name": "peach red rum"
+          },
+          {
+            "id": "rum__pineapple-coconut-rum",
+            "name": "pineapple coconut rum"
+          },
+          {
+            "id": "rum__pineapple-rum",
+            "name": "pineapple rum"
+          },
+          {
+            "id": "rum__raspberry-rum",
+            "name": "raspberry rum"
+          },
+          {
+            "id": "rum__rum",
+            "name": "rum"
+          },
+          {
+            "id": "rum__silver-rum",
+            "name": "silver rum"
+          },
+          {
+            "id": "rum__spiced-rum",
+            "name": "spiced rum"
+          },
+          {
+            "id": "rum__vanilla-rum",
+            "name": "vanilla rum"
+          },
+          {
+            "id": "rum__white-rum",
+            "name": "white rum"
+          }
+        ]
+      },
+      {
+        "id": "tequila",
+        "name": "tequila",
+        "items": [
+          {
+            "id": "tequila__blanco-tequila",
+            "name": "blanco tequila"
+          },
+          {
+            "id": "tequila__gold-tequila",
+            "name": "gold tequila"
+          },
+          {
+            "id": "tequila__reposado-tequila",
+            "name": "reposado tequila"
+          },
+          {
+            "id": "tequila__sauza-tequila",
+            "name": "sauza tequila"
+          },
+          {
+            "id": "tequila__silver-tequila",
+            "name": "silver tequila"
+          },
+          {
+            "id": "tequila__tequila",
+            "name": "tequila"
+          },
+          {
+            "id": "tequila__white-tequila",
+            "name": "white tequila"
+          }
+        ]
+      },
+      {
+        "id": "vodka",
+        "name": "vodka",
+        "items": [
+          {
+            "id": "vodka__apple-vodka",
+            "name": "apple vodka"
+          },
+          {
+            "id": "vodka__black-cherry-vodka",
+            "name": "black cherry vodka"
+          },
+          {
+            "id": "vodka__blackcurrant-vodka",
+            "name": "blackcurrant vodka"
+          },
+          {
+            "id": "vodka__blood-orange-vodka",
+            "name": "blood orange vodka"
+          },
+          {
+            "id": "vodka__blueberry-vodka",
+            "name": "blueberry vodka"
+          },
+          {
+            "id": "vodka__caramel-vodka",
+            "name": "caramel vodka"
+          },
+          {
+            "id": "vodka__cherry-vodka",
+            "name": "cherry vodka"
+          },
+          {
+            "id": "vodka__chocolate-vodka",
+            "name": "chocolate vodka"
+          },
+          {
+            "id": "vodka__citron-vodka",
+            "name": "citron vodka"
+          },
+          {
+            "id": "vodka__citrus-vodka",
+            "name": "citrus vodka"
+          },
+          {
+            "id": "vodka__coconut-vodka",
+            "name": "coconut vodka"
+          },
+          {
+            "id": "vodka__cranberry-vodka",
+            "name": "cranberry vodka"
+          },
+          {
+            "id": "vodka__espresso-vodka",
+            "name": "espresso vodka"
+          },
+          {
+            "id": "vodka__fresh-mint-vodka",
+            "name": "fresh mint vodka"
+          },
+          {
+            "id": "vodka__ginger-infused-vodka",
+            "name": "ginger-infused vodka"
+          },
+          {
+            "id": "vodka__grape-vodka",
+            "name": "grape vodka"
+          },
+          {
+            "id": "vodka__grapefruit-vodka",
+            "name": "grapefruit vodka"
+          },
+          {
+            "id": "vodka__green-apple-twist-vodka",
+            "name": "green apple twist vodka"
+          },
+          {
+            "id": "vodka__green-apple-vodka",
+            "name": "green apple vodka"
+          },
+          {
+            "id": "vodka__honey-vodka",
+            "name": "honey vodka"
+          },
+          {
+            "id": "vodka__kamchatka-vodka",
+            "name": "kamchatka vodka"
+          },
+          {
+            "id": "vodka__lemon-vodka",
+            "name": "lemon vodka"
+          },
+          {
+            "id": "vodka__lime-vodka",
+            "name": "lime vodka"
+          },
+          {
+            "id": "vodka__limon-vodka",
+            "name": "limon vodka"
+          },
+          {
+            "id": "vodka__mandrin-vodka",
+            "name": "mandrin vodka"
+          },
+          {
+            "id": "vodka__mango-vodka",
+            "name": "mango vodka"
+          },
+          {
+            "id": "vodka__melon-vodka",
+            "name": "melon vodka"
+          },
+          {
+            "id": "vodka__orange-vodka",
+            "name": "orange vodka"
+          },
+          {
+            "id": "vodka__peach-vodka",
+            "name": "peach vodka"
+          },
+          {
+            "id": "vodka__pear-vodka",
+            "name": "pear vodka"
+          },
+          {
+            "id": "vodka__pears-vodka",
+            "name": "pears vodka"
+          },
+          {
+            "id": "vodka__peppar-vodka",
+            "name": "peppar vodka"
+          },
+          {
+            "id": "vodka__pepper-vodka",
+            "name": "pepper vodka"
+          },
+          {
+            "id": "vodka__pineapple-vodka",
+            "name": "pineapple vodka"
+          },
+          {
+            "id": "vodka__raspberry-vodka",
+            "name": "raspberry vodka"
+          },
+          {
+            "id": "vodka__ruby-red-vodka",
+            "name": "ruby red vodka"
+          },
+          {
+            "id": "vodka__spiced-vodka",
+            "name": "spiced vodka"
+          },
+          {
+            "id": "vodka__strawberry-twist-vodka",
+            "name": "strawberry twist vodka"
+          },
+          {
+            "id": "vodka__vanilla-vodka",
+            "name": "vanilla vodka"
+          },
+          {
+            "id": "vodka__vodka",
+            "name": "vodka"
+          },
+          {
+            "id": "vodka__watermelon-vodka",
+            "name": "watermelon vodka"
+          }
+        ]
+      },
+      {
+        "id": "whiskey",
+        "name": "whiskey",
+        "items": [
+          {
+            "id": "whiskey__american-whiskey",
+            "name": "american whiskey"
+          },
+          {
+            "id": "whiskey__blended-whiskey",
+            "name": "blended whiskey"
+          },
+          {
+            "id": "whiskey__bourbon-whiskey",
+            "name": "bourbon whiskey"
+          },
+          {
+            "id": "whiskey__cherry-whiskey",
+            "name": "cherry whiskey"
+          },
+          {
+            "id": "whiskey__corn-whiskey",
+            "name": "corn whiskey"
+          },
+          {
+            "id": "whiskey__irish-whiskey",
+            "name": "irish whiskey"
+          },
+          {
+            "id": "whiskey__moonshine-whiskey",
+            "name": "moonshine whiskey"
+          },
+          {
+            "id": "whiskey__tennessee-whiskey",
+            "name": "tennessee whiskey"
+          },
+          {
+            "id": "whiskey__whiskey",
+            "name": "whiskey"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "secondary-liquor",
+    "name": "Secondary liquor",
+    "primaries": [
+      {
+        "id": "absinthe",
+        "name": "absinthe",
+        "items": [
+          {
+            "id": "absinthe__absinthe",
+            "name": "absinthe"
+          }
+        ]
+      },
+      {
+        "id": "aperol",
+        "name": "aperol",
+        "items": [
+          {
+            "id": "aperol__aperol",
+            "name": "aperol"
+          }
+        ]
+      },
+      {
+        "id": "brandy",
+        "name": "brandy",
+        "items": [
+          {
+            "id": "brandy__aguardiente-brandy",
+            "name": "aguardiente brandy"
+          },
+          {
+            "id": "brandy__apple-brandy",
+            "name": "apple brandy"
+          },
+          {
+            "id": "brandy__applejack-brandy",
+            "name": "applejack brandy"
+          },
+          {
+            "id": "brandy__apricot-brandy",
+            "name": "apricot brandy"
+          },
+          {
+            "id": "brandy__asbach-uralt-brandy",
+            "name": "asbach uralt brandy"
+          },
+          {
+            "id": "brandy__blackberry-brandy",
+            "name": "blackberry brandy"
+          },
+          {
+            "id": "brandy__blueberry-brandy",
+            "name": "blueberry brandy"
+          },
+          {
+            "id": "brandy__brandy",
+            "name": "brandy"
+          },
+          {
+            "id": "brandy__cherry-brandy",
+            "name": "cherry brandy"
+          },
+          {
+            "id": "brandy__coconut-brandy",
+            "name": "coconut brandy"
+          },
+          {
+            "id": "brandy__coffee-brandy",
+            "name": "coffee brandy"
+          },
+          {
+            "id": "brandy__ginger-brandy",
+            "name": "ginger brandy"
+          },
+          {
+            "id": "brandy__grappa-brandy",
+            "name": "grappa brandy"
+          },
+          {
+            "id": "brandy__italian-brandy",
+            "name": "italian brandy"
+          },
+          {
+            "id": "brandy__kirschwasser-cherry-brandy",
+            "name": "kirschwasser cherry brandy"
+          },
+          {
+            "id": "brandy__korbel-brandy",
+            "name": "korbel brandy"
+          },
+          {
+            "id": "brandy__metaxa-brandy",
+            "name": "metaxa brandy"
+          },
+          {
+            "id": "brandy__napolean-brandy",
+            "name": "napolean brandy"
+          },
+          {
+            "id": "brandy__orange-brandy",
+            "name": "orange brandy"
+          },
+          {
+            "id": "brandy__peach-brandy",
+            "name": "peach brandy"
+          },
+          {
+            "id": "brandy__pear-brandy",
+            "name": "pear brandy"
+          },
+          {
+            "id": "brandy__pisco-brandy",
+            "name": "pisco brandy"
+          },
+          {
+            "id": "brandy__plum-brandy",
+            "name": "plum brandy"
+          },
+          {
+            "id": "brandy__spanish-brandy",
+            "name": "spanish brandy"
+          },
+          {
+            "id": "brandy__strawberry-brandy",
+            "name": "strawberry brandy"
+          },
+          {
+            "id": "brandy__white-brandy",
+            "name": "white brandy"
+          }
+        ]
+      },
+      {
+        "id": "campari",
+        "name": "campari",
+        "items": [
+          {
+            "id": "campari__campari",
+            "name": "campari"
+          }
+        ]
+      },
+      {
+        "id": "cognac",
+        "name": "cognac",
+        "items": [
+          {
+            "id": "cognac__cognac",
+            "name": "cognac"
+          },
+          {
+            "id": "cognac__courvoisier-cognac",
+            "name": "courvoisier cognac"
+          }
+        ]
+      },
+      {
+        "id": "curacao",
+        "name": "curacao",
+        "items": [
+          {
+            "id": "curacao__blue-curacao",
+            "name": "blue curacao"
+          },
+          {
+            "id": "curacao__orange-curacao",
+            "name": "orange curacao"
+          }
+        ]
+      },
+      {
+        "id": "irish-cream",
+        "name": "irish cream",
+        "items": [
+          {
+            "id": "irish-cream__irish-cream",
+            "name": "irish cream"
+          }
+        ]
+      },
+      {
+        "id": "liqueur",
+        "name": "liqueur",
+        "items": [
+          {
+            "id": "liqueur__agave-liqueur",
+            "name": "agave liqueur"
+          },
+          {
+            "id": "liqueur__agavero-tequila-liqueur",
+            "name": "agavero tequila liqueur"
+          },
+          {
+            "id": "liqueur__almond-liqueur",
+            "name": "almond liqueur"
+          },
+          {
+            "id": "liqueur__amaretto",
+            "name": "amaretto"
+          },
+          {
+            "id": "liqueur__aperol-orange-liqueur",
+            "name": "aperol orange liqueur"
+          },
+          {
+            "id": "liqueur__apple-liqueur",
+            "name": "apple liqueur"
+          },
+          {
+            "id": "liqueur__apricot-liqueur",
+            "name": "apricot liqueur"
+          },
+          {
+            "id": "liqueur__artichoke-liqueur",
+            "name": "artichoke liqueur"
+          },
+          {
+            "id": "liqueur__banana-liqueur",
+            "name": "banana liqueur"
+          },
+          {
+            "id": "liqueur__black-chocolate-liqueur",
+            "name": "black chocolate liqueur"
+          },
+          {
+            "id": "liqueur__black-raspberry-liqueur",
+            "name": "black raspberry liqueur"
+          },
+          {
+            "id": "liqueur__blackberry-liqueur",
+            "name": "blackberry liqueur"
+          },
+          {
+            "id": "liqueur__blue-curacao-liqueur",
+            "name": "blue curacao liqueur"
+          },
+          {
+            "id": "liqueur__blueberry-liqueur",
+            "name": "blueberry liqueur"
+          },
+          {
+            "id": "liqueur__buttershots-liqueur",
+            "name": "buttershots liqueur"
+          },
+          {
+            "id": "liqueur__cactus-juice-liqueur",
+            "name": "cactus juice liqueur"
+          },
+          {
+            "id": "liqueur__caramel-irish-cream-liqueur",
+            "name": "caramel irish cream liqueur"
+          },
+          {
+            "id": "liqueur__caramel-liqueur",
+            "name": "caramel liqueur"
+          },
+          {
+            "id": "liqueur__cashew-apple-liqueur",
+            "name": "cashew apple liqueur"
+          },
+          {
+            "id": "liqueur__chai-cream-liqueur",
+            "name": "chai cream liqueur"
+          },
+          {
+            "id": "liqueur__chartreuse-herbal-liqueur",
+            "name": "chartreuse herbal liqueur"
+          },
+          {
+            "id": "liqueur__cherry-advocaat-liqueur",
+            "name": "cherry advocaat liqueur"
+          },
+          {
+            "id": "liqueur__cherry-liqueur",
+            "name": "cherry liqueur"
+          },
+          {
+            "id": "liqueur__cherry-marnier-liqueur",
+            "name": "cherry marnier liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-almond-liqueur",
+            "name": "chocolate almond liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-cream-liqueur",
+            "name": "chocolate cream liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-hazelnut-liqueur",
+            "name": "chocolate hazelnut liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-liqueur",
+            "name": "chocolate liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-mint-liqueur",
+            "name": "chocolate mint liqueur"
+          },
+          {
+            "id": "liqueur__chocolate-raspberry-liqueur",
+            "name": "chocolate raspberry liqueur"
+          },
+          {
+            "id": "liqueur__cinnamon-liqueur",
+            "name": "cinnamon liqueur"
+          },
+          {
+            "id": "liqueur__coconut-liqueur",
+            "name": "coconut liqueur"
+          },
+          {
+            "id": "liqueur__coconut-passion-liqueur",
+            "name": "coconut passion liqueur"
+          },
+          {
+            "id": "liqueur__coffee-liqueur",
+            "name": "coffee liqueur"
+          },
+          {
+            "id": "liqueur__coquila-tequila-cream-liqueur",
+            "name": "coquila tequila cream liqueur"
+          },
+          {
+            "id": "liqueur__cranberry-liqueur",
+            "name": "cranberry liqueur"
+          },
+          {
+            "id": "liqueur__cream-liqueur",
+            "name": "cream liqueur"
+          },
+          {
+            "id": "liqueur__creme-de-noyaux-liqueur",
+            "name": "creme de noyaux liqueur"
+          },
+          {
+            "id": "liqueur__dulseda-dulce-de-leche-caramel-liqueur",
+            "name": "dulseda dulce de leche caramel liqueur"
+          },
+          {
+            "id": "liqueur__elderflower-liqueur",
+            "name": "elderflower liqueur"
+          },
+          {
+            "id": "liqueur__forbidden-fruit-liqueur",
+            "name": "forbidden fruit liqueur"
+          },
+          {
+            "id": "liqueur__ginger-liqueur",
+            "name": "ginger liqueur"
+          },
+          {
+            "id": "liqueur__green-curacao-liqueur",
+            "name": "green curacao liqueur"
+          },
+          {
+            "id": "liqueur__green-tea-liqueur",
+            "name": "green tea liqueur"
+          },
+          {
+            "id": "liqueur__guavaberry-liqueur",
+            "name": "guavaberry liqueur"
+          },
+          {
+            "id": "liqueur__hazelnut-liqueur",
+            "name": "hazelnut liqueur"
+          },
+          {
+            "id": "liqueur__herbal-liqueur",
+            "name": "herbal liqueur"
+          },
+          {
+            "id": "liqueur__honey-liqueur",
+            "name": "honey liqueur"
+          },
+          {
+            "id": "liqueur__irish-cream-liqueur",
+            "name": "irish cream liqueur"
+          },
+          {
+            "id": "liqueur__key-lime-liqueur",
+            "name": "key lime liqueur"
+          },
+          {
+            "id": "liqueur__kiwi-liqueur",
+            "name": "kiwi liqueur"
+          },
+          {
+            "id": "liqueur__lemon-liqueur",
+            "name": "lemon liqueur"
+          },
+          {
+            "id": "liqueur__licorice-liqueur",
+            "name": "licorice liqueur"
+          },
+          {
+            "id": "liqueur__lime-citron-liqueur",
+            "name": "lime citron liqueur"
+          },
+          {
+            "id": "liqueur__lime-liqueur",
+            "name": "lime liqueur"
+          },
+          {
+            "id": "liqueur__limoncello-lemon-liqueur",
+            "name": "limoncello lemon liqueur"
+          },
+          {
+            "id": "liqueur__liqueur",
+            "name": "liqueur"
+          },
+          {
+            "id": "liqueur__lychee-liqueur",
+            "name": "lychee liqueur"
+          },
+          {
+            "id": "liqueur__macadamia-nut-liqueur",
+            "name": "macadamia nut liqueur"
+          },
+          {
+            "id": "liqueur__mandarin-liqueur",
+            "name": "mandarin liqueur"
+          },
+          {
+            "id": "liqueur__mango-liqueur",
+            "name": "mango liqueur"
+          },
+          {
+            "id": "liqueur__mango-passion-liqueur",
+            "name": "mango passion liqueur"
+          },
+          {
+            "id": "liqueur__maple-liqueur",
+            "name": "maple liqueur"
+          },
+          {
+            "id": "liqueur__maraschino-liqueur",
+            "name": "maraschino liqueur"
+          },
+          {
+            "id": "liqueur__melon-liqueur",
+            "name": "melon liqueur"
+          },
+          {
+            "id": "liqueur__mint-chocolate-irish-cream-liqueur",
+            "name": "mint chocolate irish cream liqueur"
+          },
+          {
+            "id": "liqueur__mint-liqueur",
+            "name": "mint liqueur"
+          },
+          {
+            "id": "liqueur__mocha-cream-liqueur",
+            "name": "mocha cream liqueur"
+          },
+          {
+            "id": "liqueur__orange-cognac-liqueur",
+            "name": "orange cognac liqueur"
+          },
+          {
+            "id": "liqueur__orange-cream-liqueur",
+            "name": "orange cream liqueur"
+          },
+          {
+            "id": "liqueur__orange-curacao-liqueur",
+            "name": "orange curacao liqueur"
+          },
+          {
+            "id": "liqueur__orange-liqueur",
+            "name": "orange liqueur"
+          },
+          {
+            "id": "liqueur__ouzo-anise-liqueur",
+            "name": "ouzo anise liqueur"
+          },
+          {
+            "id": "liqueur__passion-fruit-liqueur",
+            "name": "passion-fruit liqueur"
+          },
+          {
+            "id": "liqueur__peach-liqueur",
+            "name": "peach liqueur"
+          },
+          {
+            "id": "liqueur__peanut-liqueur",
+            "name": "peanut liqueur"
+          },
+          {
+            "id": "liqueur__pear-liqueur",
+            "name": "pear liqueur"
+          },
+          {
+            "id": "liqueur__pecan-liqueur",
+            "name": "pecan liqueur"
+          },
+          {
+            "id": "liqueur__peppermint-liqueur",
+            "name": "peppermint liqueur"
+          },
+          {
+            "id": "liqueur__pineapple-liqueur",
+            "name": "pineapple liqueur"
+          },
+          {
+            "id": "liqueur__pistachio-liqueur",
+            "name": "pistachio liqueur"
+          },
+          {
+            "id": "liqueur__pomegranate-liqueur",
+            "name": "pomegranate liqueur"
+          },
+          {
+            "id": "liqueur__pumpkin-smash-liqueur",
+            "name": "pumpkin smash liqueur"
+          },
+          {
+            "id": "liqueur__quetsch-plum-liqueur",
+            "name": "quetsch plum liqueur"
+          },
+          {
+            "id": "liqueur__raspberry-liqueur",
+            "name": "raspberry liqueur"
+          },
+          {
+            "id": "liqueur__rock-and-rye-liqueur",
+            "name": "rock and rye liqueur"
+          },
+          {
+            "id": "liqueur__roncoco-coconut-liqueur",
+            "name": "roncoco coconut liqueur"
+          },
+          {
+            "id": "liqueur__rum-cream-liqueur",
+            "name": "rum cream liqueur"
+          },
+          {
+            "id": "liqueur__rum-tree-liqueur",
+            "name": "rum tree liqueur"
+          },
+          {
+            "id": "liqueur__sour-apple-liqueur",
+            "name": "sour apple liqueur"
+          },
+          {
+            "id": "liqueur__strawberry-cream-liqueur",
+            "name": "strawberry cream liqueur"
+          },
+          {
+            "id": "liqueur__strawberry-liqueur",
+            "name": "strawberry liqueur"
+          },
+          {
+            "id": "liqueur__sugar-maple-liqueur",
+            "name": "sugar maple liqueur"
+          },
+          {
+            "id": "liqueur__toffee-liqueur",
+            "name": "toffee liqueur"
+          },
+          {
+            "id": "liqueur__tropical-blue-liqueur",
+            "name": "tropical blue liqueur"
+          },
+          {
+            "id": "liqueur__vanilla-cream-liqueur",
+            "name": "vanilla cream liqueur"
+          },
+          {
+            "id": "liqueur__vanilla-liqueur",
+            "name": "vanilla liqueur"
+          },
+          {
+            "id": "liqueur__velvet-cream-liqueur",
+            "name": "velvet cream liqueur"
+          },
+          {
+            "id": "liqueur__violet-liqueur",
+            "name": "violet liqueur"
+          },
+          {
+            "id": "liqueur__walnut-liqueur",
+            "name": "walnut liqueur"
+          },
+          {
+            "id": "liqueur__watermelon-liqueur",
+            "name": "watermelon liqueur"
+          },
+          {
+            "id": "liqueur__white-chocolate-liqueur",
+            "name": "white chocolate liqueur"
+          },
+          {
+            "id": "liqueur__white-creme-de-cacao-liqueur",
+            "name": "white creme de cacao liqueur"
+          },
+          {
+            "id": "liqueur__white-curacao-liqueur",
+            "name": "white curacao liqueur"
+          },
+          {
+            "id": "liqueur__wild-strawberry-liqueur",
+            "name": "wild strawberry liqueur"
+          }
+        ]
+      },
+      {
+        "id": "ouzo",
+        "name": "ouzo",
+        "items": [
+          {
+            "id": "ouzo__ouzo",
+            "name": "ouzo"
+          }
+        ]
+      },
+      {
+        "id": "sambuca",
+        "name": "sambuca",
+        "items": [
+          {
+            "id": "sambuca__black-sambuca",
+            "name": "black sambuca"
+          },
+          {
+            "id": "sambuca__blue-sambuca",
+            "name": "blue sambuca"
+          },
+          {
+            "id": "sambuca__green-sambuca",
+            "name": "green sambuca"
+          },
+          {
+            "id": "sambuca__red-sambuca",
+            "name": "red sambuca"
+          },
+          {
+            "id": "sambuca__sambuca",
+            "name": "sambuca"
+          },
+          {
+            "id": "sambuca__white-sambuca",
+            "name": "white sambuca"
+          }
+        ]
+      },
+      {
+        "id": "sangria",
+        "name": "sangria",
+        "items": [
+          {
+            "id": "sangria__sangria",
+            "name": "sangria"
+          }
+        ]
+      },
+      {
+        "id": "schnapps",
+        "name": "schnapps",
+        "items": [
+          {
+            "id": "schnapps__99-apples-apple-schnapps",
+            "name": "99 apples apple schnapps"
+          },
+          {
+            "id": "schnapps__99-bananas-banana-schnapps",
+            "name": "99 bananas banana schnapps"
+          },
+          {
+            "id": "schnapps__99-blackberries-blackberry-schnapps",
+            "name": "99 blackberries blackberry schnapps"
+          },
+          {
+            "id": "schnapps__99-oranges-orange-schnapps",
+            "name": "99 oranges orange schnapps"
+          },
+          {
+            "id": "schnapps__aftershock-cool-citrus-mint-schnapps",
+            "name": "aftershock cool citrus mint schnapps"
+          },
+          {
+            "id": "schnapps__aftershock-hot-cool-cinnamon-schnapps",
+            "name": "aftershock hot & cool cinnamon schnapps"
+          },
+          {
+            "id": "schnapps__aftershock-thermal-bite-spice-schnapps",
+            "name": "aftershock thermal bite spice schnapps"
+          },
+          {
+            "id": "schnapps__apple-schnapps",
+            "name": "apple schnapps"
+          },
+          {
+            "id": "schnapps__apricot-schnapps",
+            "name": "apricot schnapps"
+          },
+          {
+            "id": "schnapps__archers-cranberry-schnapps",
+            "name": "archers cranberry schnapps"
+          },
+          {
+            "id": "schnapps__archers-lime-schnapps",
+            "name": "archers lime schnapps"
+          },
+          {
+            "id": "schnapps__avalanche-peppermint-schnapps",
+            "name": "avalanche peppermint schnapps"
+          },
+          {
+            "id": "schnapps__banana-schnapps",
+            "name": "banana schnapps"
+          },
+          {
+            "id": "schnapps__black-cherry-schnapps",
+            "name": "black cherry schnapps"
+          },
+          {
+            "id": "schnapps__black-haus-blackberry-schnapps",
+            "name": "black haus blackberry schnapps"
+          },
+          {
+            "id": "schnapps__blackberry-schnapps",
+            "name": "blackberry schnapps"
+          },
+          {
+            "id": "schnapps__blackcurrant-schnapps",
+            "name": "blackcurrant schnapps"
+          },
+          {
+            "id": "schnapps__blueberry-schnapps",
+            "name": "blueberry schnapps"
+          },
+          {
+            "id": "schnapps__brennivin-schnapps",
+            "name": "brennivin schnapps"
+          },
+          {
+            "id": "schnapps__cactus-juice-schnapps",
+            "name": "cactus juice schnapps"
+          },
+          {
+            "id": "schnapps__cherry-schnapps",
+            "name": "cherry schnapps"
+          },
+          {
+            "id": "schnapps__cinnamon-schnapps",
+            "name": "cinnamon schnapps"
+          },
+          {
+            "id": "schnapps__cranberry-schnapps",
+            "name": "cranberry schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-apple-barrel-schnapps",
+            "name": "dekuyper apple barrel schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-bluesberry-schnapps",
+            "name": "dekuyper bluesberry schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-cheri-beri-pucker-schnapps",
+            "name": "dekuyper cheri-beri pucker schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-cinnamon-schnapps",
+            "name": "dekuyper cinnamon schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-grape-pucker-schnapps",
+            "name": "dekuyper grape pucker schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-harvest-pear-schnapps",
+            "name": "dekuyper harvest pear schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-hot-damn-cinnamon-schnapps",
+            "name": "dekuyper hot damn cinnamon schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-key-largo-schnapps",
+            "name": "dekuyper key largo schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-mad-melon-schnapps",
+            "name": "dekuyper mad melon schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-peachtree-schnapps",
+            "name": "dekuyper peachtree schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-peppermint-schnapps",
+            "name": "dekuyper peppermint schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-pucker-strawberry-passion-schnapps",
+            "name": "dekuyper pucker strawberry passion schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-raspberry-schnapps",
+            "name": "dekuyper raspberry schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-sour-apple-pucker-schnapps",
+            "name": "dekuyper sour apple pucker schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-sour-peach-pucker-schnapps",
+            "name": "dekuyper sour peach pucker schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-watermelon-pucker-schnapps",
+            "name": "dekuyper watermelon pucker schnapps"
+          },
+          {
+            "id": "schnapps__dekuyper-wilderberry-schnapps",
+            "name": "dekuyper wilderberry schnapps"
+          },
+          {
+            "id": "schnapps__dr-mcgillicuddy-s-cherry-schnapps",
+            "name": "dr. mcgillicuddy's cherry schnapps"
+          },
+          {
+            "id": "schnapps__dr-mcgillicuddy-s-mentholmint-schnapps",
+            "name": "dr. mcgillicuddy's mentholmint schnapps"
+          },
+          {
+            "id": "schnapps__dr-mcgillicuddy-s-peach-schnapps",
+            "name": "dr. mcgillicuddy's peach schnapps"
+          },
+          {
+            "id": "schnapps__dr-mcgillicuddy-s-vanilla-schnapps",
+            "name": "dr. mcgillicuddy's vanilla schnapps"
+          },
+          {
+            "id": "schnapps__grape-schnapps",
+            "name": "grape schnapps"
+          },
+          {
+            "id": "schnapps__grapefruit-schnapps",
+            "name": "grapefruit schnapps"
+          },
+          {
+            "id": "schnapps__green-apple-schnapps",
+            "name": "green apple schnapps"
+          },
+          {
+            "id": "schnapps__key-largo-schnapps",
+            "name": "key largo schnapps"
+          },
+          {
+            "id": "schnapps__lemon-schnapps",
+            "name": "lemon schnapps"
+          },
+          {
+            "id": "schnapps__leroux-pina-colada-schnapps",
+            "name": "leroux pina colada schnapps"
+          },
+          {
+            "id": "schnapps__mango-schnapps",
+            "name": "mango schnapps"
+          },
+          {
+            "id": "schnapps__maui-blue-hawaiian-schnapps",
+            "name": "maui blue hawaiian schnapps"
+          },
+          {
+            "id": "schnapps__maui-tropical-schnapps",
+            "name": "maui tropical schnapps"
+          },
+          {
+            "id": "schnapps__melon-schnapps",
+            "name": "melon schnapps"
+          },
+          {
+            "id": "schnapps__mint-schnapps",
+            "name": "mint schnapps"
+          },
+          {
+            "id": "schnapps__peach-schnapps",
+            "name": "peach schnapps"
+          },
+          {
+            "id": "schnapps__peachtree-schnapps",
+            "name": "peachtree schnapps"
+          },
+          {
+            "id": "schnapps__pear-schnapps",
+            "name": "pear schnapps"
+          },
+          {
+            "id": "schnapps__peppermint-schnapps",
+            "name": "peppermint schnapps"
+          },
+          {
+            "id": "schnapps__phillips-butter-ripple-schnapps",
+            "name": "phillips butter ripple schnapps"
+          },
+          {
+            "id": "schnapps__phillips-hot-100-cinnamon-schnapps",
+            "name": "phillips hot 100 cinnamon schnapps"
+          },
+          {
+            "id": "schnapps__phillips-peppermint-schnapps",
+            "name": "phillips peppermint schnapps"
+          },
+          {
+            "id": "schnapps__pomegranate-schnapps",
+            "name": "pomegranate schnapps"
+          },
+          {
+            "id": "schnapps__raspberry-schnapps",
+            "name": "raspberry schnapps"
+          },
+          {
+            "id": "schnapps__root-beer-schnapps",
+            "name": "root beer schnapps"
+          },
+          {
+            "id": "schnapps__schnapps",
+            "name": "schnapps"
+          },
+          {
+            "id": "schnapps__sour-apple-schnapps",
+            "name": "sour apple schnapps"
+          },
+          {
+            "id": "schnapps__strawberry-schnapps",
+            "name": "strawberry schnapps"
+          },
+          {
+            "id": "schnapps__tangerine-schnapps",
+            "name": "tangerine schnapps"
+          },
+          {
+            "id": "schnapps__tropical-fruit-schnapps",
+            "name": "tropical fruit schnapps"
+          },
+          {
+            "id": "schnapps__vanilla-schnapps",
+            "name": "vanilla schnapps"
+          },
+          {
+            "id": "schnapps__watermelon-schnapps",
+            "name": "watermelon schnapps"
+          },
+          {
+            "id": "schnapps__wildberry-schnapps",
+            "name": "wildberry schnapps"
+          },
+          {
+            "id": "schnapps__yukon-jack-perma-frost-schnapps",
+            "name": "yukon jack perma frost schnapps"
+          }
+        ]
+      },
+      {
+        "id": "sherry",
+        "name": "sherry",
+        "items": [
+          {
+            "id": "sherry__amontillado-dry-sherry",
+            "name": "amontillado dry sherry"
+          },
+          {
+            "id": "sherry__bristol-cream-sherry",
+            "name": "bristol cream sherry"
+          },
+          {
+            "id": "sherry__cream-sherry",
+            "name": "cream sherry"
+          },
+          {
+            "id": "sherry__dry-sherry",
+            "name": "dry sherry"
+          },
+          {
+            "id": "sherry__fino-sherry",
+            "name": "fino sherry"
+          },
+          {
+            "id": "sherry__olorosa-sherry",
+            "name": "olorosa sherry"
+          },
+          {
+            "id": "sherry__pedro-ximinez-sherry",
+            "name": "pedro ximinez sherry"
+          },
+          {
+            "id": "sherry__sherry",
+            "name": "sherry"
+          },
+          {
+            "id": "sherry__sweet-sherry",
+            "name": "sweet sherry"
+          },
+          {
+            "id": "sherry__tio-pepe-sherry",
+            "name": "tio pepe sherry"
+          }
+        ]
+      },
+      {
+        "id": "triple-sec",
+        "name": "triple sec",
+        "items": [
+          {
+            "id": "triple-sec__triple-sec",
+            "name": "triple sec"
+          }
+        ]
+      },
+      {
+        "id": "tuaca",
+        "name": "tuaca",
+        "items": [
+          {
+            "id": "tuaca__tuaca",
+            "name": "tuaca"
+          }
+        ]
+      },
+      {
+        "id": "vermouth",
+        "name": "vermouth",
+        "items": [
+          {
+            "id": "vermouth__bianco-vermouth",
+            "name": "bianco vermouth"
+          },
+          {
+            "id": "vermouth__dry-vermouth",
+            "name": "dry vermouth"
+          },
+          {
+            "id": "vermouth__extra-dry-vermouth",
+            "name": "extra dry vermouth"
+          },
+          {
+            "id": "vermouth__french-vermouth",
+            "name": "french vermouth"
+          },
+          {
+            "id": "vermouth__italian-vermouth",
+            "name": "italian vermouth"
+          },
+          {
+            "id": "vermouth__red-vermouth",
+            "name": "red vermouth"
+          },
+          {
+            "id": "vermouth__rosso-vermouth",
+            "name": "rosso vermouth"
+          },
+          {
+            "id": "vermouth__rouge-vermouth",
+            "name": "rouge vermouth"
+          },
+          {
+            "id": "vermouth__sweet-vermouth",
+            "name": "sweet vermouth"
+          },
+          {
+            "id": "vermouth__vermouth",
+            "name": "vermouth"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wine",
+    "name": "Wine",
+    "primaries": [
+      {
+        "id": "wine",
+        "name": "wine",
+        "items": [
+          {
+            "id": "wine__burgundy-wine",
+            "name": "burgundy wine"
+          },
+          {
+            "id": "wine__cabernet-sauvignon-red-wine",
+            "name": "cabernet sauvignon red wine"
+          },
+          {
+            "id": "wine__chablis-white-wine",
+            "name": "chablis white wine"
+          },
+          {
+            "id": "wine__chardonnay-white-wine",
+            "name": "chardonnay white wine"
+          },
+          {
+            "id": "wine__chinese-wine",
+            "name": "chinese wine"
+          },
+          {
+            "id": "wine__danish-cherry-wine",
+            "name": "danish cherry wine"
+          },
+          {
+            "id": "wine__dry-red-wine",
+            "name": "dry red wine"
+          },
+          {
+            "id": "wine__dry-sparkling-wine",
+            "name": "dry sparkling wine"
+          },
+          {
+            "id": "wine__dry-white-wine",
+            "name": "dry white wine"
+          },
+          {
+            "id": "wine__ginger-wine",
+            "name": "ginger wine"
+          },
+          {
+            "id": "wine__ice-wine",
+            "name": "ice wine"
+          },
+          {
+            "id": "wine__lillet-blanc-wine",
+            "name": "lillet blanc wine"
+          },
+          {
+            "id": "wine__lychee-wine",
+            "name": "lychee wine"
+          },
+          {
+            "id": "wine__mad-dog-grape-wine",
+            "name": "mad dog grape wine"
+          },
+          {
+            "id": "wine__merlot-red-wine",
+            "name": "merlot red wine"
+          },
+          {
+            "id": "wine__muscatel-wine",
+            "name": "muscatel wine"
+          },
+          {
+            "id": "wine__petit-syrah-wine",
+            "name": "petit syrah wine"
+          },
+          {
+            "id": "wine__pineapple-wine",
+            "name": "pineapple wine"
+          },
+          {
+            "id": "wine__plum-wine",
+            "name": "plum wine"
+          },
+          {
+            "id": "wine__prosecco-sparkling-wine",
+            "name": "prosecco sparkling wine"
+          },
+          {
+            "id": "wine__red-bordeaux-wine",
+            "name": "red bordeaux wine"
+          },
+          {
+            "id": "wine__red-sparkling-wine",
+            "name": "red sparkling wine"
+          },
+          {
+            "id": "wine__red-wine",
+            "name": "red wine"
+          },
+          {
+            "id": "wine__red-zinfandel-wine",
+            "name": "red zinfandel wine"
+          },
+          {
+            "id": "wine__rice-wine",
+            "name": "rice wine"
+          },
+          {
+            "id": "wine__rose-wine",
+            "name": "rose wine"
+          },
+          {
+            "id": "wine__sake-rice-wine",
+            "name": "sake rice wine"
+          },
+          {
+            "id": "wine__sparkling-burgundy-wine",
+            "name": "sparkling burgundy wine"
+          },
+          {
+            "id": "wine__strawberry-wine",
+            "name": "strawberry wine"
+          },
+          {
+            "id": "wine__thunderbird-wine",
+            "name": "thunderbird wine"
+          },
+          {
+            "id": "wine__white-wine",
+            "name": "white wine"
+          },
+          {
+            "id": "wine__wine",
+            "name": "wine"
+          },
+          {
+            "id": "wine__wine-cooler",
+            "name": "wine cooler"
+          },
+          {
+            "id": "wine__zinfandel-white-wine",
+            "name": "zinfandel white wine"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "common-items",
+    "name": "common items",
+    "primaries": [
+      {
+        "id": "other",
+        "name": "Other",
+        "items": [
+          {
+            "id": "other__a1-steak-sauce",
+            "name": "a1 steak sauce"
+          }
+        ]
+      },
+      {
+        "id": "common-items",
+        "name": "common items",
+        "items": [
+          {
+            "id": "common-items__allspice",
+            "name": "allspice"
+          },
+          {
+            "id": "common-items__almond",
+            "name": "almond"
+          },
+          {
+            "id": "common-items__almond-extract",
+            "name": "almond extract"
+          },
+          {
+            "id": "common-items__almond-flavoring",
+            "name": "almond flavoring"
+          },
+          {
+            "id": "common-items__apple-sauce",
+            "name": "apple sauce"
+          },
+          {
+            "id": "common-items__black-pepper",
+            "name": "black pepper"
+          },
+          {
+            "id": "common-items__butter",
+            "name": "butter"
+          },
+          {
+            "id": "common-items__caramel-coloring",
+            "name": "caramel coloring"
+          },
+          {
+            "id": "common-items__carrot",
+            "name": "carrot"
+          },
+          {
+            "id": "common-items__cherry-puree",
+            "name": "cherry puree"
+          },
+          {
+            "id": "common-items__chili-peppers",
+            "name": "chili peppers"
+          },
+          {
+            "id": "common-items__cinnamon",
+            "name": "cinnamon"
+          },
+          {
+            "id": "common-items__cloves",
+            "name": "cloves"
+          },
+          {
+            "id": "common-items__cocoa-powder",
+            "name": "cocoa powder"
+          },
+          {
+            "id": "common-items__coconut",
+            "name": "coconut"
+          },
+          {
+            "id": "common-items__coconut-milk",
+            "name": "coconut milk"
+          },
+          {
+            "id": "common-items__coconuts",
+            "name": "coconuts"
+          },
+          {
+            "id": "common-items__cornstarch",
+            "name": "cornstarch"
+          },
+          {
+            "id": "common-items__cumin-seed",
+            "name": "cumin seed"
+          },
+          {
+            "id": "common-items__dill",
+            "name": "dill"
+          },
+          {
+            "id": "common-items__garlic",
+            "name": "garlic"
+          },
+          {
+            "id": "common-items__green-chili",
+            "name": "green chili"
+          },
+          {
+            "id": "common-items__honey",
+            "name": "honey"
+          },
+          {
+            "id": "common-items__mayonnaise",
+            "name": "mayonnaise"
+          },
+          {
+            "id": "common-items__nutmeg",
+            "name": "nutmeg"
+          },
+          {
+            "id": "common-items__nuts",
+            "name": "nuts"
+          },
+          {
+            "id": "common-items__okra",
+            "name": "okra"
+          },
+          {
+            "id": "common-items__orange-peel",
+            "name": "orange peel"
+          },
+          {
+            "id": "common-items__paprika",
+            "name": "paprika"
+          },
+          {
+            "id": "common-items__parmesan-cheese",
+            "name": "parmesan cheese"
+          },
+          {
+            "id": "common-items__pepper",
+            "name": "pepper"
+          },
+          {
+            "id": "common-items__peppermint-extract",
+            "name": "peppermint extract"
+          },
+          {
+            "id": "common-items__plums",
+            "name": "plums"
+          },
+          {
+            "id": "common-items__pumpkin",
+            "name": "pumpkin"
+          },
+          {
+            "id": "common-items__raisins",
+            "name": "raisins"
+          },
+          {
+            "id": "common-items__red-curry-paste",
+            "name": "red curry paste"
+          },
+          {
+            "id": "common-items__rose-essence",
+            "name": "rose essence"
+          },
+          {
+            "id": "common-items__rosemary",
+            "name": "rosemary"
+          },
+          {
+            "id": "common-items__salsa",
+            "name": "salsa"
+          },
+          {
+            "id": "common-items__salt",
+            "name": "salt"
+          },
+          {
+            "id": "common-items__sugar",
+            "name": "sugar"
+          },
+          {
+            "id": "common-items__tamarinds",
+            "name": "tamarinds"
+          },
+          {
+            "id": "common-items__vanilla-extract",
+            "name": "vanilla extract"
+          },
+          {
+            "id": "common-items__walnut",
+            "name": "walnut"
+          },
+          {
+            "id": "common-items__wasabi",
+            "name": "wasabi"
+          },
+          {
+            "id": "common-items__water",
+            "name": "water"
+          },
+          {
+            "id": "common-items__white-pepper",
+            "name": "white pepper"
+          }
+        ]
+      },
+      {
+        "id": "cream",
+        "name": "cream",
+        "items": [
+          {
+            "id": "cream__amarula-cream",
+            "name": "amarula cream"
+          },
+          {
+            "id": "cream__caribbean-cream",
+            "name": "caribbean cream"
+          },
+          {
+            "id": "cream__carnation-creamy-evaporated-milk",
+            "name": "carnation creamy evaporated milk"
+          },
+          {
+            "id": "cream__cocoa-cream",
+            "name": "cocoa cream"
+          },
+          {
+            "id": "cream__coffee-creamer",
+            "name": "coffee creamer"
+          },
+          {
+            "id": "cream__cream",
+            "name": "cream"
+          },
+          {
+            "id": "cream__cream-cheese",
+            "name": "cream cheese"
+          },
+          {
+            "id": "cream__cream-of-coconut",
+            "name": "cream of coconut"
+          },
+          {
+            "id": "cream__creamer",
+            "name": "creamer"
+          },
+          {
+            "id": "cream__double-cream",
+            "name": "double cream"
+          },
+          {
+            "id": "cream__french-vanilla-coffee-creamer",
+            "name": "french vanilla coffee creamer"
+          },
+          {
+            "id": "cream__hazelnut-creamer",
+            "name": "hazelnut creamer"
+          },
+          {
+            "id": "cream__heavy-cream",
+            "name": "heavy cream"
+          },
+          {
+            "id": "cream__light-cream",
+            "name": "light cream"
+          },
+          {
+            "id": "cream__whipped-cream",
+            "name": "whipped cream"
+          }
+        ]
+      },
+      {
+        "id": "ice-cream",
+        "name": "ice cream",
+        "items": [
+          {
+            "id": "ice-cream__black-cherry-ice-cream",
+            "name": "black cherry ice cream"
+          },
+          {
+            "id": "ice-cream__cherry-ice-cream",
+            "name": "cherry ice cream"
+          },
+          {
+            "id": "ice-cream__chocolate-ice-cream",
+            "name": "chocolate ice cream"
+          },
+          {
+            "id": "ice-cream__coconut-ice-cream",
+            "name": "coconut ice cream"
+          },
+          {
+            "id": "ice-cream__coffee-ice-cream",
+            "name": "coffee ice cream"
+          },
+          {
+            "id": "ice-cream__french-vanilla-ice-cream",
+            "name": "french vanilla ice cream"
+          },
+          {
+            "id": "ice-cream__ice-cream",
+            "name": "ice cream"
+          },
+          {
+            "id": "ice-cream__mayfield-rocky-road-ice-cream",
+            "name": "mayfield rocky road ice cream"
+          },
+          {
+            "id": "ice-cream__mint-chocolate-ice-cream",
+            "name": "mint chocolate ice cream"
+          },
+          {
+            "id": "ice-cream__pistachio-ice-cream",
+            "name": "pistachio ice cream"
+          },
+          {
+            "id": "ice-cream__raspberry-ice-cream",
+            "name": "raspberry ice cream"
+          },
+          {
+            "id": "ice-cream__strawberry-ice-cream",
+            "name": "strawberry ice cream"
+          },
+          {
+            "id": "ice-cream__vanilla-ice-cream",
+            "name": "vanilla ice cream"
+          }
+        ]
+      },
+      {
+        "id": "jell-o",
+        "name": "jell-o",
+        "items": [
+          {
+            "id": "jell-o__berry-blue-jell-o",
+            "name": "berry blue jell-o"
+          },
+          {
+            "id": "jell-o__black-cherry-jell-o",
+            "name": "black cherry jell-o"
+          },
+          {
+            "id": "jell-o__cherry-jell-o",
+            "name": "cherry jell-o"
+          },
+          {
+            "id": "jell-o__cranberry-jell-o",
+            "name": "cranberry jell-o"
+          },
+          {
+            "id": "jell-o__green-apple-jell-o",
+            "name": "green apple jell-o"
+          },
+          {
+            "id": "jell-o__lime-jell-o",
+            "name": "lime jell-o"
+          },
+          {
+            "id": "jell-o__mango-jell-o",
+            "name": "mango jell-o"
+          },
+          {
+            "id": "jell-o__orange-jell-o",
+            "name": "orange jell-o"
+          },
+          {
+            "id": "jell-o__pineapple-jell-o",
+            "name": "pineapple jell-o"
+          },
+          {
+            "id": "jell-o__raspberry-jell-o",
+            "name": "raspberry jell-o"
+          },
+          {
+            "id": "jell-o__sour-apple-jell-o",
+            "name": "sour apple jell-o"
+          },
+          {
+            "id": "jell-o__strawberry-jell-o",
+            "name": "strawberry jell-o"
+          },
+          {
+            "id": "jell-o__x-treme-green-apple-jell-o",
+            "name": "x-treme green apple jell-o"
+          }
+        ]
+      },
+      {
+        "id": "other-not-categorized",
+        "name": "other - not categorized",
+        "items": [
+          {
+            "id": "other-not-categorized__6-mar",
+            "name": "6-Mar"
+          },
+          {
+            "id": "other-not-categorized__acerola",
+            "name": "acerola"
+          },
+          {
+            "id": "other-not-categorized__advocaat",
+            "name": "advocaat"
+          },
+          {
+            "id": "other-not-categorized__aftershock",
+            "name": "aftershock"
+          },
+          {
+            "id": "other-not-categorized__alexander-keith-s-red-amber-ale",
+            "name": "alexander keith's red amber ale"
+          },
+          {
+            "id": "other-not-categorized__alize",
+            "name": "alize"
+          },
+          {
+            "id": "other-not-categorized__almonds",
+            "name": "almonds"
+          },
+          {
+            "id": "other-not-categorized__amer-picon",
+            "name": "amer picon"
+          },
+          {
+            "id": "other-not-categorized__andes-chocolate-mint",
+            "name": "andes chocolate mint"
+          },
+          {
+            "id": "other-not-categorized__angelica-root",
+            "name": "angelica root"
+          },
+          {
+            "id": "other-not-categorized__angostura-bloody-mary-seasoning",
+            "name": "angostura bloody mary seasoning"
+          },
+          {
+            "id": "other-not-categorized__anise",
+            "name": "anise"
+          },
+          {
+            "id": "other-not-categorized__anisette",
+            "name": "anisette"
+          },
+          {
+            "id": "other-not-categorized__apfelkorn",
+            "name": "apfelkorn"
+          },
+          {
+            "id": "other-not-categorized__apple",
+            "name": "apple"
+          },
+          {
+            "id": "other-not-categorized__apple-cider",
+            "name": "apple cider"
+          },
+          {
+            "id": "other-not-categorized__applejack",
+            "name": "applejack"
+          },
+          {
+            "id": "other-not-categorized__apples",
+            "name": "apples"
+          },
+          {
+            "id": "other-not-categorized__apricot",
+            "name": "apricot"
+          },
+          {
+            "id": "other-not-categorized__apricot-nectar",
+            "name": "apricot nectar"
+          },
+          {
+            "id": "other-not-categorized__aquavit",
+            "name": "aquavit"
+          },
+          {
+            "id": "other-not-categorized__arak",
+            "name": "arak"
+          },
+          {
+            "id": "other-not-categorized__armagnac",
+            "name": "armagnac"
+          },
+          {
+            "id": "other-not-categorized__artificial-sweetener",
+            "name": "artificial sweetener"
+          },
+          {
+            "id": "other-not-categorized__asafoetida",
+            "name": "asafoetida"
+          },
+          {
+            "id": "other-not-categorized__avocado",
+            "name": "avocado"
+          },
+          {
+            "id": "other-not-categorized__b-b-benedictine",
+            "name": "b & b benedictine"
+          },
+          {
+            "id": "other-not-categorized__bacardi-breezer",
+            "name": "bacardi breezer"
+          },
+          {
+            "id": "other-not-categorized__bacardi-breezer-lime",
+            "name": "bacardi breezer lime"
+          },
+          {
+            "id": "other-not-categorized__bacardi-breezer-orange",
+            "name": "bacardi breezer orange"
+          },
+          {
+            "id": "other-not-categorized__bacardi-limon",
+            "name": "bacardi limon"
+          },
+          {
+            "id": "other-not-categorized__baitz-triple-sec",
+            "name": "baitz triple sec"
+          },
+          {
+            "id": "other-not-categorized__baked-apple",
+            "name": "baked apple"
+          },
+          {
+            "id": "other-not-categorized__banana",
+            "name": "banana"
+          },
+          {
+            "id": "other-not-categorized__banana-pepper",
+            "name": "banana pepper"
+          },
+          {
+            "id": "other-not-categorized__bananas",
+            "name": "bananas"
+          },
+          {
+            "id": "other-not-categorized__barenjager",
+            "name": "barenjager"
+          },
+          {
+            "id": "other-not-categorized__bartender",
+            "name": "bartender"
+          },
+          {
+            "id": "other-not-categorized__bartlett-pear",
+            "name": "bartlett pear"
+          },
+          {
+            "id": "other-not-categorized__basil",
+            "name": "basil"
+          },
+          {
+            "id": "other-not-categorized__bass-pale-ale",
+            "name": "bass pale ale"
+          },
+          {
+            "id": "other-not-categorized__batida-de-coco",
+            "name": "batida de coco"
+          },
+          {
+            "id": "other-not-categorized__battery",
+            "name": "battery"
+          },
+          {
+            "id": "other-not-categorized__becherovka",
+            "name": "becherovka"
+          },
+          {
+            "id": "other-not-categorized__beef-bouillon",
+            "name": "beef bouillon"
+          },
+          {
+            "id": "other-not-categorized__benedictine",
+            "name": "benedictine"
+          },
+          {
+            "id": "other-not-categorized__berries",
+            "name": "berries"
+          },
+          {
+            "id": "other-not-categorized__bitter-lemon",
+            "name": "bitter lemon"
+          },
+          {
+            "id": "other-not-categorized__black",
+            "name": "black"
+          },
+          {
+            "id": "other-not-categorized__black-ice",
+            "name": "black ice"
+          },
+          {
+            "id": "other-not-categorized__blackberries",
+            "name": "blackberries"
+          },
+          {
+            "id": "other-not-categorized__blackcurrant-cordial",
+            "name": "blackcurrant cordial"
+          },
+          {
+            "id": "other-not-categorized__blackcurrant-squash",
+            "name": "blackcurrant squash"
+          },
+          {
+            "id": "other-not-categorized__blood-orange",
+            "name": "blood orange"
+          },
+          {
+            "id": "other-not-categorized__blue-cheese",
+            "name": "blue cheese"
+          },
+          {
+            "id": "other-not-categorized__blueberries",
+            "name": "blueberries"
+          },
+          {
+            "id": "other-not-categorized__blueberry-puree",
+            "name": "blueberry puree"
+          },
+          {
+            "id": "other-not-categorized__bols-creme-de-bananes",
+            "name": "bols creme de bananes"
+          },
+          {
+            "id": "other-not-categorized__bols-dark-creme-de-cacao",
+            "name": "bols dark creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__bols-triple-sec",
+            "name": "bols triple sec"
+          },
+          {
+            "id": "other-not-categorized__bols-white-creme-de-cacao",
+            "name": "bols white creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__boone-s-farm-blue-hawaiian",
+            "name": "boone's farm blue hawaiian"
+          },
+          {
+            "id": "other-not-categorized__bread",
+            "name": "bread"
+          },
+          {
+            "id": "other-not-categorized__brown-creme-de-cacao",
+            "name": "brown creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__brown-sugar",
+            "name": "brown sugar"
+          },
+          {
+            "id": "other-not-categorized__brut-champagne",
+            "name": "brut champagne"
+          },
+          {
+            "id": "other-not-categorized__bud-light-lager",
+            "name": "bud light lager"
+          },
+          {
+            "id": "other-not-categorized__budweiser-b-to-the-e",
+            "name": "budweiser b to the e"
+          },
+          {
+            "id": "other-not-categorized__budweiser-lager",
+            "name": "budweiser lager"
+          },
+          {
+            "id": "other-not-categorized__bulmers-cider",
+            "name": "bulmers cider"
+          },
+          {
+            "id": "other-not-categorized__cachaca",
+            "name": "cachaca"
+          },
+          {
+            "id": "other-not-categorized__candy",
+            "name": "candy"
+          },
+          {
+            "id": "other-not-categorized__cantaloupe-melons",
+            "name": "cantaloupe melons"
+          },
+          {
+            "id": "other-not-categorized__cape-girardeau-missouri",
+            "name": "cape girardeau missouri"
+          },
+          {
+            "id": "other-not-categorized__cappuccino",
+            "name": "cappuccino"
+          },
+          {
+            "id": "other-not-categorized__caramel",
+            "name": "caramel"
+          },
+          {
+            "id": "other-not-categorized__caramel-sauce",
+            "name": "caramel sauce"
+          },
+          {
+            "id": "other-not-categorized__carbonated-soft-drink",
+            "name": "carbonated soft drink"
+          },
+          {
+            "id": "other-not-categorized__carbonated-water",
+            "name": "carbonated water"
+          },
+          {
+            "id": "other-not-categorized__cardamom",
+            "name": "cardamom"
+          },
+          {
+            "id": "other-not-categorized__caster-sugar",
+            "name": "caster sugar"
+          },
+          {
+            "id": "other-not-categorized__cayenne-pepper",
+            "name": "cayenne pepper"
+          },
+          {
+            "id": "other-not-categorized__celery",
+            "name": "celery"
+          },
+          {
+            "id": "other-not-categorized__celery-salt",
+            "name": "celery salt"
+          },
+          {
+            "id": "other-not-categorized__champagne",
+            "name": "champagne"
+          },
+          {
+            "id": "other-not-categorized__charleston-follies",
+            "name": "charleston follies"
+          },
+          {
+            "id": "other-not-categorized__cheese",
+            "name": "cheese"
+          },
+          {
+            "id": "other-not-categorized__cheri-beri-pucker",
+            "name": "cheri beri pucker"
+          },
+          {
+            "id": "other-not-categorized__cherries",
+            "name": "cherries"
+          },
+          {
+            "id": "other-not-categorized__cherry-cider",
+            "name": "cherry cider"
+          },
+          {
+            "id": "other-not-categorized__cherry-cola",
+            "name": "cherry cola"
+          },
+          {
+            "id": "other-not-categorized__cherry-conserve",
+            "name": "cherry conserve"
+          },
+          {
+            "id": "other-not-categorized__cherry-cordial",
+            "name": "cherry cordial"
+          },
+          {
+            "id": "other-not-categorized__cherry-heering",
+            "name": "cherry heering"
+          },
+          {
+            "id": "other-not-categorized__cherry-limeade",
+            "name": "cherry limeade"
+          },
+          {
+            "id": "other-not-categorized__cherryade",
+            "name": "cherryade"
+          },
+          {
+            "id": "other-not-categorized__chile-piqions",
+            "name": "chile piqions"
+          },
+          {
+            "id": "other-not-categorized__chili-sauce",
+            "name": "chili sauce"
+          },
+          {
+            "id": "other-not-categorized__chinotto",
+            "name": "chinotto"
+          },
+          {
+            "id": "other-not-categorized__chocolate",
+            "name": "chocolate"
+          },
+          {
+            "id": "other-not-categorized__chocolate-milk",
+            "name": "chocolate milk"
+          },
+          {
+            "id": "other-not-categorized__chocolate-powder",
+            "name": "chocolate powder"
+          },
+          {
+            "id": "other-not-categorized__chocolate-pudding",
+            "name": "chocolate pudding"
+          },
+          {
+            "id": "other-not-categorized__chocolate-sauce",
+            "name": "chocolate sauce"
+          },
+          {
+            "id": "other-not-categorized__chocolate-topping",
+            "name": "chocolate topping"
+          },
+          {
+            "id": "other-not-categorized__cider",
+            "name": "cider"
+          },
+          {
+            "id": "other-not-categorized__cinnamon-sugar",
+            "name": "cinnamon sugar"
+          },
+          {
+            "id": "other-not-categorized__claret",
+            "name": "claret"
+          },
+          {
+            "id": "other-not-categorized__coca-cola",
+            "name": "coca-cola"
+          },
+          {
+            "id": "other-not-categorized__coca-cola-cherry-coke",
+            "name": "coca-cola cherry coke"
+          },
+          {
+            "id": "other-not-categorized__coca-cola-diet-coke",
+            "name": "coca-cola diet coke"
+          },
+          {
+            "id": "other-not-categorized__coca-cola-diet-lime-coke",
+            "name": "coca-cola diet lime coke"
+          },
+          {
+            "id": "other-not-categorized__coca-cola-vanilla-coke",
+            "name": "coca-cola vanilla coke"
+          },
+          {
+            "id": "other-not-categorized__cocktail-infusions-cranberry-twist",
+            "name": "cocktail infusions cranberry twist"
+          },
+          {
+            "id": "other-not-categorized__cocktail-onion",
+            "name": "cocktail onion"
+          },
+          {
+            "id": "other-not-categorized__cocoa",
+            "name": "cocoa"
+          },
+          {
+            "id": "other-not-categorized__coconut-extract",
+            "name": "coconut extract"
+          },
+          {
+            "id": "other-not-categorized__coconut-water",
+            "name": "coconut water"
+          },
+          {
+            "id": "other-not-categorized__cola",
+            "name": "cola"
+          },
+          {
+            "id": "other-not-categorized__condensed-milk",
+            "name": "condensed milk"
+          },
+          {
+            "id": "other-not-categorized__cookies",
+            "name": "cookies"
+          },
+          {
+            "id": "other-not-categorized__cool-whip",
+            "name": "cool whip"
+          },
+          {
+            "id": "other-not-categorized__coriander",
+            "name": "coriander"
+          },
+          {
+            "id": "other-not-categorized__corn",
+            "name": "corn"
+          },
+          {
+            "id": "other-not-categorized__corona",
+            "name": "corona"
+          },
+          {
+            "id": "other-not-categorized__corona-extra-lager",
+            "name": "corona extra lager"
+          },
+          {
+            "id": "other-not-categorized__corona-lager",
+            "name": "corona lager"
+          },
+          {
+            "id": "other-not-categorized__cottage-cheese",
+            "name": "cottage cheese"
+          },
+          {
+            "id": "other-not-categorized__cottee-s-ice-magic-chocolate-coating",
+            "name": "cottee's ice magic chocolate coating"
+          },
+          {
+            "id": "other-not-categorized__cracked-ice",
+            "name": "cracked ice"
+          },
+          {
+            "id": "other-not-categorized__crackers",
+            "name": "crackers"
+          },
+          {
+            "id": "other-not-categorized__cranberries",
+            "name": "cranberries"
+          },
+          {
+            "id": "other-not-categorized__creme-d-armagnac",
+            "name": "creme d'armagnac"
+          },
+          {
+            "id": "other-not-categorized__creme-de-almond",
+            "name": "creme de almond"
+          },
+          {
+            "id": "other-not-categorized__creme-de-banane",
+            "name": "creme de banane"
+          },
+          {
+            "id": "other-not-categorized__creme-de-bananes",
+            "name": "creme de bananes"
+          },
+          {
+            "id": "other-not-categorized__creme-de-cacao",
+            "name": "creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__creme-de-cassis",
+            "name": "creme de cassis"
+          },
+          {
+            "id": "other-not-categorized__creme-de-cerise",
+            "name": "creme de cerise"
+          },
+          {
+            "id": "other-not-categorized__creme-de-coconut",
+            "name": "creme de coconut"
+          },
+          {
+            "id": "other-not-categorized__creme-de-fraise",
+            "name": "creme de fraise"
+          },
+          {
+            "id": "other-not-categorized__creme-de-fraise-des-bois",
+            "name": "creme de fraise des bois"
+          },
+          {
+            "id": "other-not-categorized__creme-de-framboise",
+            "name": "creme de framboise"
+          },
+          {
+            "id": "other-not-categorized__creme-de-griotte",
+            "name": "creme de griotte"
+          },
+          {
+            "id": "other-not-categorized__creme-de-menthe",
+            "name": "creme de menthe"
+          },
+          {
+            "id": "other-not-categorized__creme-de-mure",
+            "name": "creme de mure"
+          },
+          {
+            "id": "other-not-categorized__creme-de-myrtille",
+            "name": "creme de myrtille"
+          },
+          {
+            "id": "other-not-categorized__creme-de-noyaux",
+            "name": "creme de noyaux"
+          },
+          {
+            "id": "other-not-categorized__creme-de-peche",
+            "name": "creme de peche"
+          },
+          {
+            "id": "other-not-categorized__creme-de-violette",
+            "name": "creme de violette"
+          },
+          {
+            "id": "other-not-categorized__crown-royal",
+            "name": "crown royal"
+          },
+          {
+            "id": "other-not-categorized__crushed-ice",
+            "name": "crushed ice"
+          },
+          {
+            "id": "other-not-categorized__cucumber",
+            "name": "cucumber"
+          },
+          {
+            "id": "other-not-categorized__cusenier-freezomint-creme-de-menthe",
+            "name": "cusenier freezomint creme de menthe"
+          },
+          {
+            "id": "other-not-categorized__danish-aquavit",
+            "name": "danish aquavit"
+          },
+          {
+            "id": "other-not-categorized__dark-creme-de-cacao",
+            "name": "dark creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__dekuyper-creme-de-bananes",
+            "name": "dekuyper creme de bananes"
+          },
+          {
+            "id": "other-not-categorized__dekuyper-dark-creme-de-cacao",
+            "name": "dekuyper dark creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__dekuyper-triple-sec",
+            "name": "dekuyper triple sec"
+          },
+          {
+            "id": "other-not-categorized__demerara-sugar",
+            "name": "demerara sugar"
+          },
+          {
+            "id": "other-not-categorized__dr-pepper",
+            "name": "dr. pepper"
+          },
+          {
+            "id": "other-not-categorized__egg",
+            "name": "egg"
+          },
+          {
+            "id": "other-not-categorized__eggnog",
+            "name": "eggnog"
+          },
+          {
+            "id": "other-not-categorized__elderflower-cordial",
+            "name": "elderflower cordial"
+          },
+          {
+            "id": "other-not-categorized__espresso",
+            "name": "espresso"
+          },
+          {
+            "id": "other-not-categorized__evaporated-milk",
+            "name": "evaporated milk"
+          },
+          {
+            "id": "other-not-categorized__everclear",
+            "name": "everclear"
+          },
+          {
+            "id": "other-not-categorized__fanta",
+            "name": "fanta"
+          },
+          {
+            "id": "other-not-categorized__fennel-seeds",
+            "name": "fennel seeds"
+          },
+          {
+            "id": "other-not-categorized__fernet-branca",
+            "name": "fernet branca"
+          },
+          {
+            "id": "other-not-categorized__fernet-branca-menta",
+            "name": "fernet branca menta"
+          },
+          {
+            "id": "other-not-categorized__fever-tree-tonic-water",
+            "name": "fever tree tonic water"
+          },
+          {
+            "id": "other-not-categorized__figs",
+            "name": "figs"
+          },
+          {
+            "id": "other-not-categorized__food-coloring",
+            "name": "food coloring"
+          },
+          {
+            "id": "other-not-categorized__fruit",
+            "name": "fruit"
+          },
+          {
+            "id": "other-not-categorized__fruit-cocktail",
+            "name": "fruit cocktail"
+          },
+          {
+            "id": "other-not-categorized__galliano",
+            "name": "galliano"
+          },
+          {
+            "id": "other-not-categorized__garnish-with-orange",
+            "name": "garnish with orange.\""
+          },
+          {
+            "id": "other-not-categorized__gary",
+            "name": "gary"
+          },
+          {
+            "id": "other-not-categorized__gatorade",
+            "name": "gatorade"
+          },
+          {
+            "id": "other-not-categorized__gekkaikan-sake",
+            "name": "gekkaikan sake"
+          },
+          {
+            "id": "other-not-categorized__gelatin",
+            "name": "gelatin"
+          },
+          {
+            "id": "other-not-categorized__gelato",
+            "name": "gelato"
+          },
+          {
+            "id": "other-not-categorized__glycerine",
+            "name": "glycerine"
+          },
+          {
+            "id": "other-not-categorized__goya-peach-nectar",
+            "name": "goya peach nectar"
+          },
+          {
+            "id": "other-not-categorized__graham-cinnamon-crackers",
+            "name": "graham cinnamon crackers"
+          },
+          {
+            "id": "other-not-categorized__grain-alcohol",
+            "name": "grain alcohol"
+          },
+          {
+            "id": "other-not-categorized__granulated-sugar",
+            "name": "granulated sugar"
+          },
+          {
+            "id": "other-not-categorized__grape-jello",
+            "name": "grape jello"
+          },
+          {
+            "id": "other-not-categorized__grape-pucker",
+            "name": "grape pucker"
+          },
+          {
+            "id": "other-not-categorized__grapefruit",
+            "name": "grapefruit"
+          },
+          {
+            "id": "other-not-categorized__grapes",
+            "name": "grapes"
+          },
+          {
+            "id": "other-not-categorized__grappa",
+            "name": "grappa"
+          },
+          {
+            "id": "other-not-categorized__greek-seasoning",
+            "name": "greek seasoning"
+          },
+          {
+            "id": "other-not-categorized__green-chartreuse",
+            "name": "green chartreuse"
+          },
+          {
+            "id": "other-not-categorized__green-creme-de-menthe",
+            "name": "green creme de menthe"
+          },
+          {
+            "id": "other-not-categorized__green-tea",
+            "name": "green tea"
+          },
+          {
+            "id": "other-not-categorized__grenadine",
+            "name": "grenadine"
+          },
+          {
+            "id": "other-not-categorized__guava-nectar",
+            "name": "guava nectar"
+          },
+          {
+            "id": "other-not-categorized__guava-puree",
+            "name": "guava puree"
+          },
+          {
+            "id": "other-not-categorized__guinness-stout",
+            "name": "guinness stout"
+          },
+          {
+            "id": "other-not-categorized__gummi-bears",
+            "name": "gummi bears"
+          },
+          {
+            "id": "other-not-categorized__habanero-pepper-sauce",
+            "name": "habanero pepper sauce"
+          },
+          {
+            "id": "other-not-categorized__half-and-half",
+            "name": "half-and-half"
+          },
+          {
+            "id": "other-not-categorized__hard-cider",
+            "name": "hard cider"
+          },
+          {
+            "id": "other-not-categorized__hard-lemonade",
+            "name": "hard lemonade"
+          },
+          {
+            "id": "other-not-categorized__hawaiian-sun-passion-fruit-drink",
+            "name": "hawaiian sun passion-fruit drink"
+          },
+          {
+            "id": "other-not-categorized__hazelnuts",
+            "name": "hazelnuts"
+          },
+          {
+            "id": "other-not-categorized__holiday-spice",
+            "name": "holiday spice"
+          },
+          {
+            "id": "other-not-categorized__honeydew-melon",
+            "name": "honeydew melon"
+          },
+          {
+            "id": "other-not-categorized__hooper-s-hooch",
+            "name": "hooper's hooch"
+          },
+          {
+            "id": "other-not-categorized__horchata",
+            "name": "horchata"
+          },
+          {
+            "id": "other-not-categorized__horseradish",
+            "name": "horseradish"
+          },
+          {
+            "id": "other-not-categorized__hot-chocolate",
+            "name": "hot chocolate"
+          },
+          {
+            "id": "other-not-categorized__hot-cocoa",
+            "name": "hot cocoa"
+          },
+          {
+            "id": "other-not-categorized__hot-pepper-sauce",
+            "name": "hot pepper sauce"
+          },
+          {
+            "id": "other-not-categorized__hot-red-pepper-flakes",
+            "name": "hot red pepper flakes"
+          },
+          {
+            "id": "other-not-categorized__hot-sauce",
+            "name": "hot sauce"
+          },
+          {
+            "id": "other-not-categorized__ice",
+            "name": "ice"
+          },
+          {
+            "id": "other-not-categorized__ice-cubes",
+            "name": "ice cubes"
+          },
+          {
+            "id": "other-not-categorized__ice-triple-black",
+            "name": "ice triple black"
+          },
+          {
+            "id": "other-not-categorized__irish-mist",
+            "name": "irish mist"
+          },
+          {
+            "id": "other-not-categorized__jagermeister",
+            "name": "jagermeister"
+          },
+          {
+            "id": "other-not-categorized__jalapeno-pepper",
+            "name": "jalapeno pepper"
+          },
+          {
+            "id": "other-not-categorized__jello",
+            "name": "jello"
+          },
+          {
+            "id": "other-not-categorized__jelly",
+            "name": "jelly"
+          },
+          {
+            "id": "other-not-categorized__jolt-cola",
+            "name": "jolt cola"
+          },
+          {
+            "id": "other-not-categorized__kahlua",
+            "name": "kahlua"
+          },
+          {
+            "id": "other-not-categorized__key-lime",
+            "name": "key lime"
+          },
+          {
+            "id": "other-not-categorized__keystone-lager",
+            "name": "keystone lager"
+          },
+          {
+            "id": "other-not-categorized__kiwi",
+            "name": "kiwi"
+          },
+          {
+            "id": "other-not-categorized__kool-aid",
+            "name": "kool-aid"
+          },
+          {
+            "id": "other-not-categorized__krekling-arctic-crowberry-frost",
+            "name": "krekling arctic crowberry frost"
+          },
+          {
+            "id": "other-not-categorized__kummel",
+            "name": "kummel"
+          },
+          {
+            "id": "other-not-categorized__kumquat",
+            "name": "kumquat"
+          },
+          {
+            "id": "other-not-categorized__kumquats",
+            "name": "kumquats"
+          },
+          {
+            "id": "other-not-categorized__lager",
+            "name": "lager"
+          },
+          {
+            "id": "other-not-categorized__lakka",
+            "name": "lakka"
+          },
+          {
+            "id": "other-not-categorized__latte",
+            "name": "latte"
+          },
+          {
+            "id": "other-not-categorized__lbv-port",
+            "name": "lbv port"
+          },
+          {
+            "id": "other-not-categorized__lea-perrins-worcestershire-sauce",
+            "name": "lea & perrins worcestershire sauce"
+          },
+          {
+            "id": "other-not-categorized__lemon",
+            "name": "lemon"
+          },
+          {
+            "id": "other-not-categorized__lemon-cordial",
+            "name": "lemon cordial"
+          },
+          {
+            "id": "other-not-categorized__lemon-grass",
+            "name": "lemon grass"
+          },
+          {
+            "id": "other-not-categorized__lemon-italian-ice",
+            "name": "lemon italian ice"
+          },
+          {
+            "id": "other-not-categorized__lemon-peel",
+            "name": "lemon peel"
+          },
+          {
+            "id": "other-not-categorized__lemon-sherbet",
+            "name": "lemon sherbet"
+          },
+          {
+            "id": "other-not-categorized__lemon-lime-soda",
+            "name": "Lemon-Lime Soda"
+          },
+          {
+            "id": "other-not-categorized__lemonade",
+            "name": "lemonade"
+          },
+          {
+            "id": "other-not-categorized__lemons",
+            "name": "lemons"
+          },
+          {
+            "id": "other-not-categorized__lick-the-sugar-off-the-glass",
+            "name": "lick the sugar off the glass.\""
+          },
+          {
+            "id": "other-not-categorized__licor-43",
+            "name": "licor 43"
+          },
+          {
+            "id": "other-not-categorized__licorice",
+            "name": "licorice"
+          },
+          {
+            "id": "other-not-categorized__licorice-root",
+            "name": "licorice root"
+          },
+          {
+            "id": "other-not-categorized__light-berry-blend",
+            "name": "light berry blend"
+          },
+          {
+            "id": "other-not-categorized__lightly-carbonated",
+            "name": "lightly carbonated"
+          },
+          {
+            "id": "other-not-categorized__lillet",
+            "name": "lillet"
+          },
+          {
+            "id": "other-not-categorized__lime",
+            "name": "lime"
+          },
+          {
+            "id": "other-not-categorized__lime-cordial",
+            "name": "lime cordial"
+          },
+          {
+            "id": "other-not-categorized__lime-peel",
+            "name": "lime peel"
+          },
+          {
+            "id": "other-not-categorized__lime-sherbet",
+            "name": "lime sherbet"
+          },
+          {
+            "id": "other-not-categorized__lime-flavored-seltzer-water",
+            "name": "lime-flavored seltzer water"
+          },
+          {
+            "id": "other-not-categorized__limeade",
+            "name": "limeade"
+          },
+          {
+            "id": "other-not-categorized__limes",
+            "name": "limes"
+          },
+          {
+            "id": "other-not-categorized__limoncello",
+            "name": "limoncello"
+          },
+          {
+            "id": "other-not-categorized__lingonberry-jam",
+            "name": "lingonberry jam"
+          },
+          {
+            "id": "other-not-categorized__listerine-cool-mint-mouthwash",
+            "name": "listerine cool mint mouthwash"
+          },
+          {
+            "id": "other-not-categorized__livewire",
+            "name": "livewire"
+          },
+          {
+            "id": "other-not-categorized__looza-banana-nectar",
+            "name": "looza banana nectar"
+          },
+          {
+            "id": "other-not-categorized__looza-mango-nectar",
+            "name": "looza mango nectar"
+          },
+          {
+            "id": "other-not-categorized__looza-pear-nectar",
+            "name": "looza pear nectar"
+          },
+          {
+            "id": "other-not-categorized__louisiana-hot-sauce",
+            "name": "louisiana hot sauce"
+          },
+          {
+            "id": "other-not-categorized__lychee",
+            "name": "lychee"
+          },
+          {
+            "id": "other-not-categorized__mace",
+            "name": "mace"
+          },
+          {
+            "id": "other-not-categorized__mad-dog-20-20",
+            "name": "mad dog 20/20"
+          },
+          {
+            "id": "other-not-categorized__madeira",
+            "name": "madeira"
+          },
+          {
+            "id": "other-not-categorized__malt",
+            "name": "malt"
+          },
+          {
+            "id": "other-not-categorized__malt-liquor",
+            "name": "malt liquor"
+          },
+          {
+            "id": "other-not-categorized__mandarin",
+            "name": "mandarin"
+          },
+          {
+            "id": "other-not-categorized__mango",
+            "name": "mango"
+          },
+          {
+            "id": "other-not-categorized__mango-nectar",
+            "name": "mango nectar"
+          },
+          {
+            "id": "other-not-categorized__mango-puree",
+            "name": "mango puree"
+          },
+          {
+            "id": "other-not-categorized__mango-sherbet",
+            "name": "mango sherbet"
+          },
+          {
+            "id": "other-not-categorized__mangos",
+            "name": "mangos"
+          },
+          {
+            "id": "other-not-categorized__maraschino-cherries",
+            "name": "maraschino cherries"
+          },
+          {
+            "id": "other-not-categorized__maraschino-cherry",
+            "name": "maraschino cherry"
+          },
+          {
+            "id": "other-not-categorized__marjoram-leaves",
+            "name": "marjoram leaves"
+          },
+          {
+            "id": "other-not-categorized__marmalade",
+            "name": "marmalade"
+          },
+          {
+            "id": "other-not-categorized__marshmallow",
+            "name": "marshmallow"
+          },
+          {
+            "id": "other-not-categorized__marshmallows",
+            "name": "marshmallows"
+          },
+          {
+            "id": "other-not-categorized__martinelli-s-apple-cider",
+            "name": "martinelli's apple cider"
+          },
+          {
+            "id": "other-not-categorized__maui",
+            "name": "maui"
+          },
+          {
+            "id": "other-not-categorized__mccormick-s-hot-shot",
+            "name": "mccormick's hot shot"
+          },
+          {
+            "id": "other-not-categorized__mello-yello",
+            "name": "mello yello"
+          },
+          {
+            "id": "other-not-categorized__melons",
+            "name": "melons"
+          },
+          {
+            "id": "other-not-categorized__menthol-candy",
+            "name": "menthol candy"
+          },
+          {
+            "id": "other-not-categorized__metaxa",
+            "name": "metaxa"
+          },
+          {
+            "id": "other-not-categorized__metaxa-5-star",
+            "name": "metaxa 5 star"
+          },
+          {
+            "id": "other-not-categorized__metromint-peppermint-water",
+            "name": "metromint peppermint water"
+          },
+          {
+            "id": "other-not-categorized__mexican-hot-chocolate",
+            "name": "mexican hot chocolate"
+          },
+          {
+            "id": "other-not-categorized__mezcal",
+            "name": "mezcal"
+          },
+          {
+            "id": "other-not-categorized__mgd-lite-lager",
+            "name": "mgd lite lager"
+          },
+          {
+            "id": "other-not-categorized__mickey-s-malt-liquor",
+            "name": "mickey's malt liquor"
+          },
+          {
+            "id": "other-not-categorized__midori",
+            "name": "midori"
+          },
+          {
+            "id": "other-not-categorized__mike-s-hard-lemonade",
+            "name": "mike's hard lemonade"
+          },
+          {
+            "id": "other-not-categorized__milk",
+            "name": "milk"
+          },
+          {
+            "id": "other-not-categorized__miller-lite",
+            "name": "miller lite"
+          },
+          {
+            "id": "other-not-categorized__milo-s-sweet-tea",
+            "name": "milo's sweet tea"
+          },
+          {
+            "id": "other-not-categorized__mineral-water",
+            "name": "mineral water"
+          },
+          {
+            "id": "other-not-categorized__minnesota",
+            "name": "minnesota.\\"
+          },
+          {
+            "id": "other-not-categorized__mint",
+            "name": "mint"
+          },
+          {
+            "id": "other-not-categorized__mohawk-triple-sec",
+            "name": "mohawk triple sec"
+          },
+          {
+            "id": "other-not-categorized__molasses",
+            "name": "molasses"
+          },
+          {
+            "id": "other-not-categorized__monin-bitter",
+            "name": "monin bitter"
+          },
+          {
+            "id": "other-not-categorized__morton-salt",
+            "name": "morton salt"
+          },
+          {
+            "id": "other-not-categorized__mustard",
+            "name": "mustard"
+          },
+          {
+            "id": "other-not-categorized__nesquik-chocolate-powder",
+            "name": "nesquik chocolate powder"
+          },
+          {
+            "id": "other-not-categorized__nestle-hot-chocolate",
+            "name": "nestle hot chocolate"
+          },
+          {
+            "id": "other-not-categorized__newcastle-brown-ale-lager",
+            "name": "newcastle brown ale lager"
+          },
+          {
+            "id": "other-not-categorized__offley-rich-tawny-port",
+            "name": "offley rich tawny port"
+          },
+          {
+            "id": "other-not-categorized__old-orchard-pomagranate-cherry",
+            "name": "old orchard pomagranate cherry"
+          },
+          {
+            "id": "other-not-categorized__olive",
+            "name": "olive"
+          },
+          {
+            "id": "other-not-categorized__olives",
+            "name": "olives"
+          },
+          {
+            "id": "other-not-categorized__onions",
+            "name": "onions"
+          },
+          {
+            "id": "other-not-categorized__or-pantera",
+            "name": "or pantera"
+          },
+          {
+            "id": "other-not-categorized__orancio",
+            "name": "orancio"
+          },
+          {
+            "id": "other-not-categorized__orange",
+            "name": "orange"
+          },
+          {
+            "id": "other-not-categorized__orange-crush",
+            "name": "orange crush"
+          },
+          {
+            "id": "other-not-categorized__orange-flower-water",
+            "name": "orange flower water"
+          },
+          {
+            "id": "other-not-categorized__orange-sherbet",
+            "name": "orange sherbet"
+          },
+          {
+            "id": "other-not-categorized__orange-spiral",
+            "name": "orange spiral"
+          },
+          {
+            "id": "other-not-categorized__orange-squash",
+            "name": "orange squash"
+          },
+          {
+            "id": "other-not-categorized__orange-strawberry",
+            "name": "orange-strawberry"
+          },
+          {
+            "id": "other-not-categorized__orangeade",
+            "name": "orangeade"
+          },
+          {
+            "id": "other-not-categorized__oranges",
+            "name": "oranges"
+          },
+          {
+            "id": "other-not-categorized__oregano",
+            "name": "oregano"
+          },
+          {
+            "id": "other-not-categorized__oreo-chocolate-cookies",
+            "name": "oreo chocolate cookies"
+          },
+          {
+            "id": "other-not-categorized__oreo-cookie",
+            "name": "oreo cookie"
+          },
+          {
+            "id": "other-not-categorized__ovaltine-cocoa",
+            "name": "ovaltine cocoa"
+          },
+          {
+            "id": "other-not-categorized__pa-so-one-slow-night",
+            "name": "pa so one slow night"
+          },
+          {
+            "id": "other-not-categorized__papaya",
+            "name": "papaya"
+          },
+          {
+            "id": "other-not-categorized__papaya-nectar",
+            "name": "papaya nectar"
+          },
+          {
+            "id": "other-not-categorized__paraiso",
+            "name": "paraiso"
+          },
+          {
+            "id": "other-not-categorized__parfait-d-amour",
+            "name": "parfait d'amour"
+          },
+          {
+            "id": "other-not-categorized__partida-agave-nectar",
+            "name": "partida agave nectar"
+          },
+          {
+            "id": "other-not-categorized__passion-fruit",
+            "name": "passion-fruit"
+          },
+          {
+            "id": "other-not-categorized__passion-fruit-nectar",
+            "name": "passion-fruit nectar"
+          },
+          {
+            "id": "other-not-categorized__passion-fruit-puree",
+            "name": "passion-fruit puree"
+          },
+          {
+            "id": "other-not-categorized__passoa",
+            "name": "passoa"
+          },
+          {
+            "id": "other-not-categorized__peach",
+            "name": "peach"
+          },
+          {
+            "id": "other-not-categorized__peach-kernel",
+            "name": "peach kernel"
+          },
+          {
+            "id": "other-not-categorized__peach-nectar",
+            "name": "peach nectar"
+          },
+          {
+            "id": "other-not-categorized__peach-puree",
+            "name": "peach puree"
+          },
+          {
+            "id": "other-not-categorized__peach-sherbet",
+            "name": "peach sherbet"
+          },
+          {
+            "id": "other-not-categorized__peach-flavored-water",
+            "name": "peach-flavored water"
+          },
+          {
+            "id": "other-not-categorized__peaches",
+            "name": "peaches"
+          },
+          {
+            "id": "other-not-categorized__peanut-butter",
+            "name": "peanut butter"
+          },
+          {
+            "id": "other-not-categorized__pear",
+            "name": "pear"
+          },
+          {
+            "id": "other-not-categorized__pear-cider",
+            "name": "pear cider"
+          },
+          {
+            "id": "other-not-categorized__pear-nectar",
+            "name": "pear nectar"
+          },
+          {
+            "id": "other-not-categorized__pear-puree",
+            "name": "pear puree"
+          },
+          {
+            "id": "other-not-categorized__pear-soft-drink",
+            "name": "pear soft drink"
+          },
+          {
+            "id": "other-not-categorized__pears",
+            "name": "pears"
+          },
+          {
+            "id": "other-not-categorized__pecan-nuts",
+            "name": "pecan nuts"
+          },
+          {
+            "id": "other-not-categorized__pepper-sauce",
+            "name": "pepper sauce"
+          },
+          {
+            "id": "other-not-categorized__pepperoncini",
+            "name": "pepperoncini"
+          },
+          {
+            "id": "other-not-categorized__peppers",
+            "name": "peppers"
+          },
+          {
+            "id": "other-not-categorized__pernod",
+            "name": "pernod"
+          },
+          {
+            "id": "other-not-categorized__petrol",
+            "name": "petrol"
+          },
+          {
+            "id": "other-not-categorized__pickle",
+            "name": "pickle"
+          },
+          {
+            "id": "other-not-categorized__pickle-brine",
+            "name": "pickle brine"
+          },
+          {
+            "id": "other-not-categorized__pickled-pepper",
+            "name": "pickled pepper"
+          },
+          {
+            "id": "other-not-categorized__pimm-s-no-1",
+            "name": "pimm's no. 1"
+          },
+          {
+            "id": "other-not-categorized__pina-colada",
+            "name": "pina colada"
+          },
+          {
+            "id": "other-not-categorized__pineapple",
+            "name": "pineapple"
+          },
+          {
+            "id": "other-not-categorized__pineapple-sherbet",
+            "name": "pineapple sherbet"
+          },
+          {
+            "id": "other-not-categorized__pineapple-coconut-nectar",
+            "name": "pineapple-coconut nectar"
+          },
+          {
+            "id": "other-not-categorized__pineapples",
+            "name": "pineapples"
+          },
+          {
+            "id": "other-not-categorized__pineau-des-charentes",
+            "name": "pineau des charentes"
+          },
+          {
+            "id": "other-not-categorized__pink-lemonade",
+            "name": "pink lemonade"
+          },
+          {
+            "id": "other-not-categorized__pisang-ambon",
+            "name": "pisang ambon"
+          },
+          {
+            "id": "other-not-categorized__pisco",
+            "name": "pisco"
+          },
+          {
+            "id": "other-not-categorized__polmos",
+            "name": "polmos"
+          },
+          {
+            "id": "other-not-categorized__pomegranate",
+            "name": "pomegranate"
+          },
+          {
+            "id": "other-not-categorized__pop-rocks-candy",
+            "name": "pop rocks candy"
+          },
+          {
+            "id": "other-not-categorized__pop-ice",
+            "name": "pop-ice"
+          },
+          {
+            "id": "other-not-categorized__popsicle",
+            "name": "popsicle"
+          },
+          {
+            "id": "other-not-categorized__port",
+            "name": "port"
+          },
+          {
+            "id": "other-not-categorized__powdered-sugar",
+            "name": "powdered sugar"
+          },
+          {
+            "id": "other-not-categorized__powerade-lemon-lime-powder",
+            "name": "powerade lemon-lime powder"
+          },
+          {
+            "id": "other-not-categorized__prune",
+            "name": "prune"
+          },
+          {
+            "id": "other-not-categorized__pumpkin-puree",
+            "name": "pumpkin puree"
+          },
+          {
+            "id": "other-not-categorized__purple-passion",
+            "name": "purple passion"
+          },
+          {
+            "id": "other-not-categorized__raf-akrotiri",
+            "name": "raf akrotiri"
+          },
+          {
+            "id": "other-not-categorized__rainbow-sherbert",
+            "name": "rainbow sherbert"
+          },
+          {
+            "id": "other-not-categorized__rainier-lager",
+            "name": "rainier lager"
+          },
+          {
+            "id": "other-not-categorized__raspberries",
+            "name": "raspberries"
+          },
+          {
+            "id": "other-not-categorized__raspberry",
+            "name": "raspberry"
+          },
+          {
+            "id": "other-not-categorized__raspberry-cordial",
+            "name": "raspberry cordial"
+          },
+          {
+            "id": "other-not-categorized__raspberry-di-amore",
+            "name": "raspberry di amore"
+          },
+          {
+            "id": "other-not-categorized__raspberry-jam",
+            "name": "raspberry jam"
+          },
+          {
+            "id": "other-not-categorized__raspberry-lemonade",
+            "name": "raspberry lemonade"
+          },
+          {
+            "id": "other-not-categorized__raspberry-puree",
+            "name": "raspberry puree"
+          },
+          {
+            "id": "other-not-categorized__raspberry-sherbet",
+            "name": "raspberry sherbet"
+          },
+          {
+            "id": "other-not-categorized__razzmatazz",
+            "name": "razzmatazz"
+          },
+          {
+            "id": "other-not-categorized__red-cayenne-peppers",
+            "name": "red cayenne peppers"
+          },
+          {
+            "id": "other-not-categorized__red-cordial",
+            "name": "red cordial"
+          },
+          {
+            "id": "other-not-categorized__ribena-blackcurrant-cordial",
+            "name": "ribena blackcurrant cordial"
+          },
+          {
+            "id": "other-not-categorized__ricard",
+            "name": "ricard"
+          },
+          {
+            "id": "other-not-categorized__ricard-pastis",
+            "name": "ricard pastis"
+          },
+          {
+            "id": "other-not-categorized__rock-melon",
+            "name": "rock melon"
+          },
+          {
+            "id": "other-not-categorized__rosewater",
+            "name": "rosewater"
+          },
+          {
+            "id": "other-not-categorized__royal-crown-cola",
+            "name": "royal crown cola"
+          },
+          {
+            "id": "other-not-categorized__ruby-port",
+            "name": "ruby port"
+          },
+          {
+            "id": "other-not-categorized__russchian",
+            "name": "russchian"
+          },
+          {
+            "id": "other-not-categorized__russian-tonic-water",
+            "name": "russian tonic water"
+          },
+          {
+            "id": "other-not-categorized__sadly-understated-and",
+            "name": "sadly understated. and"
+          },
+          {
+            "id": "other-not-categorized__safari",
+            "name": "safari"
+          },
+          {
+            "id": "other-not-categorized__sagatiba-pura",
+            "name": "sagatiba pura"
+          },
+          {
+            "id": "other-not-categorized__sake",
+            "name": "sake"
+          },
+          {
+            "id": "other-not-categorized__sarsaparilla",
+            "name": "sarsaparilla"
+          },
+          {
+            "id": "other-not-categorized__saurer-apfel",
+            "name": "saurer apfel"
+          },
+          {
+            "id": "other-not-categorized__sea-dog-blue-paw-wheat-ale",
+            "name": "sea dog blue paw wheat ale"
+          },
+          {
+            "id": "other-not-categorized__seagram-7",
+            "name": "seagram 7"
+          },
+          {
+            "id": "other-not-categorized__semtex-forte",
+            "name": "semtex forte"
+          },
+          {
+            "id": "other-not-categorized__sherbet",
+            "name": "sherbet"
+          },
+          {
+            "id": "other-not-categorized__sho-chiku-bai-sake",
+            "name": "sho chiku bai sake"
+          },
+          {
+            "id": "other-not-categorized__shochu",
+            "name": "shochu"
+          },
+          {
+            "id": "other-not-categorized__skimmed-milk",
+            "name": "skimmed milk"
+          },
+          {
+            "id": "other-not-categorized__skittles",
+            "name": "skittles"
+          },
+          {
+            "id": "other-not-categorized__slush-puppie",
+            "name": "slush puppie"
+          },
+          {
+            "id": "other-not-categorized__smoky-barbecue-sauce",
+            "name": "smoky barbecue sauce"
+          },
+          {
+            "id": "other-not-categorized__soju",
+            "name": "soju"
+          },
+          {
+            "id": "other-not-categorized__sour-apple-pucker",
+            "name": "sour apple pucker"
+          },
+          {
+            "id": "other-not-categorized__sour-cherries",
+            "name": "sour cherries"
+          },
+          {
+            "id": "other-not-categorized__sour-lemonade",
+            "name": "sour lemonade"
+          },
+          {
+            "id": "other-not-categorized__sour-puss",
+            "name": "sour puss"
+          },
+          {
+            "id": "other-not-categorized__southern-ontario",
+            "name": "southern ontario"
+          },
+          {
+            "id": "other-not-categorized__soy-milk",
+            "name": "soy milk"
+          },
+          {
+            "id": "other-not-categorized__soy-sauce",
+            "name": "soy sauce"
+          },
+          {
+            "id": "other-not-categorized__sparkling-berry-jello",
+            "name": "sparkling berry jello"
+          },
+          {
+            "id": "other-not-categorized__sparkling-water",
+            "name": "sparkling water"
+          },
+          {
+            "id": "other-not-categorized__spearmint",
+            "name": "spearmint"
+          },
+          {
+            "id": "other-not-categorized__spiced-cider",
+            "name": "spiced cider"
+          },
+          {
+            "id": "other-not-categorized__squid",
+            "name": "squid"
+          },
+          {
+            "id": "other-not-categorized__steak-sauce",
+            "name": "steak sauce"
+          },
+          {
+            "id": "other-not-categorized__stella-artois-lager",
+            "name": "stella artois lager"
+          },
+          {
+            "id": "other-not-categorized__steven-seagal-s-lightning-bolt",
+            "name": "steven seagal's lightning bolt"
+          },
+          {
+            "id": "other-not-categorized__stout",
+            "name": "stout"
+          },
+          {
+            "id": "other-not-categorized__strawberries",
+            "name": "strawberries"
+          },
+          {
+            "id": "other-not-categorized__strawberry-breeze",
+            "name": "strawberry breeze"
+          },
+          {
+            "id": "other-not-categorized__strawberry-crush",
+            "name": "strawberry crush"
+          },
+          {
+            "id": "other-not-categorized__strawberry-puree",
+            "name": "strawberry puree"
+          },
+          {
+            "id": "other-not-categorized__strawberry-banana-nectar",
+            "name": "strawberry-banana nectar"
+          },
+          {
+            "id": "other-not-categorized__strongbow-cider",
+            "name": "strongbow cider"
+          },
+          {
+            "id": "other-not-categorized__superfine-sugar",
+            "name": "superfine sugar"
+          },
+          {
+            "id": "other-not-categorized__surge",
+            "name": "surge"
+          },
+          {
+            "id": "other-not-categorized__swedish-punsch",
+            "name": "swedish punsch"
+          },
+          {
+            "id": "other-not-categorized__sweet-and-sour",
+            "name": "sweet and sour"
+          },
+          {
+            "id": "other-not-categorized__sweet-and-sour-sauce",
+            "name": "sweet and sour sauce"
+          },
+          {
+            "id": "other-not-categorized__sweet-n-low-artificial-sweetener",
+            "name": "sweet'n low artificial sweetener"
+          },
+          {
+            "id": "other-not-categorized__sweetened-condensed-milk",
+            "name": "sweetened condensed milk"
+          },
+          {
+            "id": "other-not-categorized__tabasco-sauce",
+            "name": "tabasco sauce"
+          },
+          {
+            "id": "other-not-categorized__taboo",
+            "name": "taboo"
+          },
+          {
+            "id": "other-not-categorized__tamarillo",
+            "name": "tamarillo"
+          },
+          {
+            "id": "other-not-categorized__tamarind",
+            "name": "tamarind"
+          },
+          {
+            "id": "other-not-categorized__tamarindo-puree",
+            "name": "tamarindo puree"
+          },
+          {
+            "id": "other-not-categorized__tang",
+            "name": "tang"
+          },
+          {
+            "id": "other-not-categorized__tang-powdered-soft-drink",
+            "name": "tang powdered soft drink"
+          },
+          {
+            "id": "other-not-categorized__tapatio-hot-sauce",
+            "name": "tapatio hot sauce"
+          },
+          {
+            "id": "other-not-categorized__tastes-just-fine",
+            "name": "tastes just fine.\""
+          },
+          {
+            "id": "other-not-categorized__tawny-port",
+            "name": "tawny port"
+          },
+          {
+            "id": "other-not-categorized__tazo-passion-tea",
+            "name": "tazo passion tea"
+          },
+          {
+            "id": "other-not-categorized__tea",
+            "name": "tea"
+          },
+          {
+            "id": "other-not-categorized__thunderbird",
+            "name": "thunderbird"
+          },
+          {
+            "id": "other-not-categorized__tia-maria",
+            "name": "tia maria"
+          },
+          {
+            "id": "other-not-categorized__tictac",
+            "name": "tictac"
+          },
+          {
+            "id": "other-not-categorized__toffee",
+            "name": "toffee"
+          },
+          {
+            "id": "other-not-categorized__tonic-water",
+            "name": "tonic water"
+          },
+          {
+            "id": "other-not-categorized__tony-chachere-s-creole-seasoning",
+            "name": "tony chachere's creole seasoning"
+          },
+          {
+            "id": "other-not-categorized__trader-joe-s-spicy-cider",
+            "name": "trader joe's spicy cider"
+          },
+          {
+            "id": "other-not-categorized__tropical-fruit-furry-twister",
+            "name": "tropical fruit furry twister"
+          },
+          {
+            "id": "other-not-categorized__tropical-fruit-puree",
+            "name": "tropical-fruit puree"
+          },
+          {
+            "id": "other-not-categorized__twist-cola",
+            "name": "twist cola"
+          },
+          {
+            "id": "other-not-categorized__twister-kinetic-kiwi-strawberry",
+            "name": "twister kinetic kiwi strawberry"
+          },
+          {
+            "id": "other-not-categorized__uv-blue",
+            "name": "uv blue"
+          },
+          {
+            "id": "other-not-categorized__v8-splash-raspberry-lemonade",
+            "name": "v8 splash raspberry lemonade"
+          },
+          {
+            "id": "other-not-categorized__v8-splash-tropical-blend",
+            "name": "v8 splash tropical blend"
+          },
+          {
+            "id": "other-not-categorized__vana-tallinn",
+            "name": "vana tallinn"
+          },
+          {
+            "id": "other-not-categorized__vanilla",
+            "name": "vanilla"
+          },
+          {
+            "id": "other-not-categorized__vanilla-chai-tea",
+            "name": "vanilla chai tea"
+          },
+          {
+            "id": "other-not-categorized__vanilla-cola",
+            "name": "vanilla cola"
+          },
+          {
+            "id": "other-not-categorized__vault-zero",
+            "name": "vault zero"
+          },
+          {
+            "id": "other-not-categorized__vimto-blackcurrant-squash",
+            "name": "vimto blackcurrant squash"
+          },
+          {
+            "id": "other-not-categorized__vinegar",
+            "name": "vinegar"
+          },
+          {
+            "id": "other-not-categorized__vita-coco-coconut-water",
+            "name": "vita coco coconut water"
+          },
+          {
+            "id": "other-not-categorized__vitamin-c",
+            "name": "vitamin c"
+          },
+          {
+            "id": "other-not-categorized__viuda-de-sanchez",
+            "name": "viuda de sanchez"
+          },
+          {
+            "id": "other-not-categorized__watermelon",
+            "name": "watermelon"
+          },
+          {
+            "id": "other-not-categorized__watermelon-cocktail-infusion",
+            "name": "watermelon cocktail infusion"
+          },
+          {
+            "id": "other-not-categorized__watermelons",
+            "name": "watermelons"
+          },
+          {
+            "id": "other-not-categorized__west-coast-cooler",
+            "name": "west coast cooler"
+          },
+          {
+            "id": "other-not-categorized__white-creme-de-cacao",
+            "name": "white creme de cacao"
+          },
+          {
+            "id": "other-not-categorized__white-creme-de-menthe",
+            "name": "white creme de menthe"
+          },
+          {
+            "id": "other-not-categorized__white-lightning-cider",
+            "name": "white lightning cider"
+          },
+          {
+            "id": "other-not-categorized__white-port",
+            "name": "white port"
+          },
+          {
+            "id": "other-not-categorized__wi-on-the-uwec-campus",
+            "name": "wi on the uwec campus"
+          },
+          {
+            "id": "other-not-categorized__wilcox-chocolate-milk",
+            "name": "wilcox chocolate milk"
+          },
+          {
+            "id": "other-not-categorized__wild-cherry-cola",
+            "name": "wild cherry cola"
+          },
+          {
+            "id": "other-not-categorized__worcestershire-sauce",
+            "name": "worcestershire sauce"
+          },
+          {
+            "id": "other-not-categorized__wormwood",
+            "name": "wormwood"
+          },
+          {
+            "id": "other-not-categorized__yeast",
+            "name": "yeast"
+          },
+          {
+            "id": "other-not-categorized__yellow-chartreuse",
+            "name": "yellow chartreuse"
+          },
+          {
+            "id": "other-not-categorized__yellow-lemonade",
+            "name": "yellow lemonade"
+          },
+          {
+            "id": "other-not-categorized__yoghurt",
+            "name": "yoghurt"
+          },
+          {
+            "id": "other-not-categorized__yoo-hoo-chocolate-milk",
+            "name": "yoo-hoo chocolate milk"
+          },
+          {
+            "id": "other-not-categorized__ypioca-ouro-cachaca",
+            "name": "ypioca ouro cachaca"
+          },
+          {
+            "id": "other-not-categorized__yukon-jack",
+            "name": "yukon jack"
+          },
+          {
+            "id": "other-not-categorized__zima",
+            "name": "zima"
+          }
+        ]
+      },
+      {
+        "id": "syrup",
+        "name": "syrup",
+        "items": [
+          {
+            "id": "syrup__almond-syrup",
+            "name": "almond syrup"
+          },
+          {
+            "id": "syrup__banana-syrup",
+            "name": "banana syrup"
+          },
+          {
+            "id": "syrup__blueberry-syrup",
+            "name": "blueberry syrup"
+          },
+          {
+            "id": "syrup__brown-sugar-syrup",
+            "name": "brown sugar syrup"
+          },
+          {
+            "id": "syrup__caramel-syrup",
+            "name": "caramel syrup"
+          },
+          {
+            "id": "syrup__cherry-syrup",
+            "name": "cherry syrup"
+          },
+          {
+            "id": "syrup__chocolate-syrup",
+            "name": "chocolate syrup"
+          },
+          {
+            "id": "syrup__clove-syrup",
+            "name": "clove syrup"
+          },
+          {
+            "id": "syrup__coconut-syrup",
+            "name": "coconut syrup"
+          },
+          {
+            "id": "syrup__corn-syrup",
+            "name": "corn syrup"
+          },
+          {
+            "id": "syrup__currant-syrup",
+            "name": "currant syrup"
+          },
+          {
+            "id": "syrup__davinci-gourmet-vanilla-syrup",
+            "name": "davinci gourmet vanilla syrup"
+          },
+          {
+            "id": "syrup__falernum-syrup",
+            "name": "falernum syrup"
+          },
+          {
+            "id": "syrup__fruit-syrup",
+            "name": "fruit syrup"
+          },
+          {
+            "id": "syrup__ginger-syrup",
+            "name": "ginger syrup"
+          },
+          {
+            "id": "syrup__gingerbread-syrup",
+            "name": "gingerbread syrup"
+          },
+          {
+            "id": "syrup__gomme-syrup",
+            "name": "gomme syrup"
+          },
+          {
+            "id": "syrup__grenadine-syrup",
+            "name": "grenadine syrup"
+          },
+          {
+            "id": "syrup__guava-syrup",
+            "name": "guava syrup"
+          },
+          {
+            "id": "syrup__kiwi-syrup",
+            "name": "kiwi syrup"
+          },
+          {
+            "id": "syrup__lemon-syrup",
+            "name": "lemon syrup"
+          },
+          {
+            "id": "syrup__lime-syrup",
+            "name": "lime syrup"
+          },
+          {
+            "id": "syrup__mango-syrup",
+            "name": "mango syrup"
+          },
+          {
+            "id": "syrup__maple-syrup",
+            "name": "maple syrup"
+          },
+          {
+            "id": "syrup__maracuja-syrup",
+            "name": "maracuja syrup"
+          },
+          {
+            "id": "syrup__maraschino-syrup",
+            "name": "maraschino syrup"
+          },
+          {
+            "id": "syrup__mint-syrup",
+            "name": "mint syrup"
+          },
+          {
+            "id": "syrup__monin-apple-syrup",
+            "name": "monin apple syrup"
+          },
+          {
+            "id": "syrup__monin-blue-curacao-syrup",
+            "name": "monin blue curacao syrup"
+          },
+          {
+            "id": "syrup__monin-cherry-syrup",
+            "name": "monin cherry syrup"
+          },
+          {
+            "id": "syrup__monin-cinnamon-syrup",
+            "name": "monin cinnamon syrup"
+          },
+          {
+            "id": "syrup__monin-coconut-syrup",
+            "name": "monin coconut syrup"
+          },
+          {
+            "id": "syrup__monin-hazelnut-syrup",
+            "name": "monin hazelnut syrup"
+          },
+          {
+            "id": "syrup__nestle-chocolate-syrup",
+            "name": "nestle chocolate syrup"
+          },
+          {
+            "id": "syrup__orange-syrup",
+            "name": "orange syrup"
+          },
+          {
+            "id": "syrup__orgeat-syrup",
+            "name": "orgeat syrup"
+          },
+          {
+            "id": "syrup__passion-fruit-syrup",
+            "name": "passion fruit syrup"
+          },
+          {
+            "id": "syrup__pear-syrup",
+            "name": "pear syrup"
+          },
+          {
+            "id": "syrup__pineapple-syrup",
+            "name": "pineapple syrup"
+          },
+          {
+            "id": "syrup__raspberry-syrup",
+            "name": "raspberry syrup"
+          },
+          {
+            "id": "syrup__simple-syrup",
+            "name": "simple syrup"
+          },
+          {
+            "id": "syrup__strawberry-syrup",
+            "name": "strawberry syrup"
+          },
+          {
+            "id": "syrup__sugar-syrup",
+            "name": "sugar syrup"
+          },
+          {
+            "id": "syrup__syrup",
+            "name": "syrup"
+          },
+          {
+            "id": "syrup__syrup-of-roses",
+            "name": "syrup of roses"
+          },
+          {
+            "id": "syrup__vanilla-syrup",
+            "name": "vanilla syrup"
+          }
+        ]
+      }
+    ]
+  }
+]
