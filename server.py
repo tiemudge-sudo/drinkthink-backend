@@ -670,6 +670,8 @@ DEFAULT_FLAGS = {
     "new_filters_enabled": False,
     # New feature — per policy, ships ON in dev, flip to False before release.
     "cupboard_filter_enabled": True,
+    # Consumer ordering is ON for current UI testing. Toggle remotely via /api/config before store release.
+    "consumer_ordering_enabled": True,
 }
 
 
