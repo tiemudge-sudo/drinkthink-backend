@@ -6,6 +6,9 @@ import os
 import json
 import uuid
 import logging
+import base64
+import hashlib
+import hmac
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from pydantic import BaseModel, Field
@@ -668,45 +671,19 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
 
 DEFAULT_FLAGS = {
     "new_filters_enabled": False,
+    # New feature — per policy, ships ON in dev, flip to False before release.
     "cupboard_filter_enabled": True,
-    "consumer_ordering_enabled": False,
 }
-
-# Feature flags are stored independently for each release environment.
-# Documents use _id values such as flags:development, flags:preview,
-# and flags:production.  This prevents a development toggle from changing
-# the configuration returned to production builds.
-VALID_CONFIG_ENVIRONMENTS = {"development", "preview", "production"}
-
-
-def _normalize_config_environment(value: str | None) -> str:
-    environment = (value or "production").strip().lower()
-    if environment not in VALID_CONFIG_ENVIRONMENTS:
-        raise HTTPException(status_code=400, detail="Invalid app environment")
-    return environment
-
-
-def _default_flags_for_environment(environment: str) -> dict:
-    flags = dict(DEFAULT_FLAGS)
-    # Ordering is exposed in development for the current test cycle, while
-    # preview and production remain safely off until explicitly enabled.
-    if environment == "development":
-        flags["consumer_ordering_enabled"] = True
-    return flags
 
 
 @api_router.get("/config")
-async def get_remote_config(x_drinkthink_environment: str | None = Header(default=None)):
-    environment = _normalize_config_environment(x_drinkthink_environment)
-    doc = await db.app_config.find_one(
-        {"_id": f"flags:{environment}"}, {"_id": 0}
-    )
-    flags = {**_default_flags_for_environment(environment), **(doc or {})}
-    return {"environment": environment, **flags}
+async def get_remote_config():
+    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
+    flags = {**DEFAULT_FLAGS, **(doc or {})}
+    return flags
 
 
 class UpdateFlagsRequest(BaseModel):
-    environment: str
     flags: dict
     admin_key: str
 
@@ -716,31 +693,13 @@ async def update_remote_config(body: UpdateFlagsRequest):
     expected_key = os.environ.get("ADMIN_TOGGLE_KEY")
     if not expected_key or body.admin_key != expected_key:
         raise HTTPException(status_code=403, detail="Invalid admin key")
-
-    environment = _normalize_config_environment(body.environment)
-    allowed_flags = set(DEFAULT_FLAGS)
-    unknown_flags = set(body.flags) - allowed_flags
-    if unknown_flags:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unknown feature flag(s): {', '.join(sorted(unknown_flags))}",
-        )
-    if any(not isinstance(value, bool) for value in body.flags.values()):
-        raise HTTPException(status_code=400, detail="Feature flag values must be boolean")
-
     await db.app_config.update_one(
-        {"_id": f"flags:{environment}"},
+        {"_id": "flags"},
         {"$set": body.flags},
         upsert=True,
     )
-    doc = await db.app_config.find_one(
-        {"_id": f"flags:{environment}"}, {"_id": 0}
-    )
-    return {
-        "environment": environment,
-        **_default_flags_for_environment(environment),
-        **(doc or {}),
-    }
+    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
+    return {**DEFAULT_FLAGS, **(doc or {})}
 
 
 @api_router.get("/ingredients")
@@ -770,6 +729,71 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
         upsert=True,
     )
     return {"ok": True}
+
+
+class ShareCheckInRequest(BaseModel):
+    location_id: str
+    expires_at: datetime
+    latitude: float
+    longitude: float
+
+
+# Temporary test-location registry for the current UI test cycle. Replace with the
+# canonical locations collection when the locations master endpoints are deployed.
+SHAREABLE_LOCATIONS = {
+    "loc_test_ties_house": {"location_id":"loc_test_ties_house","name":"Tie's house","address":"3417 S. Almeria Ave, Tampa, FL 33629"},
+    "loc_test_forbici_tampa": {"location_id":"loc_test_forbici_tampa","name":"Forbici","address":"1633 W Snow Ave, Tampa, FL 33606"},
+}
+
+def _share_secret() -> bytes:
+    secret = os.environ.get("SHARE_CHECKIN_SECRET") or os.environ.get("ADMIN_TOGGLE_KEY")
+    if not secret:
+        raise HTTPException(status_code=503, detail="Shared check-in is not configured")
+    return secret.encode()
+
+def _b64(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode().rstrip("=")
+
+def _unb64(value: str) -> bytes:
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+def _sign_shared_checkin(payload: dict) -> str:
+    raw = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+    body = _b64(raw)
+    sig = _b64(hmac.new(_share_secret(), body.encode(), hashlib.sha256).digest())
+    return f"{body}.{sig}"
+
+def _verify_shared_checkin(token: str) -> dict:
+    try:
+        body, supplied = token.split(".", 1)
+        expected = _b64(hmac.new(_share_secret(), body.encode(), hashlib.sha256).digest())
+        if not hmac.compare_digest(supplied, expected): raise ValueError()
+        payload = json.loads(_unb64(body))
+        if datetime.now(timezone.utc).timestamp() >= float(payload["exp"]): raise ValueError()
+        return payload
+    except Exception:
+        raise HTTPException(status_code=400, detail="Shared check-in link is invalid or expired")
+
+@api_router.post("/locations/share-check-in")
+async def create_shared_checkin(body: ShareCheckInRequest, user: User = Depends(current_user)):
+    loc = SHAREABLE_LOCATIONS.get(body.location_id)
+    if not loc:
+        raise HTTPException(status_code=404, detail="Location not available for sharing")
+    now = datetime.now(timezone.utc)
+    requested = body.expires_at if body.expires_at.tzinfo else body.expires_at.replace(tzinfo=timezone.utc)
+    expires = min(requested, now + timedelta(hours=4))
+    if expires <= now:
+        raise HTTPException(status_code=400, detail="Check-in has expired")
+    token = _sign_shared_checkin({"location_id": body.location_id, "latitude": body.latitude, "longitude": body.longitude, "exp": int(expires.timestamp()), "source": "shared_link"})
+    return {"check_in_url": f"drinkthink://checkin?token={token}", "expires_at": expires.isoformat()}
+
+@api_router.get("/locations/shared-check-in")
+async def validate_shared_checkin(token: str):
+    payload = _verify_shared_checkin(token)
+    loc = SHAREABLE_LOCATIONS.get(payload.get("location_id"))
+    if not loc:
+        raise HTTPException(status_code=404, detail="Location not found")
+    return {"location": {**loc, "latitude": payload["latitude"], "longitude": payload["longitude"]}, "source": "shared_link", "expires_at": datetime.fromtimestamp(payload["exp"], timezone.utc).isoformat()}
 
 
 app.include_router(api_router)
