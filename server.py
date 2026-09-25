@@ -668,21 +668,45 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
 
 DEFAULT_FLAGS = {
     "new_filters_enabled": False,
-    # New feature — per policy, ships ON in dev, flip to False before release.
     "cupboard_filter_enabled": True,
-    # Consumer ordering is ON for current UI testing. Toggle remotely via /api/config before store release.
-    "consumer_ordering_enabled": True,
+    "consumer_ordering_enabled": False,
 }
 
+# Feature flags are stored independently for each release environment.
+# Documents use _id values such as flags:development, flags:preview,
+# and flags:production.  This prevents a development toggle from changing
+# the configuration returned to production builds.
+VALID_CONFIG_ENVIRONMENTS = {"development", "preview", "production"}
 
-@api_router.get("/config")
-async def get_remote_config():
-    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
-    flags = {**DEFAULT_FLAGS, **(doc or {})}
+
+def _normalize_config_environment(value: str | None) -> str:
+    environment = (value or "production").strip().lower()
+    if environment not in VALID_CONFIG_ENVIRONMENTS:
+        raise HTTPException(status_code=400, detail="Invalid app environment")
+    return environment
+
+
+def _default_flags_for_environment(environment: str) -> dict:
+    flags = dict(DEFAULT_FLAGS)
+    # Ordering is exposed in development for the current test cycle, while
+    # preview and production remain safely off until explicitly enabled.
+    if environment == "development":
+        flags["consumer_ordering_enabled"] = True
     return flags
 
 
+@api_router.get("/config")
+async def get_remote_config(x_drinkthink_environment: str | None = Header(default=None)):
+    environment = _normalize_config_environment(x_drinkthink_environment)
+    doc = await db.app_config.find_one(
+        {"_id": f"flags:{environment}"}, {"_id": 0}
+    )
+    flags = {**_default_flags_for_environment(environment), **(doc or {})}
+    return {"environment": environment, **flags}
+
+
 class UpdateFlagsRequest(BaseModel):
+    environment: str
     flags: dict
     admin_key: str
 
@@ -692,13 +716,31 @@ async def update_remote_config(body: UpdateFlagsRequest):
     expected_key = os.environ.get("ADMIN_TOGGLE_KEY")
     if not expected_key or body.admin_key != expected_key:
         raise HTTPException(status_code=403, detail="Invalid admin key")
+
+    environment = _normalize_config_environment(body.environment)
+    allowed_flags = set(DEFAULT_FLAGS)
+    unknown_flags = set(body.flags) - allowed_flags
+    if unknown_flags:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown feature flag(s): {', '.join(sorted(unknown_flags))}",
+        )
+    if any(not isinstance(value, bool) for value in body.flags.values()):
+        raise HTTPException(status_code=400, detail="Feature flag values must be boolean")
+
     await db.app_config.update_one(
-        {"_id": "flags"},
+        {"_id": f"flags:{environment}"},
         {"$set": body.flags},
         upsert=True,
     )
-    doc = await db.app_config.find_one({"_id": "flags"}, {"_id": 0})
-    return {**DEFAULT_FLAGS, **(doc or {})}
+    doc = await db.app_config.find_one(
+        {"_id": f"flags:{environment}"}, {"_id": 0}
+    )
+    return {
+        "environment": environment,
+        **_default_flags_for_environment(environment),
+        **(doc or {}),
+    }
 
 
 @api_router.get("/ingredients")
