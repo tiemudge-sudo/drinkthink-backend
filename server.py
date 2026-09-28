@@ -71,6 +71,9 @@ class HospitalityPartnerApplicationRequest(BaseModel):
     state_region: str = Field(min_length=2, max_length=100)
     postal_code: str = Field(min_length=2, max_length=20)
     country: str = Field(default="US", min_length=2, max_length=2)
+    website_url: Optional[str] = Field(default=None, max_length=500)
+    menu_url: Optional[str] = Field(default=None, max_length=500)
+    contact_title_role: Optional[str] = Field(default=None, max_length=120)
 
     contact_name: str = Field(min_length=2, max_length=120)
     contact_email: EmailStr
@@ -82,9 +85,20 @@ class HospitalityPartnerApplicationRequest(BaseModel):
     comments: Optional[str] = Field(default=None, max_length=2000)
 
     @field_validator(
-        "business_name", "location_name", "street_address", "city",
-        "state_region", "postal_code", "contact_name", "contact_phone",
-        "pos_provider", "comments", mode="before"
+    "business_name",
+    "location_name",
+    "street_address",
+    "city",
+    "state_region",
+    "postal_code",
+    "website_url",
+    "menu_url",
+    "contact_title_role",
+    "contact_name",
+    "contact_phone",
+    "pos_provider",
+    "comments",
+    mode="before"
     )
     @classmethod
     def normalize_text(cls, value):
