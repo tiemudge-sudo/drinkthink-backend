@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,10 +9,12 @@ import logging
 import base64
 import hashlib
 import hmac
+import secrets
+import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
+from typing import List, Optional, Literal
 
 import httpx
 
@@ -57,6 +59,142 @@ class MatchResponse(BaseModel):
     query: dict         # user slider labels -> values
     query_mapped: dict  # mapped to DB dims
 
+
+
+# ------------- Public Hospitality Partner Applications -------------
+
+class HospitalityPartnerApplicationRequest(BaseModel):
+    business_name: str = Field(min_length=2, max_length=160)
+    location_name: Optional[str] = Field(default=None, max_length=160)
+    street_address: str = Field(min_length=3, max_length=200)
+    city: str = Field(min_length=2, max_length=100)
+    state_region: str = Field(min_length=2, max_length=100)
+    postal_code: str = Field(min_length=2, max_length=20)
+    country: str = Field(default="US", min_length=2, max_length=2)
+
+    contact_name: str = Field(min_length=2, max_length=120)
+    contact_email: EmailStr
+    contact_phone: Optional[str] = Field(default=None, max_length=32)
+
+    has_multiple_locations: bool
+    partnership_path: Literal["ordering", "drink_menu", "general_interest"]
+    pos_provider: Optional[str] = Field(default=None, max_length=80)
+    comments: Optional[str] = Field(default=None, max_length=2000)
+
+    @field_validator(
+        "business_name", "location_name", "street_address", "city",
+        "state_region", "postal_code", "contact_name", "contact_phone",
+        "pos_provider", "comments", mode="before"
+    )
+    @classmethod
+    def normalize_text(cls, value):
+        if value is None:
+            return None
+        value = re.sub(r"\s+", " ", str(value)).strip()
+        return value or None
+
+    @field_validator("country")
+    @classmethod
+    def normalize_country(cls, value: str):
+        return value.strip().upper()
+
+    @field_validator("contact_email", mode="before")
+    @classmethod
+    def normalize_email(cls, value):
+        return str(value).strip().lower()
+
+    @model_validator(mode="after")
+    def validate_path(self):
+        if self.partnership_path == "ordering" and not self.pos_provider:
+            raise ValueError("pos_provider is required when partnership_path is 'ordering'")
+        return self
+
+
+class HospitalityPartnerApplicationResponse(BaseModel):
+    application_id: str
+    status: Literal["pending"]
+    submitted_at: datetime
+
+
+def _partner_application_id() -> str:
+    return "hpa_" + secrets.token_urlsafe(12).replace("-", "").replace("_", "")[:16]
+
+
+def _client_ip(request: Request) -> str:
+    # Railway/Cloudflare deployments normally supply X-Forwarded-For.
+    # Only the first address is used for abuse throttling and it is not persisted.
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",", 1)[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+# Per-process burst guard. Production edge rate limiting should also be enabled
+# at Cloudflare/Railway because this process-local guard does not coordinate
+# across multiple workers/instances.
+_PARTNER_RATE_WINDOW_SECONDS = 3600
+_PARTNER_RATE_MAX = 5
+_partner_rate_events: dict[str, list[float]] = {}
+
+
+def _enforce_partner_rate_limit(request: Request, response: Response) -> None:
+    now = datetime.now(timezone.utc).timestamp()
+    key = _client_ip(request)
+    cutoff = now - _PARTNER_RATE_WINDOW_SECONDS
+    events = [ts for ts in _partner_rate_events.get(key, []) if ts > cutoff]
+    if len(events) >= _PARTNER_RATE_MAX:
+        retry_after = max(1, int(events[0] + _PARTNER_RATE_WINDOW_SECONDS - now))
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "code": "rate_limit_exceeded",
+                "message": "Too many partner applications. Please try again later.",
+            },
+            headers={"Retry-After": str(retry_after)},
+        )
+    events.append(now)
+    _partner_rate_events[key] = events
+    response.headers["X-RateLimit-Limit"] = str(_PARTNER_RATE_MAX)
+    response.headers["X-RateLimit-Remaining"] = str(max(0, _PARTNER_RATE_MAX - len(events)))
+
+
+@api_router.post(
+    "/public/hospitality-partner-applications",
+    response_model=HospitalityPartnerApplicationResponse,
+    status_code=201,
+)
+async def create_hospitality_partner_application(
+    body: HospitalityPartnerApplicationRequest,
+    request: Request,
+    response: Response,
+):
+    """Accept a prospective hospitality partner application.
+
+    This endpoint is intentionally unauthenticated. It creates only a pending
+    application record. It MUST NOT provision an organization, location,
+    vendor account, POS connection, or operational configuration.
+    """
+    _enforce_partner_rate_limit(request, response)
+
+    now = datetime.now(timezone.utc)
+    application_id = _partner_application_id()
+
+    document = {
+        "_id": application_id,
+        "application_id": application_id,
+        "status": "pending",
+        "submitted_at": now,
+        "updated_at": now,
+        **body.model_dump(mode="json"),
+    }
+
+    await db.hospitality_partner_applications.insert_one(document)
+
+    return HospitalityPartnerApplicationResponse(
+        application_id=application_id,
+        status="pending",
+        submitted_at=now,
+    )
 
 # ------------- Slider → DB dimension map -------------
 # User labels: Strong, Fancy, Comfort, Party, Thirsty
@@ -798,12 +936,22 @@ async def validate_shared_checkin(token: str):
 
 app.include_router(api_router)
 
+_cors_origins = [
+    "https://drinkthink.app",
+    "https://www.drinkthink.app",
+]
+_cors_origins.extend(
+    origin.strip()
+    for origin in os.environ.get("CORS_EXTRA_ORIGINS", "").split(",")
+    if origin.strip()
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 logging.basicConfig(
