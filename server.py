@@ -134,6 +134,75 @@ def _partner_application_id() -> str:
     return "hpa_" + secrets.token_urlsafe(12).replace("-", "").replace("_", "")[:16]
 
 
+async def _send_partner_application_notification(document: dict) -> None:
+    """Send the administrative partner-application email after persistence.
+
+    Notification delivery is deliberately non-authoritative: callers must catch
+    failures so a stored application still returns the normal 201 response.
+    """
+    api_key = os.environ.get("RESEND_API_KEY")
+    recipient = os.environ.get("PARTNER_NOTIFICATION_EMAIL")
+    sender = os.environ.get("PARTNER_NOTIFICATION_FROM")
+    if not api_key or not recipient or not sender:
+        raise RuntimeError("Partner notification email is not fully configured")
+
+    def show(value) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, bool):
+            return "Yes" if value else "No"
+        return str(value)
+
+    location_name = document.get("location_name")
+    subject = f"New Hospitality Partner Application — {document['business_name']}"
+    if location_name:
+        subject += f" / {location_name}"
+
+    address_parts = [
+        document.get("street_address"),
+        document.get("city"),
+        document.get("state_region"),
+        document.get("postal_code"),
+        document.get("country"),
+    ]
+    full_address = ", ".join(show(part) for part in address_parts if part)
+
+    fields = [
+        ("Application ID", document.get("application_id")),
+        ("Submitted", document.get("submitted_at").isoformat() if isinstance(document.get("submitted_at"), datetime) else document.get("submitted_at")),
+        ("Business name", document.get("business_name")),
+        ("Location name", location_name),
+        ("Full address", full_address),
+        ("Website URL", document.get("website_url")),
+        ("Menu URL", document.get("menu_url")),
+        ("Multiple locations", document.get("has_multiple_locations")),
+        ("Contact name", document.get("contact_name")),
+        ("Contact title/role", document.get("contact_title_role")),
+        ("Contact email", document.get("contact_email")),
+        ("Contact phone", document.get("contact_phone")),
+        ("Partnership path", document.get("partnership_path")),
+        ("POS provider", document.get("pos_provider")),
+        ("Comments", document.get("comments")),
+    ]
+    text_body = "\n".join(f"{label}: {show(value)}" for label, value in fields if value is not None and value != "")
+
+    async with httpx.AsyncClient(timeout=10.0) as client_http:
+        response = await client_http.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": sender,
+                "to": [recipient],
+                "subject": subject,
+                "text": text_body,
+            },
+        )
+        response.raise_for_status()
+
+
 def _client_ip(request: Request) -> str:
     # Railway/Cloudflare deployments normally supply X-Forwarded-For.
     # Only the first address is used for abuse throttling and it is not persisted.
@@ -203,6 +272,14 @@ async def create_hospitality_partner_application(
     }
 
     await db.hospitality_partner_applications.insert_one(document)
+
+    # Persistence is authoritative. Notification failure must never convert a
+    # successfully stored application into a failed public submission.
+    try:
+        await _send_partner_application_notification(document)
+        logger.info("Partner application notification sent application_id=%s", application_id)
+    except Exception:
+        logger.exception("Partner application notification failed application_id=%s", application_id)
 
     return HospitalityPartnerApplicationResponse(
         application_id=application_id,
