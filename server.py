@@ -32,7 +32,8 @@ api_router = APIRouter(prefix="/api")
 
 # ------------- Models -------------
 class Drink(BaseModel):
-    id: int
+    # Existing mobile response shape retained; id now carries canonical cocktail_id.
+    id: str
     name: str
     category: str = ""
     alcohol: str = ""
@@ -45,6 +46,28 @@ class Drink(BaseModel):
     thirsty: float
     calm: float
     celebrate: float
+
+
+def _canonical_to_drink(doc: dict) -> dict:
+    """Adapt canonical Mongo cocktail documents to the existing mobile Drink payload."""
+    scores = doc.get("scores") or {}
+    migration = doc.get("migration") or {}
+    return {
+        "id": doc["cocktail_id"],
+        "name": doc.get("name") or "",
+        "category": doc.get("category") or "",
+        "alcohol": doc.get("alcohol_class") or "",
+        # Keep the original presentation label in the mobile contract for now.
+        "glass": migration.get("legacy_glass") or doc.get("glass_id") or "",
+        "ingredients": doc.get("human_ingredients") or "",
+        "instructions": doc.get("instructions") or "",
+        "shopping": doc.get("shopping_tokens") or "",
+        "fancy": float(scores.get("fancy") or 0),
+        "dark": float(scores.get("strong") or 0),
+        "thirsty": float(scores.get("thirsty") or 0),
+        "calm": float(scores.get("comfort") or 0),
+        "celebrate": float(scores.get("party") or 0),
+    }
 
 
 class MatchItem(BaseModel):
@@ -303,12 +326,12 @@ DIMS = ["fancy", "dark", "thirsty", "calm", "celebrate"]
 # ------------- Routes -------------
 @api_router.get("/")
 async def root():
-    return {"message": "Drink Think API", "drinks": await db.drinks.count_documents({})}
+    return {"message": "Drink Think API", "drinks": await db.cocktails.count_documents({"status": "active"})}
 
 
 @api_router.get("/drinks/count")
 async def drinks_count():
-    return {"count": await db.drinks.count_documents({})}
+    return {"count": await db.cocktails.count_documents({"status": "active"})}
 
 
 SPIRIT_KEYWORDS = {
@@ -412,7 +435,8 @@ async def match_drink(
     user_sum = sum(dim_vals.values())
     user_ratios = {d: dim_vals[d] / user_sum for d in DIMS}
 
-    docs = await db.drinks.find({}, {"_id": 0}).to_list(length=None)
+    canonical_docs = await db.cocktails.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    docs = [_canonical_to_drink(d) for d in canonical_docs]
     if not docs:
         raise HTTPException(status_code=404, detail="No drinks in database")
 
@@ -448,8 +472,8 @@ async def match_drink(
     filtered = [d for d in docs if matches_filter(d)]
 
     # Auth-aware filtering: exclude blocked
-    blocked_ids: set[int] = set()
-    favorite_ids: set[int] = set()
+    blocked_ids: set[str] = set()
+    favorite_ids: set[str] = set()
     if me:
         blocked_ids = {
             b["drink_id"]
@@ -512,7 +536,7 @@ async def match_drink(
 
 
 class DrinkSearchResult(BaseModel):
-    id: int
+    id: str
     name: str
     glass: str = ""
     ingredients: str = ""
@@ -520,29 +544,39 @@ class DrinkSearchResult(BaseModel):
 
 @api_router.get("/drinks/search", response_model=List[DrinkSearchResult])
 async def search_drinks(q: str, limit: int = 20):
-    """Search the full drinks catalog by name (case-insensitive substring)."""
+    """Search the canonical cocktail catalog by name (case-insensitive substring)."""
     q = (q or "").strip()
     if not q:
         return []
     if limit < 1 or limit > 50:
         limit = 20
-    cursor = db.drinks.find(
-        {"name": {"$regex": q, "$options": "i"}},
-        {"_id": 0, "id": 1, "name": 1, "glass": 1, "ingredients": 1},
+    cursor = db.cocktails.find(
+        {"status": "active", "name": {"$regex": re.escape(q), "$options": "i"}},
+        {"_id": 0},
     ).limit(limit)
     docs = await cursor.to_list(length=limit)
-    return [DrinkSearchResult(**d) for d in docs]
+    return [
+        DrinkSearchResult(
+            id=d["cocktail_id"],
+            name=d.get("name") or "",
+            glass=(d.get("migration") or {}).get("legacy_glass") or d.get("glass_id") or "",
+            ingredients=d.get("human_ingredients") or "",
+        )
+        for d in docs
+    ]
 
 
 # NOTE: this catch-all-by-id route must stay AFTER /drinks/search —
 # FastAPI matches routes in registration order, and {drink_id} would
 # otherwise swallow "/drinks/search" as if "search" were the id.
 @api_router.get("/drinks/{drink_id}", response_model=Drink)
-async def get_drink(drink_id: int):
-    doc = await db.drinks.find_one({"id": drink_id}, {"_id": 0})
+async def get_drink(drink_id: str):
+    doc = await db.cocktails.find_one(
+        {"cocktail_id": drink_id, "status": "active"}, {"_id": 0}
+    )
     if not doc:
         raise HTTPException(status_code=404, detail="Drink not found")
-    return Drink(**doc)
+    return Drink(**_canonical_to_drink(doc))
 
 
 # ================================================================
@@ -675,18 +709,20 @@ async def auth_logout(authorization: Optional[str] = Header(None)):
 # ================================================================
 
 class DrinkStatus(BaseModel):
-    drink_id: int
+    drink_id: str
     is_favorite: bool
     is_blocked: bool
 
 
-async def _drink_exists_or_404(drink_id: int) -> None:
-    if not await db.drinks.find_one({"id": drink_id}, {"_id": 0, "id": 1}):
+async def _drink_exists_or_404(drink_id: str) -> None:
+    if not await db.cocktails.find_one(
+        {"cocktail_id": drink_id, "status": "active"}, {"_id": 0, "cocktail_id": 1}
+    ):
         raise HTTPException(status_code=404, detail="Drink not found")
 
 
 @api_router.get("/me/status/{drink_id}", response_model=DrinkStatus)
-async def me_status(drink_id: int, user: User = Depends(current_user)):
+async def me_status(drink_id: str, user: User = Depends(current_user)):
     await _drink_exists_or_404(drink_id)
     fav = await db.favorites.find_one(
         {"user_id": user.user_id, "drink_id": drink_id}, {"_id": 0}
@@ -698,7 +734,7 @@ async def me_status(drink_id: int, user: User = Depends(current_user)):
 
 
 @api_router.post("/me/favorites/{drink_id}")
-async def add_favorite(drink_id: int, user: User = Depends(current_user)):
+async def add_favorite(drink_id: str, user: User = Depends(current_user)):
     await _drink_exists_or_404(drink_id)
     # Adding a favorite un-blocks it (mutually exclusive states).
     await db.blocked.delete_one({"user_id": user.user_id, "drink_id": drink_id})
@@ -713,13 +749,13 @@ async def add_favorite(drink_id: int, user: User = Depends(current_user)):
 
 
 @api_router.delete("/me/favorites/{drink_id}")
-async def remove_favorite(drink_id: int, user: User = Depends(current_user)):
+async def remove_favorite(drink_id: str, user: User = Depends(current_user)):
     await db.favorites.delete_one({"user_id": user.user_id, "drink_id": drink_id})
     return {"ok": True}
 
 
 class ReorderFavoritesRequest(BaseModel):
-    drink_ids: List[int]
+    drink_ids: List[str]
 
 
 @api_router.post("/me/favorites/reorder")
@@ -743,14 +779,16 @@ async def list_favorites(user: User = Depends(current_user)):
         return []
     ids = [r["drink_id"] for r in rows]
     drinks_by_id = {
-        d["id"]: d
-        async for d in db.drinks.find({"id": {"$in": ids}}, {"_id": 0})
+        d["cocktail_id"]: _canonical_to_drink(d)
+        async for d in db.cocktails.find(
+            {"cocktail_id": {"$in": ids}, "status": "active"}, {"_id": 0}
+        )
     }
     return [Drink(**drinks_by_id[i]) for i in ids if i in drinks_by_id]
 
 
 @api_router.post("/me/blocked/{drink_id}")
-async def add_block(drink_id: int, user: User = Depends(current_user)):
+async def add_block(drink_id: str, user: User = Depends(current_user)):
     await _drink_exists_or_404(drink_id)
     # Blocking a drink un-favorites it.
     await db.favorites.delete_one({"user_id": user.user_id, "drink_id": drink_id})
@@ -763,7 +801,7 @@ async def add_block(drink_id: int, user: User = Depends(current_user)):
 
 
 @api_router.delete("/me/blocked/{drink_id}")
-async def remove_block(drink_id: int, user: User = Depends(current_user)):
+async def remove_block(drink_id: str, user: User = Depends(current_user)):
     await db.blocked.delete_one({"user_id": user.user_id, "drink_id": drink_id})
     return {"ok": True}
 
@@ -777,8 +815,10 @@ async def list_blocked(user: User = Depends(current_user)):
         return []
     ids = [r["drink_id"] for r in rows]
     drinks_by_id = {
-        d["id"]: d
-        async for d in db.drinks.find({"id": {"$in": ids}}, {"_id": 0})
+        d["cocktail_id"]: _canonical_to_drink(d)
+        async for d in db.cocktails.find(
+            {"cocktail_id": {"$in": ids}, "status": "active"}, {"_id": 0}
+        )
     }
     return [Drink(**drinks_by_id[i]) for i in ids if i in drinks_by_id]
 
@@ -788,13 +828,13 @@ async def list_blocked(user: User = Depends(current_user)):
 # ================================================================
 
 class ShareDrinkRequest(BaseModel):
-    drink_id: int
+    drink_id: str
     recipient_email: str
 
 
 class PendingShare(BaseModel):
     share_id: str
-    drink_id: int
+    drink_id: str
     drink_name: str
     sender_name: str
     sender_email: str
@@ -843,8 +883,11 @@ async def list_pending_shares(user: User = Depends(current_user)):
         return []
     ids = [r["drink_id"] for r in rows]
     names_by_id = {
-        d["id"]: d["name"]
-        async for d in db.drinks.find({"id": {"$in": ids}}, {"_id": 0, "id": 1, "name": 1})
+        d["cocktail_id"]: d["name"]
+        async for d in db.cocktails.find(
+            {"cocktail_id": {"$in": ids}, "status": "active"},
+            {"_id": 0, "cocktail_id": 1, "name": 1},
+        )
     }
     return [
         PendingShare(
@@ -933,10 +976,40 @@ async def update_remote_config(body: UpdateFlagsRequest):
 
 @api_router.get("/ingredients")
 async def get_ingredients_tree():
-    """The full 3-level ingredient hierarchy for the cupboard filter screen:
-    [{id, name, primaries: [{id, name, items: [{id, name}]}]}]"""
-    doc = await db.ingredients_tree.find_one({"_id": "tree"}, {"_id": 0})
-    return doc.get("data", []) if doc else []
+    """Project canonical ingredient collections into the existing mobile 3-level payload."""
+    categories = await db.ingredient_categories.find(
+        {"status": "active"}, {"_id": 0}
+    ).sort("display_order", 1).to_list(length=None)
+    ingredients = await db.ingredients.find(
+        {"status": "active"}, {"_id": 0}
+    ).to_list(length=None)
+
+    by_category: dict[str, list[dict]] = {}
+    for ingredient in ingredients:
+        by_category.setdefault(ingredient.get("category_id"), []).append(ingredient)
+
+    result = []
+    for category in categories:
+        rows = by_category.get(category["category_id"], [])
+        primaries = [r for r in rows if not r.get("parent_ingredient_id")]
+        primary_payload = []
+        for primary in primaries:
+            items = [
+                {"id": r["ingredient_id"], "name": r.get("name") or r["ingredient_id"]}
+                for r in rows
+                if r.get("parent_ingredient_id") == primary["ingredient_id"]
+            ]
+            primary_payload.append({
+                "id": primary["ingredient_id"],
+                "name": primary.get("name") or primary["ingredient_id"],
+                "items": items,
+            })
+        result.append({
+            "id": category["category_id"],
+            "name": category.get("name") or category["category_id"],
+            "primaries": primary_payload,
+        })
+    return result
 
 
 class CupboardRequest(BaseModel):
@@ -1209,54 +1282,15 @@ logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")
-async def seed_ingredients():
-    """Load the 3-level ingredient hierarchy (Category -> Primary -> specific
-    items) used by the cupboard filter feature. Re-seeds whenever the stored
-    copy's version differs, so updates to the CSV-derived tree propagate."""
-    data_path = ROOT_DIR / "data" / "ingredients_tree.json"
-    if not data_path.exists():
-        logger.warning("ingredients_tree.json missing; skipping seed")
-        return
-    with open(data_path) as f:
-        tree = json.load(f)
-    doc = await db.ingredients_tree.find_one({"_id": "tree"})
-    if doc and doc.get("data") == tree:
-        logger.info("ingredients_tree already up to date")
-        return
-    await db.ingredients_tree.update_one(
-        {"_id": "tree"},
-        {"$set": {"data": tree}},
-        upsert=True,
-    )
-    logger.info(f"Seeded ingredients_tree ({len(tree)} categories)")
-
-
-@app.on_event("startup")
-async def seed_db():
-    """Load the Drink Think DB into MongoDB on cold start.
-
-    Re-seeds only when the count doesn't match the JSON row count, so schema
-    tweaks or fresh dumps automatically propagate.
-    """
-    data_path = ROOT_DIR / "data" / "drinks.json"
-    if not data_path.exists():
-        logger.warning("drinks.json missing; skipping seed")
-        return
-    with open(data_path) as f:
-        drinks = json.load(f)
-    have = await db.drinks.count_documents({})
-    if have == len(drinks):
-        logger.info(f"drinks collection already seeded: {have}")
-        return
-    logger.info(f"Reseeding drinks: had {have}, loading {len(drinks)}")
-    await db.drinks.drop()
-    # Insert in chunks to avoid huge single-op
-    CHUNK = 2000
-    for i in range(0, len(drinks), CHUNK):
-        await db.drinks.insert_many(drinks[i:i + CHUNK])
-    # Index by id for future lookups
-    await db.drinks.create_index("id", unique=True)
-    logger.info(f"Seeded {await db.drinks.count_documents({})} drinks")
+async def ensure_canonical_indexes():
+    """Canonical knowledge data is migration-owned; startup never seeds legacy JSON."""
+    await db.cocktails.create_index("cocktail_id", unique=True)
+    await db.cocktails.create_index("normalized_name")
+    await db.ingredients.create_index("ingredient_id", unique=True)
+    await db.ingredients.create_index("parent_ingredient_id")
+    await db.ingredient_categories.create_index("category_id", unique=True)
+    await db.glasses.create_index("glass_id", unique=True)
+    logger.info("Canonical knowledge indexes ensured")
 
 
 @app.on_event("startup")

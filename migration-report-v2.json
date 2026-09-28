@@ -1,0 +1,408 @@
+{
+  "mode": "DRY_RUN",
+  "version": "canonical-v2",
+  "started_at": "2026-09-28T20:12:16.494038+00:00",
+  "counts": {
+    "indexes_planned": 25,
+    "ingredient_categories_found": 6,
+    "canonical_ingredients_found": 1333,
+    "ingredient_id_exceptions": 0,
+    "legacy_documents_found": 16359,
+    "unique_legacy_drinks_migratable": 16345,
+    "cocktails_to_create": 16345,
+    "cocktails_requiring_recipe_resolution": 16345,
+    "favorites_references_to_backfill": 10,
+    "blocked_references_to_backfill": 1,
+    "cupboard_users_checked": 1,
+    "cupboard_item_ids_checked": 557,
+    "cupboard_item_ids_valid": 557
+  },
+  "exceptions": [
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 3,
+      "documents": [
+        {
+          "_id": "6a9966a38516aa12a61714b8",
+          "name": "1-900-FUK-MEUP",
+          "category": "Shot",
+          "glass": "Old-fashioned glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a38",
+          "name": "Bois de Rose",
+          "category": "Cocktail",
+          "glass": "Any Glass"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 7,
+      "documents": [
+        {
+          "_id": "6a9966a78516aa12a617196e",
+          "name": "'57 Chevy with a White License Plate",
+          "category": "Cocktail",
+          "glass": "Highball glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a3c",
+          "name": "East Side elder",
+          "category": "Cocktail",
+          "glass": "Martini"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 6,
+      "documents": [
+        {
+          "_id": "6a9966a78516aa12a6171fab",
+          "name": "The \"Liquerice\" Dream",
+          "category": "Shot",
+          "glass": "Shot glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a3b",
+          "name": "Elderflower Sour",
+          "category": "Cocktail",
+          "glass": "Any Glass"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 4,
+      "documents": [
+        {
+          "_id": "6a9966ab8516aa12a617247c",
+          "name": "'57 Chevy #2",
+          "category": "Shot",
+          "glass": "Shot glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a39",
+          "name": "Rob and Rick Collins",
+          "category": "Cocktail",
+          "glass": "Collins Glass"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 1,
+      "documents": [
+        {
+          "_id": "6a9966ab8516aa12a617267d",
+          "name": "110 in the shade",
+          "category": "Beer",
+          "glass": "Any Glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a36",
+          "name": "Nomayo",
+          "category": "Cocktail",
+          "glass": "Any Glass"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 5,
+      "documents": [
+        {
+          "_id": "6a9966ab8516aa12a617278e",
+          "name": "187 URge",
+          "category": "Cocktail",
+          "glass": "Any Glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a3a",
+          "name": "French Gimlet",
+          "category": "Cocktail",
+          "glass": "Martini"
+        }
+      ]
+    },
+    {
+      "kind": "duplicate_legacy_drink_id",
+      "value": 2,
+      "documents": [
+        {
+          "_id": "6a9966af8516aa12a617299c",
+          "name": "'57 Chevy",
+          "category": "Cocktail",
+          "glass": "Cocktail glass"
+        },
+        {
+          "_id": "6a9966af8516aa12a6172a37",
+          "name": "Viex Mot",
+          "category": "Cocktail",
+          "glass": "Any Glass"
+        }
+      ]
+    }
+  ],
+  "summaries": {
+    "legacy_glass_values": [
+      {
+        "value": "Cocktail Glass",
+        "drink_count": 2285
+      },
+      {
+        "value": "Highball Glass",
+        "drink_count": 2035
+      },
+      {
+        "value": "Shot Glass",
+        "drink_count": 1402
+      },
+      {
+        "value": "Old-Fashioned Glass",
+        "drink_count": 1287
+      },
+      {
+        "value": "Cocktail glass",
+        "drink_count": 1145
+      },
+      {
+        "value": "Any Glass",
+        "drink_count": 1090
+      },
+      {
+        "value": "Collins Glass",
+        "drink_count": 1013
+      },
+      {
+        "value": "Shot glass",
+        "drink_count": 981
+      },
+      {
+        "value": "Highball glass",
+        "drink_count": 941
+      },
+      {
+        "value": "Old-fashioned glass",
+        "drink_count": 464
+      },
+      {
+        "value": "Collins glass",
+        "drink_count": 417
+      },
+      {
+        "value": "Hurricane Glass",
+        "drink_count": 357
+      },
+      {
+        "value": "Hurricane glass",
+        "drink_count": 249
+      },
+      {
+        "value": "Margarita Glass",
+        "drink_count": 195
+      },
+      {
+        "value": "Beer Mug",
+        "drink_count": 188
+      },
+      {
+        "value": "Champagne Flute",
+        "drink_count": 157
+      },
+      {
+        "value": "Cup",
+        "drink_count": 132
+      },
+      {
+        "value": "Beer mug",
+        "drink_count": 126
+      },
+      {
+        "value": "Irish Coffee Cup",
+        "drink_count": 113
+      },
+      {
+        "value": "Punch bowl",
+        "drink_count": 109
+      },
+      {
+        "value": "Whiskey sour glass",
+        "drink_count": 103
+      },
+      {
+        "value": "White Wine Glass",
+        "drink_count": 97
+      },
+      {
+        "value": "Champagne Saucer",
+        "drink_count": 90
+      },
+      {
+        "value": "Sour Glass",
+        "drink_count": 86
+      },
+      {
+        "value": "Pint glass",
+        "drink_count": 83
+      },
+      {
+        "value": "Wine Goblet",
+        "drink_count": 83
+      },
+      {
+        "value": "Champagne flute",
+        "drink_count": 75
+      },
+      {
+        "value": "Mason jar",
+        "drink_count": 75
+      },
+      {
+        "value": "Coffee mug",
+        "drink_count": 73
+      },
+      {
+        "value": "Parfait Glass",
+        "drink_count": 71
+      },
+      {
+        "value": "Pina Colada Glass",
+        "drink_count": 68
+      },
+      {
+        "value": "Brandy Snifter",
+        "drink_count": 63
+      },
+      {
+        "value": "Pitcher",
+        "drink_count": 63
+      },
+      {
+        "value": "Irish coffee cup",
+        "drink_count": 57
+      },
+      {
+        "value": "Cordial Glass",
+        "drink_count": 56
+      },
+      {
+        "value": "Coffee Mug",
+        "drink_count": 53
+      },
+      {
+        "value": "Brandy snifter",
+        "drink_count": 43
+      },
+      {
+        "value": "Beer pilsner",
+        "drink_count": 41
+      },
+      {
+        "value": "Red Wine Glass",
+        "drink_count": 41
+      },
+      {
+        "value": "Cordial glass",
+        "drink_count": 37
+      },
+      {
+        "value": "Mason Jar",
+        "drink_count": 37
+      },
+      {
+        "value": "Mug",
+        "drink_count": 33
+      },
+      {
+        "value": "Red wine glass",
+        "drink_count": 31
+      },
+      {
+        "value": "White wine glass",
+        "drink_count": 31
+      },
+      {
+        "value": "Beer Pilsner",
+        "drink_count": 25
+      },
+      {
+        "value": "Parfait glass",
+        "drink_count": 23
+      },
+      {
+        "value": "Pousse Cafe Glass",
+        "drink_count": 21
+      },
+      {
+        "value": "Pousse cafe glass",
+        "drink_count": 14
+      },
+      {
+        "value": "Aperitif Glass",
+        "drink_count": 13
+      },
+      {
+        "value": "Punch Bowl",
+        "drink_count": 13
+      },
+      {
+        "value": "Bottle",
+        "drink_count": 12
+      },
+      {
+        "value": "Jug",
+        "drink_count": 12
+      },
+      {
+        "value": "Sherry Glass",
+        "drink_count": 11
+      },
+      {
+        "value": "Champagne Tulip",
+        "drink_count": 8
+      },
+      {
+        "value": "Coupe glass",
+        "drink_count": 8
+      },
+      {
+        "value": "Test tube",
+        "drink_count": 7
+      },
+      {
+        "value": "Sherry glass",
+        "drink_count": 5
+      },
+      {
+        "value": "Bucket",
+        "drink_count": 4
+      },
+      {
+        "value": "Cooler",
+        "drink_count": 4
+      },
+      {
+        "value": "Martini",
+        "drink_count": 2
+      },
+      {
+        "value": "Shot Glass | Bottle",
+        "drink_count": 1
+      }
+    ],
+    "distinct_legacy_glass_values": 61
+  },
+  "validation": {
+    "legacy_document_count": 16359,
+    "unique_legacy_drinks_migratable": 16345,
+    "duplicate_legacy_id_groups": 7,
+    "canonical_cocktail_count_before_or_after_run": 0,
+    "expected_canonical_count_after_apply": 16345,
+    "ingredient_ids_preserved_as_strings": true,
+    "safe_to_apply": false
+  },
+  "completed_at": "2026-09-28T20:23:31.605949+00:00",
+  "exception_count": 7
+}

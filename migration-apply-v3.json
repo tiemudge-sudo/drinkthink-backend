@@ -1,0 +1,43 @@
+{
+  "mode": "APPLY",
+  "version": "canonical-reset-v3",
+  "started_at": "2026-09-28T20:54:57.513947+00:00",
+  "counts": {
+    "ingredient_categories": 6,
+    "ingredients": 1333,
+    "source_drinks": 16359,
+    "test_user_collections_reset": 4,
+    "canonical_glasses": 35,
+    "cocktails_prepared": 16359
+  },
+  "exceptions": [
+    {
+      "kind": "composite_glass_values",
+      "values": {
+        "shot glass | bottle": 1
+      }
+    }
+  ],
+  "glass_summary": {
+    "distinct_normalized_values": 41,
+    "mapped_values": 40,
+    "unmapped": {},
+    "composite_requires_decision": {
+      "shot glass | bottle": 1
+    }
+  },
+  "validation": {
+    "source_drink_count": 16359,
+    "prepared_cocktail_count": 16359,
+    "unique_new_cocktail_ids": 16359,
+    "ingredient_count": 1333,
+    "ingredient_ids_unique": true,
+    "all_source_drinks_receive_new_id": true,
+    "glass_unmapped_count": 0,
+    "glass_composite_count": 1,
+    "db_cocktail_count": 16359,
+    "db_ingredient_count": 1333
+  },
+  "completed_at": "2026-09-28T20:55:24.185289+00:00",
+  "exception_count": 1
+}
