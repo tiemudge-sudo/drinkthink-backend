@@ -967,24 +967,31 @@ class ShareCheckInRequest(BaseModel):
     longitude: float
 
 
-# Temporary test-location registry for the current UI test cycle. Replace with the
-# canonical locations collection when the locations master endpoints are deployed.
+# Transitional fallback for the current test locations. Canonical Mongo `locations`
+# is always consulted first. Remove this fallback once both test locations have
+# been migrated into the canonical collection.
 SHAREABLE_LOCATIONS = {
     "loc_test_ties_house": {"location_id":"loc_test_ties_house","name":"Tie's house","address":"3417 S. Almeria Ave, Tampa, FL 33629"},
     "loc_test_forbici_tampa": {"location_id":"loc_test_forbici_tampa","name":"Forbici","address":"1633 W Snow Ave, Tampa, FL 33606"},
 }
 
+
 def _share_secret() -> bytes:
-    secret = os.environ.get("SHARE_CHECKIN_SECRET") or os.environ.get("ADMIN_TOGGLE_KEY")
+    # Production Share Check-In has its own secret. Do not fall back to an
+    # administrative credential: these are separate security domains.
+    secret = os.environ.get("SHARE_CHECKIN_SECRET")
     if not secret:
         raise HTTPException(status_code=503, detail="Shared check-in is not configured")
     return secret.encode()
 
+
 def _b64(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode().rstrip("=")
 
+
 def _unb64(value: str) -> bytes:
     return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
 
 def _sign_shared_checkin(payload: dict) -> str:
     raw = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
@@ -992,37 +999,188 @@ def _sign_shared_checkin(payload: dict) -> str:
     sig = _b64(hmac.new(_share_secret(), body.encode(), hashlib.sha256).digest())
     return f"{body}.{sig}"
 
+
 def _verify_shared_checkin(token: str) -> dict:
     try:
         body, supplied = token.split(".", 1)
         expected = _b64(hmac.new(_share_secret(), body.encode(), hashlib.sha256).digest())
-        if not hmac.compare_digest(supplied, expected): raise ValueError()
+        if not hmac.compare_digest(supplied, expected):
+            raise ValueError()
         payload = json.loads(_unb64(body))
-        if datetime.now(timezone.utc).timestamp() >= float(payload["exp"]): raise ValueError()
+        if datetime.now(timezone.utc).timestamp() >= float(payload["exp"]):
+            raise ValueError()
         return payload
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(status_code=400, detail="Shared check-in link is invalid or expired")
 
+
+def _as_aware(value: datetime) -> datetime:
+    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+
+async def _share_location(location_id: str) -> Optional[dict]:
+    """Resolve a shareable location from the canonical collection first."""
+    doc = await db.locations.find_one(
+        {"location_id": location_id, "status": {"$ne": "inactive"}},
+        {"_id": 0},
+    )
+    if doc:
+        return {
+            "location_id": location_id,
+            "name": doc.get("display_name") or doc.get("name") or "DrinkThink location",
+            "address": doc.get("address"),
+            "latitude": doc.get("latitude"),
+            "longitude": doc.get("longitude"),
+        }
+    return SHAREABLE_LOCATIONS.get(location_id)
+
+
+async def _new_share_id() -> str:
+    # 12 URL-safe random characters provides an opaque, non-sequential public ID.
+    # Retry on the extremely unlikely collision before the unique index is hit.
+    for _ in range(5):
+        candidate = "j_" + secrets.token_urlsafe(9).replace("-", "").replace("_", "")[:12]
+        if not await db.share_checkins.find_one({"share_id": candidate}, {"_id": 1}):
+            return candidate
+    raise HTTPException(status_code=503, detail="Unable to create share invitation")
+
+
+async def _share_record_or_error(share_id: str) -> dict:
+    if not share_id or not share_id.startswith("j_"):
+        raise HTTPException(status_code=404, detail="Share invitation not found")
+    record = await db.share_checkins.find_one({"share_id": share_id}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=404, detail="Share invitation not found")
+    if record.get("status") != "active":
+        raise HTTPException(status_code=410, detail="Share invitation is no longer available")
+    expires = record.get("expires_at")
+    if not isinstance(expires, datetime):
+        raise HTTPException(status_code=503, detail="Share invitation service unavailable")
+    expires = _as_aware(expires)
+    if _now() >= expires:
+        raise HTTPException(status_code=410, detail="Share invitation has expired")
+    record["expires_at"] = expires
+    return record
+
+
 @api_router.post("/locations/share-check-in")
 async def create_shared_checkin(body: ShareCheckInRequest, user: User = Depends(current_user)):
-    loc = SHAREABLE_LOCATIONS.get(body.location_id)
+    loc = await _share_location(body.location_id)
     if not loc:
         raise HTTPException(status_code=404, detail="Location not available for sharing")
-    now = datetime.now(timezone.utc)
-    requested = body.expires_at if body.expires_at.tzinfo else body.expires_at.replace(tzinfo=timezone.utc)
+
+    now = _now()
+    requested = _as_aware(body.expires_at)
     expires = min(requested, now + timedelta(hours=4))
     if expires <= now:
         raise HTTPException(status_code=400, detail="Check-in has expired")
-    token = _sign_shared_checkin({"location_id": body.location_id, "latitude": body.latitude, "longitude": body.longitude, "exp": int(expires.timestamp()), "source": "shared_link"})
-    return {"check_in_url": f"drinkthink://checkin?token={token}", "expires_at": expires.isoformat()}
+
+    # Keep the existing signed security context private/server-side while the
+    # opaque Share ID is the only identifier exposed in the public URL.
+    token = _sign_shared_checkin({
+        "location_id": body.location_id,
+        "latitude": body.latitude,
+        "longitude": body.longitude,
+        "exp": int(expires.timestamp()),
+        "source": "shared_link",
+    })
+    share_id = await _new_share_id()
+    share_url = f"https://drinkthink.app/j/{share_id}"
+    await db.share_checkins.insert_one({
+        "share_id": share_id,
+        "sharer_user_id": user.user_id,
+        "location_id": body.location_id,
+        "expires_at": expires,
+        "status": "active",
+        "source": "shared_link",
+        "signed_token": token,
+        "location_snapshot": {
+            "display_name": loc.get("name") or "DrinkThink location",
+            "address": loc.get("address"),
+            "latitude": body.latitude,
+            "longitude": body.longitude,
+        },
+        "created_at": now,
+        "updated_at": now,
+    })
+    return {"share_id": share_id, "share_url": share_url, "expires_at": expires.isoformat()}
+
+
+@api_router.get("/public/share-check-ins/{share_id}")
+async def public_shared_checkin(share_id: str):
+    record = await _share_record_or_error(share_id)
+    loc = record.get("location_snapshot") or {}
+    share_url = f"https://drinkthink.app/j/{share_id}"
+    return {
+        "share_id": share_id,
+        "status": "active",
+        "expires_at": record["expires_at"].isoformat(),
+        "location": {
+            "display_name": loc.get("display_name") or "DrinkThink location",
+            "address": loc.get("address"),
+            "latitude": loc.get("latitude"),
+            "longitude": loc.get("longitude"),
+        },
+        "check_in": {
+            "source": "shared_link",
+            "deep_link": f"drinkthink://checkin?share_id={share_id}",
+            "universal_link": share_url,
+        },
+    }
+
 
 @api_router.get("/locations/shared-check-in")
-async def validate_shared_checkin(token: str):
+async def validate_shared_checkin(token: Optional[str] = None, share_id: Optional[str] = None):
+    """Resolve legacy signed-token links or the production opaque Share ID."""
+    if share_id:
+        record = await _share_record_or_error(share_id)
+        # Verify the private signed security context as a second validation layer.
+        payload = _verify_shared_checkin(record.get("signed_token", ""))
+        if payload.get("location_id") != record.get("location_id"):
+            raise HTTPException(status_code=410, detail="Share invitation is no longer available")
+        loc = record.get("location_snapshot") or {}
+        return {
+            "location": {
+                "location_id": record["location_id"],
+                "name": loc.get("display_name") or "DrinkThink location",
+                "address": loc.get("address"),
+                "latitude": loc.get("latitude"),
+                "longitude": loc.get("longitude"),
+            },
+            "source": "shared_link",
+            "share_id": share_id,
+            "expires_at": record["expires_at"].isoformat(),
+        }
+
+    if not token:
+        raise HTTPException(status_code=400, detail="token or share_id is required")
     payload = _verify_shared_checkin(token)
-    loc = SHAREABLE_LOCATIONS.get(payload.get("location_id"))
+    loc = await _share_location(payload.get("location_id"))
     if not loc:
         raise HTTPException(status_code=404, detail="Location not found")
-    return {"location": {**loc, "latitude": payload["latitude"], "longitude": payload["longitude"]}, "source": "shared_link", "expires_at": datetime.fromtimestamp(payload["exp"], timezone.utc).isoformat()}
+    return {
+        "location": {
+            **loc,
+            "latitude": payload["latitude"],
+            "longitude": payload["longitude"],
+        },
+        "source": "shared_link",
+        "expires_at": datetime.fromtimestamp(payload["exp"], timezone.utc).isoformat(),
+    }
+
+
+@api_router.delete("/locations/share-check-in/{share_id}")
+async def revoke_shared_checkin(share_id: str, user: User = Depends(current_user)):
+    """Explicitly revoke a Share Check-In owned by the authenticated sharer."""
+    result = await db.share_checkins.update_one(
+        {"share_id": share_id, "sharer_user_id": user.user_id, "status": "active"},
+        {"$set": {"status": "revoked", "updated_at": _now()}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Share invitation not found")
+    return {"ok": True, "share_id": share_id, "status": "revoked"}
 
 
 app.include_router(api_router)
@@ -1031,18 +1189,16 @@ _cors_origins = [
     "https://drinkthink.app",
     "https://www.drinkthink.app",
 ]
-_cors_origins.extend(
-    origin.strip()
-    for origin in os.environ.get("CORS_EXTRA_ORIGINS", "").split(",")
-    if origin.strip()
-)
+_extra_cors = os.environ.get("CORS_ORIGINS", "")
+if _extra_cors:
+    _cors_origins.extend(o.strip() for o in _extra_cors.split(",") if o.strip())
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=_cors_origins,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_origins=list(dict.fromkeys(_cors_origins)),
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 logging.basicConfig(
@@ -1111,6 +1267,9 @@ async def seed_auth_indexes():
     await db.user_sessions.create_index("user_id")
     # TTL: MongoDB auto-deletes sessions once expires_at is in the past.
     await db.user_sessions.create_index("expires_at", expireAfterSeconds=0)
+    await db.share_checkins.create_index("share_id", unique=True)
+    await db.share_checkins.create_index("sharer_user_id")
+    await db.share_checkins.create_index("expires_at")
     await db.favorites.create_index(
         [("user_id", 1), ("drink_id", 1)], unique=True
     )
