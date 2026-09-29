@@ -1,7 +1,9 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request, Response
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from bson import json_util
 import os
 import json
 import uuid
@@ -28,6 +30,183 @@ db = client[os.environ['DB_NAME']]
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+
+# This client is intentionally separate from the application client above.  It
+# is used only by the narrowly-scoped, read-only automation API.  In Railway,
+# DRINKTHINK_AI_MONGO_URL must be a MongoDB user without write privileges.
+_ai_mongo_url = os.environ.get("DRINKTHINK_AI_MONGO_URL")
+ai_client = AsyncIOMotorClient(_ai_mongo_url) if _ai_mongo_url else None
+ai_db = ai_client[os.environ.get("DRINKTHINK_AI_DB_NAME", os.environ["DB_NAME"])] if ai_client else None
+
+# Only canonical Master Data resources are available to automation.  This is
+# deliberately not derived from list_collection_names(): new/private database
+# collections never become available merely by being created.
+AI_READ_COLLECTIONS = {
+    "cocktails": {
+        "record_id": "cocktail_id",
+        "filter_fields": {"cocktail_id": str, "status": str, "category": str,
+                          "alcohol_class": str, "glass_id": str, "source": str,
+                          "legacy_drink_id": int},
+    },
+    "ingredients": {
+        "record_id": "ingredient_id",
+        "filter_fields": {"ingredient_id": int, "status": str, "primary_category": str,
+                          "primary_ingredient": str},
+    },
+    "ingredient_categories": {
+        "record_id": "category_id",
+        "filter_fields": {"category_id": str, "status": str, "name": str},
+    },
+    "glasses": {
+        "record_id": "glass_id",
+        "filter_fields": {"glass_id": str, "status": str, "name": str},
+    },
+    "cocktail_ingredients": {
+        "record_id": None,
+        "filter_fields": {"cocktail_id": str, "ingredient_id": int, "required": bool},
+    },
+}
+AI_MAX_PAGE_SIZE = 100
+AI_SCHEMA_SAMPLE_SIZE = 25
+
+
+def _ai_db_or_503():
+    if ai_db is None:
+        raise HTTPException(status_code=503, detail="AI read-only database is not configured")
+    return ai_db
+
+
+def _ai_authorized(authorization: Optional[str] = Header(None)) -> None:
+    """Require the dedicated automation secret; never use a consumer session."""
+    expected = os.environ.get("DRINKTHINK_AI_API_KEY")
+    if not expected:
+        raise HTTPException(status_code=503, detail="AI API is not configured")
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    supplied = authorization.split(" ", 1)[1].strip()
+    if not supplied or not secrets.compare_digest(supplied, expected):
+        raise HTTPException(status_code=403, detail="Invalid bearer token")
+
+
+def _ai_collection_or_404(collection: str) -> dict:
+    config = AI_READ_COLLECTIONS.get(collection)
+    if not config:
+        raise HTTPException(status_code=404, detail="Collection is not available to the AI API")
+    return config
+
+
+def _ai_parse_filter(collection_config: dict, field: Optional[str], value: Optional[str]) -> dict:
+    """Construct one exact-match filter from an explicit field allowlist.
+
+    The API intentionally does not accept BSON/JSON filters or MongoDB
+    operators, avoiding NoSQL injection and unbounded database queries.
+    """
+    if field is None and value is None:
+        return {}
+    if not field or value is None:
+        raise HTTPException(status_code=400, detail="filter_field and filter_value must be supplied together")
+    value_type = collection_config["filter_fields"].get(field)
+    if value_type is None:
+        raise HTTPException(status_code=400, detail="filter field is not allowed")
+    try:
+        if value_type is bool:
+            if value.lower() not in {"true", "false"}:
+                raise ValueError()
+            parsed = value.lower() == "true"
+        else:
+            parsed = value_type(value)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="filter value has an invalid type")
+    return {field: parsed}
+
+
+def _ai_json_response(value) -> JSONResponse:
+    """Return canonical MongoDB Extended JSON, including ObjectId and dates."""
+    encoded = json.loads(json_util.dumps(value, json_options=json_util.CANONICAL_JSON_OPTIONS))
+    return JSONResponse(content=encoded)
+
+
+def _ai_shape(value):
+    if isinstance(value, dict):
+        return {key: _ai_shape(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return {"type": "array", "items": _ai_shape(value[0]) if value else "unknown"}
+    return type(value).__name__
+
+
+# ---------------- AI read-only database API ----------------
+@api_router.get("/ai/health", dependencies=[Depends(_ai_authorized)])
+async def ai_health():
+    database = _ai_db_or_503()
+    try:
+        await database.command({"ping": 1})
+    except Exception:
+        logger.exception("AI read-only database health check failed")
+        raise HTTPException(status_code=503, detail="AI read-only database is unavailable")
+    return {"status": "ok", "database": database.name, "read_only": True}
+
+
+@api_router.get("/ai/collections", dependencies=[Depends(_ai_authorized)])
+async def ai_collections():
+    _ai_db_or_503()
+    return {"collections": [
+        {"name": name, "record_id": config["record_id"],
+         "filter_fields": sorted(config["filter_fields"])}
+        for name, config in AI_READ_COLLECTIONS.items()
+    ]}
+
+
+@api_router.get("/ai/collections/{collection}/count", dependencies=[Depends(_ai_authorized)])
+async def ai_count(collection: str, filter_field: Optional[str] = None, filter_value: Optional[str] = None):
+    config = _ai_collection_or_404(collection)
+    query = _ai_parse_filter(config, filter_field, filter_value)
+    count = await _ai_db_or_503()[collection].count_documents(query)
+    return {"collection": collection, "filter": query, "count": count}
+
+
+@api_router.get("/ai/collections/{collection}/schema", dependencies=[Depends(_ai_authorized)])
+async def ai_schema(collection: str):
+    _ai_collection_or_404(collection)
+    docs = await _ai_db_or_503()[collection].find({}).limit(AI_SCHEMA_SAMPLE_SIZE).to_list(AI_SCHEMA_SAMPLE_SIZE)
+    fields = {}
+    for doc in docs:
+        for name, value in doc.items():
+            fields.setdefault(name, _ai_shape(value))
+    return {"collection": collection, "sample_size": len(docs), "fields": fields}
+
+
+@api_router.get("/ai/collections/{collection}/{record_id}", dependencies=[Depends(_ai_authorized)])
+async def ai_record(collection: str, record_id: str):
+    config = _ai_collection_or_404(collection)
+    id_field = config["record_id"]
+    if not id_field:
+        raise HTTPException(status_code=400, detail="This collection has no supported single record identifier")
+    query = _ai_parse_filter(config, id_field, record_id)
+    doc = await _ai_db_or_503()[collection].find_one(query)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Record not found")
+    return _ai_json_response(doc)
+
+
+@api_router.get("/ai/collections/{collection}", dependencies=[Depends(_ai_authorized)])
+async def ai_records(
+    collection: str,
+    offset: int = 0,
+    limit: int = 25,
+    filter_field: Optional[str] = None,
+    filter_value: Optional[str] = None,
+):
+    config = _ai_collection_or_404(collection)
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset must be non-negative")
+    if limit < 1 or limit > AI_MAX_PAGE_SIZE:
+        raise HTTPException(status_code=400, detail=f"limit must be between 1 and {AI_MAX_PAGE_SIZE}")
+    query = _ai_parse_filter(config, filter_field, filter_value)
+    sort_field = config["record_id"] or "cocktail_id"
+    docs = await _ai_db_or_503()[collection].find(query).sort(sort_field, 1).skip(offset).limit(limit).to_list(limit)
+    return _ai_json_response({"collection": collection, "filter": query, "offset": offset,
+                              "limit": limit, "records": docs})
 
 
 # ------------- Models -------------
