@@ -1,7 +1,7 @@
 {
   "version": "rebuild-cocktail-glass-ids-v1",
   "mode": "DRY_RUN",
-  "started_at": "2026-09-29T18:28:11.376328+00:00",
+  "started_at": "2026-09-29T18:41:58.327441+00:00",
   "source": "data/drinks_clean_100pct.csv:d_glass_category",
   "mapping": {
     "Champagne flute": "champagne_flute",
@@ -873,5 +873,5 @@
     "all_target_glasses_active": true,
     "exception_count": 0
   },
-  "finished_at": "2026-09-29T18:28:13.160223+00:00"
+  "finished_at": "2026-09-29T18:42:00.101369+00:00"
 }
