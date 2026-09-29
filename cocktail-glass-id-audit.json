@@ -1,0 +1,877 @@
+{
+  "version": "rebuild-cocktail-glass-ids-v1",
+  "mode": "DRY_RUN",
+  "started_at": "2026-09-29T18:28:11.376328+00:00",
+  "source": "data/drinks_clean_100pct.csv:d_glass_category",
+  "mapping": {
+    "Champagne flute": "champagne_flute",
+    "Cordial glass": "cordial",
+    "Highball glass": "highball",
+    "Margarita glass": "margarita",
+    "Martini glass": "martini",
+    "Mug": "mug",
+    "Pint glass": "pint",
+    "Rocks glass": "rocks",
+    "Shot glass": "shot",
+    "Wine glass": "wine"
+  },
+  "counts": {
+    "master_rows": 12256,
+    "planned_cocktail_updates": 12256,
+    "mapped_categories": 10
+  },
+  "exceptions": [],
+  "glass_metadata_audit": {
+    "champagne_flute": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "cordial": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "highball": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "margarita": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "martini": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "mug": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "pint": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "rocks": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "shot": {
+      "filter_families": [],
+      "icon_key": ""
+    },
+    "wine": {
+      "filter_families": [],
+      "icon_key": ""
+    }
+  },
+  "category_counts": {
+    "Champagne flute": 241,
+    "Cordial glass": 341,
+    "Highball glass": 3239,
+    "Margarita glass": 618,
+    "Martini glass": 2550,
+    "Mug": 261,
+    "Pint glass": 1568,
+    "Rocks glass": 1384,
+    "Shot glass": 1840,
+    "Wine glass": 214
+  },
+  "production_glass_id_distribution": {
+    "<missing>": 563,
+    "any": 1090,
+    "aperitif": 13,
+    "beer_mug": 314,
+    "bottle": 12,
+    "bucket": 4,
+    "champagne_flute": 240,
+    "cocktail": 3430,
+    "coffee_mug": 126,
+    "collins": 1430,
+    "cooler": 4,
+    "cordial": 93,
+    "coupe": 98,
+    "cup": 132,
+    "highball": 2976,
+    "hurricane": 606,
+    "irish_coffee": 170,
+    "jug": 12,
+    "margarita": 195,
+    "martini": 2,
+    "mason_jar": 112,
+    "mug": 33,
+    "parfait": 94,
+    "pilsner": 66,
+    "pina_colada": 68,
+    "pint": 83,
+    "pitcher": 63,
+    "pousse_cafe": 35,
+    "punch_bowl": 122,
+    "rocks": 1751,
+    "sherry": 16,
+    "shot": 2383,
+    "snifter": 106,
+    "sour": 189,
+    "test_tube": 7,
+    "wine": 283
+  },
+  "bridged_assignment_audit": {
+    "expected_glass_id_distribution": {
+      "champagne_flute": 241,
+      "cordial": 341,
+      "highball": 3239,
+      "margarita": 618,
+      "martini": 2550,
+      "mug": 261,
+      "pint": 1568,
+      "rocks": 1384,
+      "shot": 1840,
+      "wine": 214
+    },
+    "actual_glass_id_distribution": {
+      "<missing>": 563,
+      "any": 867,
+      "aperitif": 9,
+      "beer_mug": 209,
+      "bottle": 8,
+      "bucket": 1,
+      "champagne_flute": 181,
+      "cocktail": 2456,
+      "coffee_mug": 95,
+      "collins": 1006,
+      "cooler": 3,
+      "cordial": 69,
+      "coupe": 58,
+      "cup": 72,
+      "highball": 2083,
+      "hurricane": 404,
+      "irish_coffee": 140,
+      "jug": 8,
+      "margarita": 138,
+      "mason_jar": 71,
+      "mug": 26,
+      "parfait": 76,
+      "pilsner": 46,
+      "pina_colada": 31,
+      "pint": 62,
+      "pitcher": 51,
+      "pousse_cafe": 28,
+      "punch_bowl": 88,
+      "rocks": 1252,
+      "sherry": 9,
+      "shot": 1722,
+      "snifter": 76,
+      "sour": 136,
+      "test_tube": 4,
+      "wine": 208
+    },
+    "mismatch_count": 6516,
+    "mismatch_samples": [
+      {
+        "legacy_drink_id": 16719,
+        "cocktail_id": "ckt_518632bc86b18a7b7109",
+        "d_glass_category": "Wine glass",
+        "expected_glass_id": "wine",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16720,
+        "cocktail_id": "ckt_1146fc386ee341cf8d54",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16721,
+        "cocktail_id": "ckt_3016a4c9db660eb111d0",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16722,
+        "cocktail_id": "ckt_f48dc1be98306cfb1c0a",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16723,
+        "cocktail_id": "ckt_6467fb3612472eacaee1",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16724,
+        "cocktail_id": "ckt_15190df111aa6387b2a1",
+        "d_glass_category": "Pint glass",
+        "expected_glass_id": "pint",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16725,
+        "cocktail_id": "ckt_c42f29beb7be581cf7bc",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16726,
+        "cocktail_id": "ckt_eeb471f0b94297f7d2c5",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16727,
+        "cocktail_id": "ckt_4e22100289bcc2188010",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16728,
+        "cocktail_id": "ckt_3667a06d96893749f089",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16729,
+        "cocktail_id": "ckt_2290c7f210c2e975ccf8",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16730,
+        "cocktail_id": "ckt_217d013ebf3e9bedf135",
+        "d_glass_category": "Mug",
+        "expected_glass_id": "mug",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16731,
+        "cocktail_id": "ckt_a1d02722b406ba051a94",
+        "d_glass_category": "Cordial glass",
+        "expected_glass_id": "cordial",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16732,
+        "cocktail_id": "ckt_7a042337a6e0709d1a91",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16733,
+        "cocktail_id": "ckt_00defc39be1c8542c45e",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16734,
+        "cocktail_id": "ckt_0d1be9b9d5bdd848bd65",
+        "d_glass_category": "Pint glass",
+        "expected_glass_id": "pint",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16735,
+        "cocktail_id": "ckt_733e7aa0d4a78ea9d55d",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16736,
+        "cocktail_id": "ckt_c2f06b7473de6d59cc75",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16737,
+        "cocktail_id": "ckt_ecaeed6b568aa91a6fe5",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16738,
+        "cocktail_id": "ckt_a25add97abc95cfe4b26",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16739,
+        "cocktail_id": "ckt_c082fd5ccf025772f40c",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16740,
+        "cocktail_id": "ckt_ed634c4b2e0db96dd9a9",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16741,
+        "cocktail_id": "ckt_43ed0be9a2a7bc1bbf6a",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16742,
+        "cocktail_id": "ckt_088f87636305e82e7a15",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16743,
+        "cocktail_id": "ckt_1088205c3b7710ace2d3",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16744,
+        "cocktail_id": "ckt_bd399a61ce0cf70605cc",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16745,
+        "cocktail_id": "ckt_060bdefbe938c1b7fb9b",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16746,
+        "cocktail_id": "ckt_a74faf18a51c7500ac54",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16747,
+        "cocktail_id": "ckt_973686a8bdd3830b28a6",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16748,
+        "cocktail_id": "ckt_cb43735596ef23f42d69",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16749,
+        "cocktail_id": "ckt_b720064d84d458da4adb",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16750,
+        "cocktail_id": "ckt_7e4d9fc0191cd8746b51",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16751,
+        "cocktail_id": "ckt_61882cfadf21a4bc88a3",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16752,
+        "cocktail_id": "ckt_957afc5f220807a82385",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16753,
+        "cocktail_id": "ckt_0d9c50d7196de10a8bc0",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16754,
+        "cocktail_id": "ckt_0afd5f86b67b779d03cb",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16755,
+        "cocktail_id": "ckt_8817040c0d819b18f15e",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16756,
+        "cocktail_id": "ckt_fa4a201d229887ead804",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16757,
+        "cocktail_id": "ckt_f4bd43ecf1634ade8256",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16758,
+        "cocktail_id": "ckt_c88d951fa8134d148d35",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16759,
+        "cocktail_id": "ckt_1459aa441defee4bd74b",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16760,
+        "cocktail_id": "ckt_7afc4efaeff96d9c26eb",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16761,
+        "cocktail_id": "ckt_05eb998df0ad5bd8ccb9",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16762,
+        "cocktail_id": "ckt_ecf3796d58351be35fb5",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16763,
+        "cocktail_id": "ckt_ee4bfd30ecd73933ac72",
+        "d_glass_category": "Shot glass",
+        "expected_glass_id": "shot",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16764,
+        "cocktail_id": "ckt_63f98c3f431e1226155e",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16765,
+        "cocktail_id": "ckt_6d484fff4eb1a0cefb0c",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16766,
+        "cocktail_id": "ckt_4215cb1bba24984c0e25",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16767,
+        "cocktail_id": "ckt_e61ca065263a0233e3d1",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16768,
+        "cocktail_id": "ckt_183f18fbd6df43de92b9",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16769,
+        "cocktail_id": "ckt_1eac33a99af37516cf7e",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16770,
+        "cocktail_id": "ckt_a5f2414c344fc6468043",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16771,
+        "cocktail_id": "ckt_6eb011e0d281a737acc7",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16772,
+        "cocktail_id": "ckt_abc3c1c3b7367602a49e",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16773,
+        "cocktail_id": "ckt_7aa4c493f024e1b432b0",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16774,
+        "cocktail_id": "ckt_bf472a01ddf03399bb9c",
+        "d_glass_category": "Cordial glass",
+        "expected_glass_id": "cordial",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16775,
+        "cocktail_id": "ckt_405d1407771094e9a98d",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16776,
+        "cocktail_id": "ckt_dfd6e9dbf91cf1154635",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16777,
+        "cocktail_id": "ckt_152698bfb1b78515205c",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16778,
+        "cocktail_id": "ckt_b7738a7a8fb2b67ad230",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16779,
+        "cocktail_id": "ckt_744b3c3eff2c0fe67e7e",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16780,
+        "cocktail_id": "ckt_4688a822015ffdeeebb2",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16781,
+        "cocktail_id": "ckt_b5c722aaf4fad683996c",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16782,
+        "cocktail_id": "ckt_40e8196bfcf6c50568a6",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16783,
+        "cocktail_id": "ckt_b00fc450f65c710c68fa",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16784,
+        "cocktail_id": "ckt_8935172140314b9cfe52",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16785,
+        "cocktail_id": "ckt_1093604e2674d204ab47",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16786,
+        "cocktail_id": "ckt_f6699dcad3543589d392",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16787,
+        "cocktail_id": "ckt_5938d09836455f9f9e45",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16788,
+        "cocktail_id": "ckt_2ae7823d2252481b2796",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16789,
+        "cocktail_id": "ckt_e4a37e907aff7435cebc",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16790,
+        "cocktail_id": "ckt_5e7bfc80a52482c8d6a2",
+        "d_glass_category": "Mug",
+        "expected_glass_id": "mug",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16791,
+        "cocktail_id": "ckt_f832d2787d2ec91af205",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16792,
+        "cocktail_id": "ckt_2c6ee49c327524155619",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16793,
+        "cocktail_id": "ckt_d0afba0b0c603883170a",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16794,
+        "cocktail_id": "ckt_82e5473b353a999fa636",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16795,
+        "cocktail_id": "ckt_f67dd57bf13946fece51",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16796,
+        "cocktail_id": "ckt_09536f23a64bbaf67d7b",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16797,
+        "cocktail_id": "ckt_5ce65381f71c4ed30098",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16798,
+        "cocktail_id": "ckt_795bd2c06d7c4921f968",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16799,
+        "cocktail_id": "ckt_b76e39288bf6402dc741",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16800,
+        "cocktail_id": "ckt_77b6da0e564f6143776f",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16801,
+        "cocktail_id": "ckt_9d9c862ccd33af55d8e0",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16802,
+        "cocktail_id": "ckt_a8003f2d534fe7a37992",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16803,
+        "cocktail_id": "ckt_de8a95ca82d047319a29",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16804,
+        "cocktail_id": "ckt_271740c50a7a86f75336",
+        "d_glass_category": "Rocks glass",
+        "expected_glass_id": "rocks",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16805,
+        "cocktail_id": "ckt_ab8d8bfe6d58b819a021",
+        "d_glass_category": "Pint glass",
+        "expected_glass_id": "pint",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16806,
+        "cocktail_id": "ckt_d5b4ebd22a66ca4918f2",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16807,
+        "cocktail_id": "ckt_5ebb3549b10d8d1a7b3f",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16808,
+        "cocktail_id": "ckt_095b7ef8d4f0d762fd03",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16809,
+        "cocktail_id": "ckt_af2ea31f93578b67d33c",
+        "d_glass_category": "Wine glass",
+        "expected_glass_id": "wine",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16810,
+        "cocktail_id": "ckt_ac64f4f5af300f0347a6",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16811,
+        "cocktail_id": "ckt_e2b6a141820eeae5d0dc",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16812,
+        "cocktail_id": "ckt_a64676f83b5cec0e0c5d",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16813,
+        "cocktail_id": "ckt_ad28d20d7f7a0e63c0d8",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16814,
+        "cocktail_id": "ckt_549a628e807dc2f8cca4",
+        "d_glass_category": "Highball glass",
+        "expected_glass_id": "highball",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16815,
+        "cocktail_id": "ckt_01d857b8dd86e29124e1",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16816,
+        "cocktail_id": "ckt_f3a45794f4ce5c0160e6",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16817,
+        "cocktail_id": "ckt_2ea4b1c5ca8d46184b21",
+        "d_glass_category": "Margarita glass",
+        "expected_glass_id": "margarita",
+        "actual_glass_id": null
+      },
+      {
+        "legacy_drink_id": 16818,
+        "cocktail_id": "ckt_9d0d99d06d0a8f5bfb6e",
+        "d_glass_category": "Martini glass",
+        "expected_glass_id": "martini",
+        "actual_glass_id": null
+      }
+    ]
+  },
+  "validation": {
+    "all_10_locked_categories_present": true,
+    "all_master_rows_bridged_and_mapped": true,
+    "all_target_glasses_active": true,
+    "exception_count": 0
+  },
+  "finished_at": "2026-09-29T18:28:13.160223+00:00"
+}

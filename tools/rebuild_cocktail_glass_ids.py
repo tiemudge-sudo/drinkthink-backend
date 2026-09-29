@@ -63,14 +63,16 @@ class Migration:
             master_rows = list(csv.DictReader(source))
 
         by_legacy = defaultdict(list)
+        production_distribution = Counter()
         async for cocktail in self.db.cocktails.find(
-            {}, {"_id": 0, "cocktail_id": 1, "legacy_drink_id": 1, "migration.legacy_drink_id": 1}
+            {}, {"_id": 0, "cocktail_id": 1, "legacy_drink_id": 1, "migration.legacy_drink_id": 1, "glass_id": 1}
         ):
+            production_distribution[str(cocktail.get("glass_id") or "<missing>")] += 1
             legacy_id = cocktail.get("legacy_drink_id")
             if legacy_id is None:
                 legacy_id = (cocktail.get("migration") or {}).get("legacy_drink_id")
             try:
-                by_legacy[int(legacy_id)].append(cocktail["cocktail_id"])
+                by_legacy[int(legacy_id)].append(cocktail)
             except (KeyError, TypeError, ValueError):
                 continue
 
@@ -95,6 +97,9 @@ class Migration:
 
         updates = []
         category_counts = Counter()
+        expected_distribution = Counter()
+        bridged_actual_distribution = Counter()
+        mismatches = []
         for row in master_rows:
             try:
                 legacy_id = int(row["id"])
@@ -111,17 +116,43 @@ class Migration:
             candidates = by_legacy.get(legacy_id, [])
             if len(candidates) != 1:
                 self.report["exceptions"].append(
-                    {"kind": "cocktail_bridge_count", "legacy_drink_id": legacy_id, "count": len(candidates), "cocktail_ids": candidates}
+                    {
+                        "kind": "cocktail_bridge_count",
+                        "legacy_drink_id": legacy_id,
+                        "count": len(candidates),
+                        "cocktail_ids": [candidate.get("cocktail_id") for candidate in candidates],
+                    }
                 )
                 continue
+            cocktail = candidates[0]
             category_counts[category] += 1
-            updates.append({"legacy_drink_id": legacy_id, "cocktail_id": candidates[0], "glass_id": glass_id})
+            expected_distribution[glass_id] += 1
+            actual_glass_id = cocktail.get("glass_id")
+            bridged_actual_distribution[str(actual_glass_id or "<missing>")] += 1
+            if actual_glass_id != glass_id:
+                mismatches.append(
+                    {
+                        "legacy_drink_id": legacy_id,
+                        "cocktail_id": cocktail["cocktail_id"],
+                        "d_glass_category": category,
+                        "expected_glass_id": glass_id,
+                        "actual_glass_id": actual_glass_id,
+                    }
+                )
+            updates.append({"legacy_drink_id": legacy_id, "cocktail_id": cocktail["cocktail_id"], "glass_id": glass_id})
 
         self.updates = updates
         self.report["counts"].update(
             {"master_rows": len(master_rows), "planned_cocktail_updates": len(updates), "mapped_categories": len(category_counts)}
         )
         self.report["category_counts"] = dict(sorted(category_counts.items()))
+        self.report["production_glass_id_distribution"] = dict(sorted(production_distribution.items()))
+        self.report["bridged_assignment_audit"] = {
+            "expected_glass_id_distribution": dict(sorted(expected_distribution.items())),
+            "actual_glass_id_distribution": dict(sorted(bridged_actual_distribution.items())),
+            "mismatch_count": len(mismatches),
+            "mismatch_samples": mismatches[:100],
+        }
         self.report["validation"] = {
             "all_10_locked_categories_present": set(category_counts) == set(GLASS_CATEGORY_TO_ID),
             "all_master_rows_bridged_and_mapped": len(updates) == len(master_rows),
@@ -183,7 +214,13 @@ async def main():
     finally:
         client.close()
     Path(args.report).write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
-    print(json.dumps({"report": args.report, "validation": report["validation"], "counts": report["counts"]}, indent=2))
+    print(json.dumps({
+        "report": args.report,
+        "validation": report["validation"],
+        "counts": report["counts"],
+        "production_glass_id_distribution": report["production_glass_id_distribution"],
+        "bridged_assignment_audit": report["bridged_assignment_audit"],
+    }, indent=2))
 
 
 if __name__ == "__main__":
