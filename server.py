@@ -38,6 +38,7 @@ class Drink(BaseModel):
     category: str = ""
     alcohol: str = ""
     glass: str = ""
+    icon_key: str = ""
     ingredients: str = ""
     instructions: str = ""
     shopping: str = ""
@@ -48,7 +49,7 @@ class Drink(BaseModel):
     celebrate: float
 
 
-def _canonical_to_drink(doc: dict) -> dict:
+def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
     """Adapt canonical Mongo cocktail documents to the existing mobile Drink payload."""
     scores = doc.get("scores") or {}
     migration = doc.get("migration") or {}
@@ -57,8 +58,10 @@ def _canonical_to_drink(doc: dict) -> dict:
         "name": doc.get("name") or "",
         "category": doc.get("category") or "",
         "alcohol": doc.get("alcohol_class") or "",
-        # Keep the original presentation label in the mobile contract for now.
-        "glass": migration.get("legacy_glass") or doc.get("glass_id") or "",
+        # Glass identity and its icon are resolved by the canonical glasses
+        # record.  A selected consumer filter must never choose this icon.
+        "glass": (glass or {}).get("display_name") or (glass or {}).get("name") or doc.get("glass_id") or "",
+        "icon_key": (glass or {}).get("icon_key") or "",
         "ingredients": doc.get("human_ingredients") or "",
         "instructions": doc.get("instructions") or "",
         "shopping": doc.get("shopping_tokens") or "",
@@ -68,6 +71,12 @@ def _canonical_to_drink(doc: dict) -> dict:
         "calm": float(scores.get("comfort") or 0),
         "celebrate": float(scores.get("party") or 0),
     }
+
+
+async def _canonical_glasses_by_id() -> dict[str, dict]:
+    """Return canonical glass metadata keyed by glass_id for response shaping."""
+    glass_docs = await db.glasses.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    return {str(g["glass_id"]): g for g in glass_docs if g.get("glass_id")}
 
 
 class MatchItem(BaseModel):
@@ -343,19 +352,9 @@ MAIN_INGREDIENT_PRIMARY = {
 }
 ALLOWED_ALCOHOL_FILTERS = set(MAIN_INGREDIENT_PRIMARY) | {"non_alcoholic"}
 
-# Existing mobile filter tokens -> canonical glass_id families.
-# This preserves the public query contract while filtering canonical fields.
-GLASS_ID_FAMILIES: dict[str, set[str]] = {
-    "cocktail": {"cocktail", "martini", "margarita", "pina_colada"},
-    "highball": {"highball", "collins", "cooler", "pint"},
-    "old_fashioned": {"rocks", "sour", "cordial", "snifter"},
-    "shot": {"shot", "pousse_cafe"},
-    "hurricane": {"hurricane", "parfait"},
-    "wine": {"wine", "sherry"},
-    "champagne": {"champagne_flute", "coupe"},
-    "mug": {"mug", "beer_mug", "irish_coffee", "coffee_mug", "cup", "mason_jar"},
-}
-ALLOWED_GLASS_FILTERS = set(GLASS_ID_FAMILIES)
+# Consumer Drink Style values.  Their membership is owned by
+# glasses.filter_families, never by a frontend or backend lookup table.
+ALLOWED_GLASS_FILTERS = {"shot", "rocks", "pint", "martini", "hurricane", "champagne_flutes"}
 
 
 def _int_ids(values) -> set[int]:
@@ -449,33 +448,17 @@ async def match_drink(
                 kept.append(c)
         canonical_docs = kept
 
-    # What I Want: canonical glass filter.  The 562 master-created rows retain
-    # legacy_glass but did not have a glass_id at import; use the established
-    # canonical glass normalization only for that migration field.
+    # Resolve canonical glass metadata once.  This is the sole source for both
+    # consumer-filter membership and returned card icon_key.
+    glasses_by_id = await _canonical_glasses_by_id()
+
+    # What I Want: OR within Drink Style, based solely on canonical
+    # glasses.filter_families.  No legacy-name fallback or taxonomy is allowed.
     if glass_filters:
-        allowed_glass_ids = set().union(*(GLASS_ID_FAMILIES[g] for g in glass_filters))
-        legacy_to_id = {
-            "cocktail glass":"cocktail", "martini":"martini", "highball glass":"highball",
-            "collins glass":"collins", "shot glass":"shot", "old-fashioned glass":"rocks",
-            "hurricane glass":"hurricane", "margarita glass":"margarita", "beer mug":"beer_mug",
-            "beer pilsner":"pilsner", "pint glass":"pint", "champagne flute":"champagne_flute",
-            "champagne saucer":"coupe", "champagne tulip":"champagne_flute", "coupe glass":"coupe",
-            "white wine glass":"wine", "red wine glass":"wine", "wine goblet":"wine",
-            "irish coffee cup":"irish_coffee", "coffee mug":"coffee_mug", "cup":"cup",
-            "whiskey sour glass":"sour", "sour glass":"sour", "parfait glass":"parfait",
-            "pina colada glass":"pina_colada", "brandy snifter":"snifter", "cordial glass":"cordial",
-            "mason jar":"mason_jar", "mug":"mug", "pousse cafe glass":"pousse_cafe",
-            "sherry glass":"sherry", "cooler":"cooler",
-        }
-        kept = []
-        for c in canonical_docs:
-            gid = c.get("glass_id")
-            if not gid:
-                raw = str((c.get("migration") or {}).get("legacy_glass") or "").strip().lower()
-                gid = legacy_to_id.get(raw)
-            if gid in allowed_glass_ids:
-                kept.append(c)
-        canonical_docs = kept
+        canonical_docs = [
+            c for c in canonical_docs
+            if glass_filters.intersection(set((glasses_by_id.get(str(c.get("glass_id"))) or {}).get("filter_families") or []))
+        ]
 
     # Checked-in location replaces home cupboard constraint.
     if location_id:
@@ -516,7 +499,7 @@ async def match_drink(
 
             canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
-    docs = [_canonical_to_drink(d) for d in canonical_docs]
+    docs = [_canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id")))) for d in canonical_docs]
 
     blocked_ids: set[str] = set()
     favorite_ids: set[str] = set()
@@ -553,6 +536,7 @@ class DrinkSearchResult(BaseModel):
     id: str
     name: str
     glass: str = ""
+    icon_key: str = ""
     ingredients: str = ""
 
 
@@ -569,11 +553,13 @@ async def search_drinks(q: str, limit: int = 20):
         {"_id": 0},
     ).limit(limit)
     docs = await cursor.to_list(length=limit)
+    glasses_by_id = await _canonical_glasses_by_id()
     return [
         DrinkSearchResult(
             id=d["cocktail_id"],
             name=d.get("name") or "",
-            glass=(d.get("migration") or {}).get("legacy_glass") or d.get("glass_id") or "",
+            glass=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("display_name") or d.get("glass_id") or "",
+            icon_key=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("icon_key") or "",
             ingredients=d.get("human_ingredients") or "",
         )
         for d in docs
@@ -590,7 +576,8 @@ async def get_drink(drink_id: str):
     )
     if not doc:
         raise HTTPException(status_code=404, detail="Drink not found")
-    return Drink(**_canonical_to_drink(doc))
+    glasses_by_id = await _canonical_glasses_by_id()
+    return Drink(**_canonical_to_drink(doc, glasses_by_id.get(str(doc.get("glass_id")))))
 
 
 # ================================================================
@@ -792,8 +779,9 @@ async def list_favorites(user: User = Depends(current_user)):
     if not rows:
         return []
     ids = [r["drink_id"] for r in rows]
+    glasses_by_id = await _canonical_glasses_by_id()
     drinks_by_id = {
-        d["cocktail_id"]: _canonical_to_drink(d)
+        d["cocktail_id"]: _canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id"))))
         async for d in db.cocktails.find(
             {"cocktail_id": {"$in": ids}, "status": "active"}, {"_id": 0}
         )
@@ -828,8 +816,9 @@ async def list_blocked(user: User = Depends(current_user)):
     if not rows:
         return []
     ids = [r["drink_id"] for r in rows]
+    glasses_by_id = await _canonical_glasses_by_id()
     drinks_by_id = {
-        d["cocktail_id"]: _canonical_to_drink(d)
+        d["cocktail_id"]: _canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id"))))
         async for d in db.cocktails.find(
             {"cocktail_id": {"$in": ids}, "status": "active"}, {"_id": 0}
         )
