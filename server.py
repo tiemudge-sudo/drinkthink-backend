@@ -1040,7 +1040,19 @@ class CupboardRequest(BaseModel):
 @api_router.get("/me/cupboard")
 async def get_cupboard(user: User = Depends(current_user)):
     doc = await db.user_cupboard.find_one({"user_id": user.user_id}, {"_id": 0})
-    return {"item_ids": (doc or {}).get("item_ids", []), "active": (doc or {}).get("active", False)}
+    raw_ids = (doc or {}).get("item_ids", [])
+    candidate_ids = _int_ids(raw_ids)
+    valid_ids = {
+        row["ingredient_id"]
+        async for row in db.ingredients.find(
+            {"ingredient_id": {"$in": list(candidate_ids)}, "status": "active"},
+            {"_id": 0, "ingredient_id": 1},
+        )
+    } if candidate_ids else set()
+    # The mobile UI uses string IDs in Set<string>, but Mongo remains canonical:
+    # user_cupboard.item_ids are integer ingredient_id values on write.  Stale
+    # pre-cutover semantic IDs are not guessed/remapped and are not returned.
+    return {"item_ids": [str(i) for i in sorted(valid_ids)], "active": (doc or {}).get("active", False)}
 
 
 @api_router.post("/me/cupboard")
@@ -1056,12 +1068,13 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
     missing = sorted(ids - existing)
     if missing:
         raise HTTPException(status_code=400, detail=f"unknown canonical ingredient IDs: {missing}")
+    canonical_ids = sorted(ids)
     await db.user_cupboard.update_one(
         {"user_id": user.user_id},
-        {"$set": {"item_ids": [str(i) for i in sorted(ids)], "active": body.active}},
+        {"$set": {"item_ids": canonical_ids, "active": body.active}},
         upsert=True,
     )
-    return {"ok": True}
+    return {"ok": True, "item_ids": [str(i) for i in canonical_ids], "active": body.active}
 
 
 class ShareCheckInRequest(BaseModel):
