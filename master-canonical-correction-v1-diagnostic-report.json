@@ -1,0 +1,208 @@
+{
+  "version": "master-canonical-correction-v1",
+  "mode": "DRY_RUN",
+  "started_at": "2026-09-28T23:57:54.514627+00:00",
+  "source": "DrinkThink_db.zip master generation",
+  "counts": {
+    "master_cocktails": 12256,
+    "master_ingredients": 1321,
+    "lookup_keys": 3661,
+    "merge_map_entries": 1489,
+    "db_cocktails_before": 16359,
+    "db_ingredients_before": 1333,
+    "master_rows_bridged_or_creatable": 12252
+  },
+  "exceptions": [
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 1,
+      "master_name": "110 in the shade",
+      "count": 2,
+      "method": "migration_legacy_drink_id",
+      "candidates": [
+        {
+          "cocktail_id": "ckt_fa85b1610cf1c9037a6a",
+          "legacy_drink_id": null,
+          "name": "110 in the shade",
+          "normalized_name": "110 in the shade",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966ab8516aa12a617267d",
+            "legacy_drink_id": 1,
+            "legacy_glass": "Any Glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730525e"
+        },
+        {
+          "cocktail_id": "ckt_2c601e519114bb8da094",
+          "legacy_drink_id": null,
+          "name": "Nomayo",
+          "normalized_name": "nomayo",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966af8516aa12a6172a36",
+            "legacy_drink_id": 1,
+            "legacy_glass": "Any Glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb7305617"
+        }
+      ]
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 2,
+      "master_name": "'57 Chevy",
+      "count": 2,
+      "method": "migration_legacy_drink_id",
+      "candidates": [
+        {
+          "cocktail_id": "ckt_322c1edca869513e2995",
+          "legacy_drink_id": null,
+          "name": "'57 Chevy",
+          "normalized_name": "57 chevy",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966af8516aa12a617299c",
+            "legacy_drink_id": 2,
+            "legacy_glass": "Cocktail glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730557d"
+        },
+        {
+          "cocktail_id": "ckt_54b0537b291c8b5bcc79",
+          "legacy_drink_id": null,
+          "name": "Viex Mot",
+          "normalized_name": "viex mot",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966af8516aa12a6172a37",
+            "legacy_drink_id": 2,
+            "legacy_glass": "Any Glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb7305618"
+        }
+      ]
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 5,
+      "master_name": "187 URge",
+      "count": 2,
+      "method": "migration_legacy_drink_id",
+      "candidates": [
+        {
+          "cocktail_id": "ckt_09b83c71abc3b22b1683",
+          "legacy_drink_id": null,
+          "name": "187 URge",
+          "normalized_name": "187 urge",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966ab8516aa12a617278e",
+            "legacy_drink_id": 5,
+            "legacy_glass": "Any Glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730536f"
+        },
+        {
+          "cocktail_id": "ckt_4b26cfb5619351939abb",
+          "legacy_drink_id": null,
+          "name": "French Gimlet",
+          "normalized_name": "french gimlet",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966af8516aa12a6172a3a",
+            "legacy_drink_id": 5,
+            "legacy_glass": "Martini"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730561b"
+        }
+      ]
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 7,
+      "master_name": "'57 Chevy with a White License Plate",
+      "count": 2,
+      "method": "migration_legacy_drink_id",
+      "candidates": [
+        {
+          "cocktail_id": "ckt_18c8ee0de51e30ac38bf",
+          "legacy_drink_id": null,
+          "name": "'57 Chevy with a White License Plate",
+          "normalized_name": "57 chevy with a white license plate",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966a78516aa12a617196e",
+            "legacy_drink_id": 7,
+            "legacy_glass": "Highball glass"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730454f"
+        },
+        {
+          "cocktail_id": "ckt_e9f991046ec2717349a4",
+          "legacy_drink_id": null,
+          "name": "East Side elder",
+          "normalized_name": "east side elder",
+          "status": "active",
+          "source": "curated",
+          "migration": {
+            "version": "canonical-reset-v3",
+            "source_mongo_id": "6a9966af8516aa12a6172a3c",
+            "legacy_drink_id": 7,
+            "legacy_glass": "Martini"
+          },
+          "created_at": "2026-09-28 20:55:01.136000",
+          "updated_at": "2026-09-28 20:55:01.136000",
+          "_id": "6abad429afb2d2ddb730561d"
+        }
+      ]
+    }
+  ],
+  "bridge": {
+    "create_from_master": 562,
+    "migration_legacy_drink_id": 11690,
+    "ambiguous": 4
+  },
+  "ingredients": {
+    "prepared": 1321,
+    "categories": 6,
+    "integer_ids": true,
+    "unique_ids": true
+  },
+  "recipes": {
+    "source_ingredient_references": 46577,
+    "prepared_relationships": 46577,
+    "merge_redirected_references": 3,
+    "failures": 0
+  },
+  "apply_gate_passed": false,
+  "completed_at": "2026-09-28T23:57:59.591288+00:00"
+}

@@ -1,0 +1,1327 @@
+ID,All ingredients,Primary Ingredient,subCategory,Primary Category
+1001,burgundy wine,wine,red wine,Wine
+1002,cabernet sauvignon red wine,wine,red wine,Wine
+1003,chablis white wine,wine,white wine,Wine
+1004,chardonnay white wine,wine,white wine,Wine
+1005,chinese wine,wine,other wine,Wine
+1006,danish cherry wine,wine,other wine,Wine
+1007,dry red wine,wine,red wine,Wine
+1008,dry sparkling wine,wine,sparkling wine,Wine
+1009,dry white wine,wine,white wine,Wine
+1010,ginger wine,wine,other wine,Wine
+1011,ice wine,wine,other wine,Wine
+1012,lillet blanc,Other Cordial,,Secondary liquor
+1013,lychee wine,wine,other wine,Wine
+1014,mad dog grape wine,wine,other wine,Wine
+1015,merlot red wine,wine,red wine,Wine
+1016,muscatel wine,wine,other wine,Wine
+1017,petit syrah wine,wine,red wine,Wine
+1018,pineapple wine,wine,other wine,Wine
+1019,plum wine,wine,other wine,Wine
+1020,prosecco sparkling wine,wine,sparkling wine,Wine
+1021,red bordeaux wine,wine,red wine,Wine
+1022,red sparkling wine,wine,sparkling wine,Wine
+1023,red wine,wine,red wine,Wine
+1024,red zinfandel wine,wine,red wine,Wine
+1025,rice wine,wine,other wine,Wine
+1026,rose wine,wine,rose wine,Wine
+1027,sake rice wine,wine,other wine,Wine
+1028,sparkling burgundy wine,wine,sparkling wine,Wine
+1029,strawberry wine,wine,other wine,Wine
+1030,thunderbird wine,wine,other wine,Wine
+1031,white wine,wine,white wine,Wine
+1032,wine,wine,,Wine
+1033,wine cooler,wine,other wine,Wine
+1034,zinfandel white wine,wine,white wine,Wine
+1035,american whiskey,whiskey,,Primary liquor
+1036,blended whiskey,whiskey,,Primary liquor
+1037,bourbon whiskey,whiskey,,Primary liquor
+1038,cherry whiskey,whiskey,,Primary liquor
+1039,corn whiskey,whiskey,,Primary liquor
+1040,irish whiskey,whiskey,,Primary liquor
+1041,moonshine whiskey,whiskey,,Primary liquor
+1042,tennessee whiskey,whiskey,,Primary liquor
+1043,whiskey,whiskey,,Primary liquor
+1044,apple vodka,vodka,flavored vodka,Primary liquor
+1045,black cherry vodka,vodka,flavored vodka,Primary liquor
+1046,blackcurrant vodka,vodka,flavored vodka,Primary liquor
+1047,blood orange vodka,vodka,flavored vodka,Primary liquor
+1048,blueberry vodka,vodka,flavored vodka,Primary liquor
+1049,caramel vodka,vodka,flavored vodka,Primary liquor
+1050,cherry vodka,vodka,flavored vodka,Primary liquor
+1051,chocolate vodka,vodka,flavored vodka,Primary liquor
+1052,citron vodka,vodka,flavored vodka,Primary liquor
+1053,citrus vodka,vodka,flavored vodka,Primary liquor
+1054,coconut vodka,vodka,flavored vodka,Primary liquor
+1056,cranberry vodka,vodka,flavored vodka,Primary liquor
+1057,espresso vodka,vodka,flavored vodka,Primary liquor
+1058,fresh mint vodka,vodka,flavored vodka,Primary liquor
+1059,ginger-infused vodka,vodka,flavored vodka,Primary liquor
+1060,grapefruit vodka,vodka,flavored vodka,Primary liquor
+1061,grape vodka,vodka,flavored vodka,Primary liquor
+1062,green apple twist vodka,vodka,flavored vodka,Primary liquor
+1063,green apple vodka,vodka,flavored vodka,Primary liquor
+1064,honey vodka,vodka,flavored vodka,Primary liquor
+1065,kamchatka vodka,vodka,flavored vodka,Primary liquor
+1066,lemon vodka,vodka,flavored vodka,Primary liquor
+1067,lime vodka,vodka,flavored vodka,Primary liquor
+1068,limon vodka,vodka,flavored vodka,Primary liquor
+1069,mandrin vodka,vodka,flavored vodka,Primary liquor
+1070,mango vodka,vodka,flavored vodka,Primary liquor
+1071,melon vodka,vodka,flavored vodka,Primary liquor
+1072,orange vodka,vodka,flavored vodka,Primary liquor
+1073,peach vodka,vodka,flavored vodka,Primary liquor
+1074,pears vodka,vodka,flavored vodka,Primary liquor
+1075,pear vodka,vodka,flavored vodka,Primary liquor
+1076,peppar vodka,vodka,flavored vodka,Primary liquor
+1077,pepper vodka,vodka,flavored vodka,Primary liquor
+1078,pineapple vodka,vodka,flavored vodka,Primary liquor
+1079,raspberry vodka,vodka,flavored vodka,Primary liquor
+1080,ruby red vodka,vodka,flavored vodka,Primary liquor
+1081,spiced vodka,vodka,flavored vodka,Primary liquor
+1082,strawberry twist vodka,vodka,flavored vodka,Primary liquor
+1083,vanilla vodka,vodka,flavored vodka,Primary liquor
+1084,vodka,vodka,,Primary liquor
+1085,watermelon vodka,vodka,flavored vodka,Primary liquor
+1086,bianco vermouth,vermouth,,Secondary liquor
+1087,dry vermouth,vermouth,,Secondary liquor
+1088,extra dry vermouth,vermouth,,Secondary liquor
+1089,french vermouth,vermouth,,Secondary liquor
+1090,italian vermouth,vermouth,,Secondary liquor
+1091,red vermouth,vermouth,,Secondary liquor
+1092,rosso vermouth,vermouth,,Secondary liquor
+1093,rouge vermouth,vermouth,,Secondary liquor
+1094,sweet vermouth,vermouth,,Secondary liquor
+1095,vermouth,vermouth,,Secondary liquor
+1096,tuaca,tuaca,,Secondary liquor
+1097,triple sec,triple sec,,Secondary liquor
+1098,blanco tequila,tequila,blanco (silver or white),Primary liquor
+1099,gold tequila,tequila,joven (gold or oro),Primary liquor
+1101,reposado tequila,tequila,resposado,Primary liquor
+1102,sauza tequila,tequila,,Primary liquor
+1103,silver tequila,tequila,blanco (silver or white),Primary liquor
+1104,tequila,tequila,,Primary liquor
+1105,white tequila,tequila,blanco (silver or white),Primary liquor
+1106,gingerbread syrup,syrup,,common items
+1107,ginger syrup,syrup,,common items
+1108,almond syrup,syrup,,common items
+1109,banana syrup,syrup,,common items
+1110,blueberry syrup,syrup,,common items
+1111,brown sugar syrup,syrup,,common items
+1112,caramel syrup,syrup,,common items
+1113,cherry syrup,syrup,,common items
+1114,chocolate syrup,syrup,,common items
+1115,clove syrup,syrup,,common items
+1116,coconut syrup,syrup,,common items
+1117,corn syrup,syrup,,common items
+1118,currant syrup,syrup,,common items
+1119,davinci gourmet vanilla syrup,syrup,,common items
+1120,falernum syrup,syrup,,common items
+1121,fruit syrup,syrup,,common items
+1122,gomme syrup,syrup,,common items
+1123,grenadine syrup,syrup,,common items
+1124,guava syrup,syrup,,common items
+1125,kiwi syrup,syrup,,common items
+1126,lemon syrup,syrup,,common items
+1127,lime syrup,syrup,,common items
+1128,mango syrup,syrup,,common items
+1129,maple syrup,syrup,,common items
+1130,maracuja syrup,syrup,,common items
+1131,maraschino syrup,syrup,,common items
+1132,mint syrup,syrup,,common items
+1133,monin apple syrup,syrup,,common items
+1134,monin blue curacao syrup,syrup,,common items
+1135,monin cherry syrup,syrup,,common items
+1136,monin cinnamon syrup,syrup,,common items
+1137,monin coconut syrup,syrup,,common items
+1138,monin hazelnut syrup,syrup,,common items
+1139,nestle chocolate syrup,syrup,,common items
+1140,orange syrup,syrup,,common items
+1141,orgeat syrup,syrup,,common items
+1142,passion fruit syrup,syrup,,common items
+1143,pear syrup,syrup,,common items
+1144,pineapple syrup,syrup,,common items
+1145,raspberry syrup,syrup,,common items
+1146,simple syrup,syrup,,common items
+1147,strawberry syrup,syrup,,common items
+1148,sugar syrup,syrup,,common items
+1149,syrup,syrup,,common items
+1150,syrup of roses,syrup,,common items
+1151,vanilla syrup,syrup,,common items
+1152,ale-8-one soda,soda,,Mixer
+1153,baja blast lime soda,soda,,Mixer
+1154,berry lemonade soda,soda,,Mixer
+1155,bitter lemon soda,soda,,Mixer
+1156,black cherry soda,soda,,Mixer
+1157,blueberry soda,soda,,Mixer
+1158,blue bubble-gum soda,soda,,Mixer
+1159,canada dry cranberry soda,soda,,Mixer
+1160,orange soda,soda,,Mixer
+1161,cherry cider soda,soda,,Mixer
+1162,cherry soda,soda,,Mixer
+1163,chinotto soda,soda,,Mixer
+1164,citrus soda,soda,,Mixer
+1165,club soda,soda,,Mixer
+1166,code red soda,soda,,Mixer
+1167,cranberry soda,soda,,Mixer
+1168,cream soda,soda,,Mixer
+1169,dr. pepper cherry vanilla soda,soda,,Mixer
+1170,dr. pepper soda,soda,,Mixer
+1171,dr. pepper vanilla soda,soda,,Mixer
+1172,duet soda,soda,,Mixer
+1173,earth soda,soda,,Mixer
+1174,fanta blueberry soda,soda,,Mixer
+1175,fanta orange soda,soda,,Mixer
+1176,faxe kondi soda,soda,,Mixer
+1177,fresca black cherry soda,soda,,Mixer
+1178,fresca citrus soda,soda,,Mixer
+1179,fresca grapefruit soda,soda,,Mixer
+1180,fresca lemon-lime soda,soda,,Mixer
+1181,fresca peach soda,soda,,Mixer
+1182,fufu berry soda,soda,,Mixer
+1183,gatorade orange soda,soda,,Mixer
+1184,grapefruit-lemon soda,soda,,Mixer
+1185,grapefruit soda,soda,,Mixer
+1186,grape soda,soda,,Mixer
+1187,green apple soda,soda,,Mixer
+1188,island fruit soda,soda,,Mixer
+1189,kiwi-strawberry soda,soda,,Mixer
+1190,lemonade soda,soda,,Mixer
+1191,lemon-lime soda,soda,,Mixer
+1192,lemon soda,soda,,Mixer
+1193,lightning soda,soda,,Mixer
+1194,limeade soda,soda,,Mixer
+1195,lime soda,soda,,Mixer
+1196,limonata soda,soda,,Mixer
+1197,lychee soda,soda,,Mixer
+1198,mandarin soda,soda,,Mixer
+1199,mango madness soda,soda,,Mixer
+1200,mello yello citrus soda,soda,,Mixer
+1201,nugrape soda,soda,,Mixer
+1202,orange-pineapple soda,soda,,Mixer
+1203,orange slice soda,soda,,Mixer
+1205,peach soda,soda,,Mixer
+1206,perrier lemon soda water,soda,,Mixer
+1207,perrier lime soda water,soda,,Mixer
+1208,perrier soda water,soda,,Mixer
+1209,pineapple soda,soda,,Mixer
+1210,pitch black soda,soda,,Mixer
+1211,rain soda,soda,,Mixer
+1212,raspberry iced tea soda,soda,,Mixer
+1213,raspberry soda,soda,,Mixer
+1214,raspberry soda water,soda,,Mixer
+1215,rock & rye soda,soda,,Mixer
+1216,root beer,soda,,Mixer
+1217,sierra mist soda,soda,,Mixer
+1218,slice soda,soda,,Mixer
+1219,soda,soda,,Mixer
+1220,soda water,soda,,Mixer
+1221,sprite soda,soda,,Mixer
+1222,sprite zero soda,soda,,Mixer
+1223,squirt citrus soda,soda,,Mixer
+1224,stewart's orange 'n cream soda,soda,,Mixer
+1225,strawberry soda,soda,,Mixer
+1226,sun drop citrus soda,soda,,Mixer
+1227,sunkist orange soda,soda,,Mixer
+1228,surge citrus soda,soda,,Mixer
+1229,vess cream soda,soda,,Mixer
+1230,bristol cream sherry,sherry,,Secondary liquor
+1231,amontillado dry sherry,sherry,,Secondary liquor
+1232,cream sherry,sherry,,Secondary liquor
+1233,dry sherry,sherry,,Secondary liquor
+1234,fino sherry,sherry,,Secondary liquor
+1235,olorosa sherry,sherry,,Secondary liquor
+1236,pedro ximinez sherry,sherry,,Secondary liquor
+1237,sherry,sherry,,Secondary liquor
+1238,sweet sherry,sherry,,Secondary liquor
+1239,tio pepe sherry,sherry,,Secondary liquor
+1240,99 apples apple schnapps,Fruit Cordial,,Secondary liquor
+1241,99 bananas banana schnapps,Fruit Cordial,,Secondary liquor
+1242,99 blackberries blackberry schnapps,Fruit Cordial,,Secondary liquor
+1243,99 oranges orange schnapps,Citrus/Orange Cordial,,Secondary liquor
+1244,aftershock cool citrus mint schnapps,Cinnamon Cordial,,Secondary liquor
+1245,aftershock hot & cool cinnamon schnapps,Cinnamon Cordial,,Secondary liquor
+1246,aftershock thermal bite spice schnapps,Cinnamon Cordial,,Secondary liquor
+1247,apple schnapps,Fruit Cordial,,Secondary liquor
+1248,apricot schnapps,Fruit Cordial,,Secondary liquor
+1249,archers cranberry schnapps,Fruit Cordial,,Secondary liquor
+1250,archers lime schnapps,Citrus/Orange Cordial,,Secondary liquor
+1251,avalanche peppermint schnapps,Other Cordial,,Secondary liquor
+1252,banana schnapps,Fruit Cordial,,Secondary liquor
+1253,blackberry schnapps,Fruit Cordial,,Secondary liquor
+1254,black cherry schnapps,Fruit Cordial,,Secondary liquor
+1255,blackcurrant schnapps,Fruit Cordial,,Secondary liquor
+1256,black haus blackberry schnapps,Fruit Cordial,,Secondary liquor
+1257,blueberry schnapps,Fruit Cordial,,Secondary liquor
+1258,brennivin schnapps,Fruit Cordial,,Secondary liquor
+1259,cactus juice schnapps,Fruit Cordial,,Secondary liquor
+1260,cherry schnapps,Fruit Cordial,,Secondary liquor
+1261,cinnamon schnapps,Cinnamon Cordial,,Secondary liquor
+1262,cranberry schnapps,Fruit Cordial,,Secondary liquor
+1263,dekuyper apple barrel schnapps,Fruit Cordial,,Secondary liquor
+1264,dekuyper bluesberry schnapps,Fruit Cordial,,Secondary liquor
+1265,dekuyper cheri-beri pucker schnapps,Fruit Cordial,,Secondary liquor
+1266,dekuyper cinnamon schnapps,Cinnamon Cordial,,Secondary liquor
+1267,dekuyper grape pucker schnapps,Fruit Cordial,,Secondary liquor
+1268,dekuyper harvest pear schnapps,Fruit Cordial,,Secondary liquor
+1269,dekuyper hot damn cinnamon schnapps,Other Cordial,,Secondary liquor
+1270,dekuyper key largo schnapps,Fruit Cordial,,Secondary liquor
+1271,dekuyper mad melon schnapps,Fruit Cordial,,Secondary liquor
+1272,dekuyper peachtree schnapps,Fruit Cordial,,Secondary liquor
+1273,dekuyper peppermint schnapps,Other Cordial,,Secondary liquor
+1274,dekuyper pucker strawberry passion schnapps,Fruit Cordial,,Secondary liquor
+1275,dekuyper raspberry schnapps,Fruit Cordial,,Secondary liquor
+1276,dekuyper sour apple pucker schnapps,Fruit Cordial,,Secondary liquor
+1277,dekuyper sour peach pucker schnapps,Fruit Cordial,,Secondary liquor
+1278,dekuyper watermelon pucker schnapps,Fruit Cordial,,Secondary liquor
+1279,dekuyper wilderberry schnapps,Fruit Cordial,,Secondary liquor
+1280,dr. mcgillicuddy's cherry schnapps,Fruit Cordial,,Secondary liquor
+1281,dr. mcgillicuddy's mentholmint schnapps,Other Cordial,,Secondary liquor
+1282,dr. mcgillicuddy's peach schnapps,Fruit Cordial,,Secondary liquor
+1283,dr. mcgillicuddy's vanilla schnapps,Other Cordial,,Secondary liquor
+1284,grapefruit schnapps,Fruit Cordial,,Secondary liquor
+1285,grape schnapps,Fruit Cordial,,Secondary liquor
+1286,green apple schnapps,Fruit Cordial,,Secondary liquor
+1287,key largo schnapps,Fruit Cordial,,Secondary liquor
+1288,lemon schnapps,Citrus/Orange Cordial,,Secondary liquor
+1289,leroux pina colada schnapps,Fruit Cordial,,Secondary liquor
+1290,mango schnapps,Fruit Cordial,,Secondary liquor
+1291,maui blue hawaiian schnapps,Fruit Cordial,,Secondary liquor
+1292,maui tropical schnapps,Fruit Cordial,,Secondary liquor
+1293,melon schnapps,Fruit Cordial,,Secondary liquor
+1294,mint schnapps,Other Cordial,,Secondary liquor
+1295,peach schnapps,Fruit Cordial,,Secondary liquor
+1296,peachtree schnapps,Fruit Cordial,,Secondary liquor
+1297,pear schnapps,Fruit Cordial,,Secondary liquor
+1298,peppermint schnapps,Other Cordial,,Secondary liquor
+1299,phillips butter ripple schnapps,Fruit Cordial,,Secondary liquor
+1300,phillips hot 100 cinnamon schnapps,Other Cordial,,Secondary liquor
+1301,phillips peppermint schnapps,Other Cordial,,Secondary liquor
+1302,pomegranate schnapps,Fruit Cordial,,Secondary liquor
+1303,raspberry schnapps,Fruit Cordial,,Secondary liquor
+1304,root beer schnapps,Fruit Cordial,,Secondary liquor
+1305,schnapps,Fruit Cordial,,Secondary liquor
+1306,sour apple schnapps,Fruit Cordial,,Secondary liquor
+1307,strawberry schnapps,Fruit Cordial,,Secondary liquor
+1308,tangerine schnapps,Citrus/Orange Cordial,,Secondary liquor
+1309,tropical fruit schnapps,Fruit Cordial,,Secondary liquor
+1310,vanilla schnapps,Other Cordial,,Secondary liquor
+1311,watermelon schnapps,Fruit Cordial,,Secondary liquor
+1312,wildberry schnapps,Fruit Cordial,,Secondary liquor
+1313,yukon jack perma frost schnapps,Fruit Cordial,,Secondary liquor
+1314,sangria,sangria,,Wine
+1315,black sambuca,sambuca,,Secondary liquor
+1316,blue sambuca,sambuca,,Secondary liquor
+1317,green sambuca,sambuca,,Secondary liquor
+1318,red sambuca,sambuca,,Secondary liquor
+1319,sambuca,sambuca,,Secondary liquor
+1320,white sambuca,sambuca,,Secondary liquor
+1321,151 proof rum,rum,,Primary liquor
+1322,aged rum,rum,,Primary liquor
+1323,amber rum,rum,,Primary liquor
+1324,anejo rum,rum,dark rum,Primary liquor
+1325,apple rum,rum,flavored rum,Primary liquor
+1326,banana rum,rum,flavored rum,Primary liquor
+1327,black rum,rum,dark rum,Primary liquor
+1328,caribbean rum,rum,caribbean rum,Primary liquor
+1329,ciclon gold rum,rum,gold rum,Primary liquor
+1330,coconut rum,rum,flavored rum,Primary liquor
+1331,cocoribe coconut rum,rum,flavored rum,Primary liquor
+1332,coco rum,rum,flavored rum,Primary liquor
+1333,dark rum,rum,dark rum,Primary liquor
+1334,gold rum,rum,gold rum,Primary liquor
+1335,jamaican rum cream,Cream Cordial,,Secondary liquor
+1336,lemon rum,rum,flavored rum,Primary liquor
+1337,light rum,rum,light rum,Primary liquor
+1338,limon rum,rum,flavored rum,Primary liquor
+1339,mango rum,rum,flavored rum,Primary liquor
+1340,manila dark rum,rum,dark rum,Primary liquor
+1341,martinique rum,rum,dark rum,Primary liquor
+1342,orange rum,rum,flavored rum,Primary liquor
+1343,passion fruit rum,rum,flavored rum,Primary liquor
+1344,peach red rum,rum,flavored rum,Primary liquor
+1345,pineapple coconut rum,rum,flavored rum,Primary liquor
+1346,pineapple rum,rum,flavored rum,Primary liquor
+1347,raspberry rum,rum,flavored rum,Primary liquor
+1348,rum,rum,,Primary liquor
+1349,silver rum,rum,,Primary liquor
+1350,spiced rum,rum,spiced rum,Primary liquor
+1351,vanilla rum,rum,flavored rum,Primary liquor
+1352,white rum,rum,,Primary liquor
+1353,peach orchard punch juice,punch,,Mixer
+1354,berry punch,punch,,Mixer
+1355,cherry punch,punch,,Mixer
+1356,citrus punch,punch,,Mixer
+1357,lemonade,punch,,Mixer
+1358,crystal light sunrise classic orange mix,punch,,Mixer
+1359,fruit punch,punch,,Mixer
+1360,grape punch,punch,,Mixer
+1361,hawaiian punch,punch,,Mixer
+1362,hawaiian punch blue berry typhoon,punch,,Mixer
+1363,hawaiian punch fruit juicy red,punch,,Mixer
+1364,hawaiian punch green berry rush,punch,,Mixer
+1365,jack daniel's downhome punch,punch,,Mixer
+1366,kool-aid berry blue mix,punch,,Mixer
+1367,kool-aid blue raspberry mix,punch,,Mixer
+1368,kool-aid cherry mix,punch,,Mixer
+1369,kool-aid grape mix,punch,,Mixer
+1370,kool-aid lemonade tea mix,punch,,Mixer
+1371,kool-aid lemon-lime mix,punch,,Mixer
+1372,kool-aid orange mix,punch,,Mixer
+1373,kool-aid strawberry mix,punch,,Mixer
+1374,kool-aid tangerine mix,punch,,Mixer
+1375,kool-aid tropical punch mix,punch,,Mixer
+1376,lemon-lime mix,punch,,Mixer
+1377,lemon mix,punch,,Mixer
+1378,lime mix,punch,,Mixer
+1379,mixed-berry marinade,punch,,Mixer
+1380,mr & mrs t's pina colada mix,drink mix,,Mixer
+1381,mudslide mix,drink mix,,Mixer
+1382,old-fashioned mix,drink mix,,Mixer
+1383,pimm's summer punch,punch,,Mixer
+1384,pina colada mix,drink mix,,Mixer
+1385,simply lemonade,punch,,Mixer
+1386,sour apple mix,punch,,Mixer
+1387,sour mix,drink mix,,Mixer
+1388,strawberry daquiri mix,drink mix,,Mixer
+1389,strawberry mix,punch,,Mixer
+1390,sweet and sour mix,punch,,Mixer
+1391,tampico fruit punch,punch,,Mixer
+1392,watermelon mix,punch,,Mixer
+1393,whiskey sour mix,drink mix,,Mixer
+1394,ouzo,ouzo,,Secondary liquor
+1395,a1 steak sauce,other - not categorized,,common items
+1396,agave liqueur,Fruit Cordial,,Secondary liquor
+1397,agavero tequila liqueur,Fruit Cordial,,Secondary liquor
+1398,almond liqueur,Nut/Seed Cordial,,Secondary liquor
+1399,aperol orange liqueur,Citrus/Orange Cordial,,Secondary liquor
+1400,apple liqueur,Fruit Cordial,,Secondary liquor
+1401,apricot liqueur,Fruit Cordial,,Secondary liquor
+1402,artichoke liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1403,banana liqueur,Fruit Cordial,,Secondary liquor
+1404,blackberry liqueur,Fruit Cordial,,Secondary liquor
+1405,black chocolate liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1406,black raspberry liqueur,Fruit Cordial,,Secondary liquor
+1407,blueberry liqueur,Fruit Cordial,,Secondary liquor
+1408,blue curacao liqueur,Citrus/Orange Cordial,,Secondary liquor
+1409,buttershots liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1410,cactus juice liqueur,Fruit Cordial,,Secondary liquor
+1411,caramel irish cream liqueur,Cream Cordial,,Secondary liquor
+1412,caramel liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1413,cashew apple liqueur,Fruit Cordial,,Secondary liquor
+1414,chai cream liqueur,Cream Cordial,,Secondary liquor
+1415,chartreuse herbal liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1416,cherry advocaat liqueur,Fruit Cordial,,Secondary liquor
+1417,cherry liqueur,Fruit Cordial,,Secondary liquor
+1418,cherry marnier liqueur,Fruit Cordial,,Secondary liquor
+1419,chocolate almond liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1420,chocolate cream liqueur,Cream Cordial,,Secondary liquor
+1421,chocolate hazelnut liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1422,chocolate liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1423,chocolate mint liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1424,chocolate raspberry liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1425,cinnamon liqueur,Other Cordial,,Secondary liquor
+1426,coconut liqueur,Fruit Cordial,,Secondary liquor
+1427,coconut passion liqueur,Fruit Cordial,,Secondary liquor
+1428,coffee liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1429,coquila tequila cream liqueur,Cream Cordial,,Secondary liquor
+1430,cranberry liqueur,Fruit Cordial,,Secondary liquor
+1431,cream liqueur,Cream Cordial,,Secondary liquor
+1432,creme de noyaux liqueur,Nut/Seed Cordial,,Secondary liquor
+1434,elderflower liqueur,Floral Cordial,,Secondary liquor
+1435,forbidden fruit liqueur,Fruit Cordial,,Secondary liquor
+1436,ginger liqueur,Other Cordial,,Secondary liquor
+1437,green curacao liqueur,Citrus/Orange Cordial,,Secondary liquor
+1438,green tea liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1439,guavaberry liqueur,Fruit Cordial,,Secondary liquor
+1440,hazelnut liqueur,Nut/Seed Cordial,,Secondary liquor
+1441,herbal liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1442,honey liqueur,Other Cordial,,Secondary liquor
+1443,irish cream liqueur,Cream Cordial,,Secondary liquor
+1444,key lime liqueur,Citrus/Orange Cordial,,Secondary liquor
+1445,kiwi liqueur,Fruit Cordial,,Secondary liquor
+1446,lemon liqueur,Citrus/Orange Cordial,,Secondary liquor
+1447,licorice liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1449,lime citron liqueur,Citrus/Orange Cordial,,Secondary liquor
+1450,lime liqueur,Citrus/Orange Cordial,,Secondary liquor
+1451,limoncello lemon liqueur,Citrus/Orange Cordial,,Secondary liquor
+1452,liqueur,Fruit Cordial,,Secondary liquor
+1453,lychee liqueur,Fruit Cordial,,Secondary liquor
+1454,macadamia nut liqueur,Nut/Seed Cordial,,Secondary liquor
+1455,mandarin liqueur,Citrus/Orange Cordial,,Secondary liquor
+1456,mango liqueur,Fruit Cordial,,Secondary liquor
+1457,mango passion liqueur,Fruit Cordial,,Secondary liquor
+1458,maple liqueur,Other Cordial,,Secondary liquor
+1459,maraschino liqueur,Fruit Cordial,,Secondary liquor
+1460,melon liqueur,Fruit Cordial,,Secondary liquor
+1461,mint chocolate irish cream liqueur,Cream Cordial,,Secondary liquor
+1462,mint liqueur,Other Cordial,,Secondary liquor
+1463,mocha cream liqueur,Cream Cordial,,Secondary liquor
+1464,orange cognac liqueur,Citrus/Orange Cordial,,Secondary liquor
+1465,orange cream liqueur,Cream Cordial,,Secondary liquor
+1466,orange curacao liqueur,Citrus/Orange Cordial,,Secondary liquor
+1467,orange liqueur,Citrus/Orange Cordial,,Secondary liquor
+1468,ouzo anise liqueur,Herbal/Botanical Cordial,,Secondary liquor
+1469,passion-fruit liqueur,Fruit Cordial,,Secondary liquor
+1470,peach liqueur,Fruit Cordial,,Secondary liquor
+1472,peanut liqueur,Nut/Seed Cordial,,Secondary liquor
+1473,pear liqueur,Fruit Cordial,,Secondary liquor
+1474,pecan liqueur,Nut/Seed Cordial,,Secondary liquor
+1475,peppermint liqueur,Other Cordial,,Secondary liquor
+1476,pineapple liqueur,Fruit Cordial,,Secondary liquor
+1477,pistachio liqueur,Nut/Seed Cordial,,Secondary liquor
+1478,pomegranate liqueur,Fruit Cordial,,Secondary liquor
+1479,pumpkin smash liqueur,Other Cordial,,Secondary liquor
+1480,quetsch plum liqueur,Fruit Cordial,,Secondary liquor
+1481,raspberry liqueur,Fruit Cordial,,Secondary liquor
+1482,rock and rye liqueur,Fruit Cordial,,Secondary liquor
+1483,roncoco coconut liqueur,Fruit Cordial,,Secondary liquor
+1484,rum cream liqueur,Cream Cordial,,Secondary liquor
+1485,rum tree liqueur,Fruit Cordial,,Secondary liquor
+1486,sour apple liqueur,Fruit Cordial,,Secondary liquor
+1487,strawberry cream liqueur,Cream Cordial,,Secondary liquor
+1488,strawberry liqueur,Fruit Cordial,,Secondary liquor
+1489,sugar maple liqueur,Other Cordial,,Secondary liquor
+1490,toffee liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1491,tropical blue liqueur,Fruit Cordial,,Secondary liquor
+1492,vanilla cream liqueur,Cream Cordial,,Secondary liquor
+1493,vanilla liqueur,Other Cordial,,Secondary liquor
+1494,velvet cream liqueur,Cream Cordial,,Secondary liquor
+1495,violet liqueur,Floral Cordial,,Secondary liquor
+1496,walnut liqueur,Nut/Seed Cordial,,Secondary liquor
+1497,watermelon liqueur,Fruit Cordial,,Secondary liquor
+1498,white chocolate liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1499,white creme de cacao liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1500,white curacao liqueur,Citrus/Orange Cordial,,Secondary liquor
+1501,wild strawberry liqueur,Fruit Cordial,,Secondary liquor
+1502,amaretto,Nut/Seed Cordial,,Secondary liquor
+1503,acai juice,juice,,Mixer
+1504,agave juice,juice,,Mixer
+1505,apple-cranberry juice,juice,,Mixer
+1506,apple juice,juice,,Mixer
+1507,apricot juice,juice,,Mixer
+1508,aqualibra fruit juice,juice,,Mixer
+1509,banana juice,juice,,Mixer
+1510,blackberry juice,juice,,Mixer
+1511,blackcurrant juice,juice,,Mixer
+1512,blood-orange juice,juice,,Mixer
+1513,blueberry juice,juice,,Mixer
+1514,cactus fruit juice,juice,,Mixer
+1515,california style orange juice,juice,,Mixer
+1516,capri sun wild cherry juice,juice,,Mixer
+1517,carrot juice,juice,,Mixer
+1518,ceres guava juice,juice,,Mixer
+1519,ceres passion-fruit juice,juice,,Mixer
+1520,cherry juice,juice,,Mixer
+1521,citrus juice,juice,,Mixer
+1522,clamato juice,juice,,Mixer
+1523,clam juice,juice,,Mixer
+1524,coconut juice,juice,,Mixer
+1525,cranberry-apple juice,juice,,Mixer
+1526,cranberry-cherry juice,juice,,Mixer
+1527,cranberry-grape juice,juice,,Mixer
+1528,cranberry juice,juice,,Mixer
+1529,cranberry-raspberry juice,juice,,Mixer
+1530,cran-grape juice,juice,,Mixer
+1531,dill juice,juice,,Mixer
+1532,dole grapefruit juice,juice,,Mixer
+1533,dole orange juice,juice,,Mixer
+1534,dole orange peach-mango juice,juice,,Mixer
+1535,dole pineapple juice,juice,,Mixer
+1536,dole pineapple passion mango juice,juice,,Mixer
+1537,dole pine-orange-banana juice,juice,,Mixer
+1538,fieldberry juice,juice,,Mixer
+1539,florida style orange juice,juice,,Mixer
+1540,fruit juice,juice,,Mixer
+1541,grapefruit juice,juice,,Mixer
+1542,grape juice,juice,,Mixer
+1543,guava juice,juice,,Mixer
+1544,juice,juice,,Mixer
+1545,key lime juice,juice,,Mixer
+1546,kiwi juice,juice,,Mixer
+1547,kiwi-strawberry juice,juice,,Mixer
+1548,lemon and lime juice,juice,,Mixer
+1549,lemon juice,juice,,Mixer
+1550,lime juice,juice,,Mixer
+1551,lime juice cordial,juice,,Mixer
+1552,lychee juice,juice,,Mixer
+1553,mandarin juice,juice,,Mixer
+1554,mango juice,juice,,Mixer
+1555,mango twist fruit juice,juice,,Mixer
+1556,maracuja juice,juice,,Mixer
+1557,maraschino cherry juice,juice,,Mixer
+1558,meyer lemon juice,juice,,Mixer
+1559,mott's clamato juice,juice,,Mixer
+1560,naked juice mighty mango smoothie,juice,,Mixer
+1561,nellie & joe's key west lime juice,juice,,Mixer
+1562,old orchard pomegranate blueberry juice,juice,,Mixer
+1563,olive juice,juice,,Mixer
+1564,orange juice,juice,,Mixer
+1565,orange-pineapple juice,juice,,Mixer
+1566,orange strawberry banana juice,juice,,Mixer
+1567,orange tangerine juice,juice,,Mixer
+1568,papaya juice,juice,,Mixer
+1569,passion fruit juice,juice,,Mixer
+1570,peach juice,juice,,Mixer
+1571,peach papaya juice,juice,,Mixer
+1572,pear juice,juice,,Mixer
+1573,pickle juice,juice,,Mixer
+1574,pimp apple juice,juice,,Mixer
+1575,pineapple-coconut juice,juice,,Mixer
+1576,pineapple juice,juice,,Mixer
+1577,pineapple-orange-banana juice,juice,,Mixer
+1578,pineapple-orange juice,juice,,Mixer
+1579,pineapple-starfruit juice,juice,,Mixer
+1580,pine-mango-guava juice,juice,,Mixer
+1581,pine-orange-banana juice,juice,,Mixer
+1582,pink grapefruit juice,juice,,Mixer
+1583,plum juice,juice,,Mixer
+1584,pomegranate juice,juice,,Mixer
+1585,pom pomegranate juice,juice,,Mixer
+1586,prune juice,juice,,Mixer
+1587,raspberry juice,juice,,Mixer
+1588,redcurrant juice,juice,,Mixer
+1589,red grapefruit juice,juice,,Mixer
+1590,ruby grapefruit juice,juice,,Mixer
+1591,ruby red grapefruit juice,juice,,Mixer
+1592,sobe lizard blizzard juice,juice,,Mixer
+1593,sobe synergy mango-orange juice,juice,,Mixer
+1594,sobe tsunami orange juice,juice,,Mixer
+1595,sour cherry juice,juice,,Mixer
+1596,sparkling apple juice,juice,,Mixer
+1597,spicy hot v8 juice,juice,,Mixer
+1598,stewart's key lime juice,juice,,Mixer
+1599,strawberry juice,juice,,Mixer
+1600,sugar cane juice,juice,,Mixer
+1601,sweetened lime juice,juice,,Mixer
+1602,tampico orange juice,juice,,Mixer
+1603,tangerine-grapefruit juice,juice,,Mixer
+1604,tangerine juice,juice,,Mixer
+1605,texsun orange pineapple juice,juice,,Mixer
+1606,tomato juice,juice,,Mixer
+1607,tropical juice,juice,,Mixer
+1608,v8 juice,juice,,Mixer
+1609,v8 vegetable juice,juice,,Mixer
+1610,watermelon juice,juice,,Mixer
+1611,wheatgrass juice,juice,,Mixer
+1612,white cranberry juice,juice,,Mixer
+1613,white grape juice,juice,,Mixer
+1614,berry blue jell-o,jell-o,,common items
+1615,black cherry jell-o,jell-o,,common items
+1616,cherry jell-o,jell-o,,common items
+1617,cranberry jell-o,jell-o,,common items
+1618,green apple jell-o,jell-o,,common items
+1619,lime jell-o,jell-o,,common items
+1620,mango jell-o,jell-o,,common items
+1621,orange jell-o,jell-o,,common items
+1622,pineapple jell-o,jell-o,,common items
+1623,raspberry jell-o,jell-o,,common items
+1624,sour apple jell-o,jell-o,,common items
+1625,strawberry jell-o,jell-o,,common items
+1626,x-treme green apple jell-o,jell-o,,common items
+1627,irish cream,irish cream,,Secondary liquor
+1628,iced tea,iced tea,,Mixer
+1629,lemon iced tea,iced tea,,Mixer
+1630,peach iced tea,iced tea,,Mixer
+1631,raspberry iced tea,iced tea,,Mixer
+1632,black cherry ice cream,ice cream,,common items
+1633,cherry ice cream,ice cream,,common items
+1634,chocolate ice cream,soda,,Mixer
+1635,coconut ice cream,ice cream,,common items
+1636,coffee ice cream,ice cream,,common items
+1637,french vanilla ice cream,ice cream,,common items
+1638,ice cream,ice cream,,common items
+1639,mayfield rocky road ice cream,ice cream,,common items
+1640,mint chocolate ice cream,soda,,Mixer
+1641,pistachio ice cream,ice cream,,common items
+1642,raspberry ice cream,ice cream,,common items
+1643,strawberry ice cream,ice cream,,common items
+1644,vanilla ice cream,ice cream,,common items
+1645,ginseng extract,root,,common items
+1646,ginger beer,soda,,Mixer
+1647,ginger ale,soda,,Mixer
+1648,raspberry ginger ale,soda,,Mixer
+1649,ginger,gin,,Primary liquor
+1650,gin,gin,,Primary liquor
+1651,lemon gin,gin,flavored gin,Primary liquor
+1652,lime gin,gin,flavored gin,Primary liquor
+1653,orange flavored gin,gin,flavored gin,Primary liquor
+1654,red bull,energy drink,,Mixer
+1655,bacardi pina-colada mixer,drink mix,,Mixer
+1656,bar lime mix,drink mix,,Mixer
+1657,bloody mary mix,drink mix,,Mixer
+1658,blueberry cocktail mix,drink mix,,Mixer
+1659,blue raspberry mixer,drink mix,,Mixer
+1660,collins mix,drink mix,,Mixer
+1661,cosmopolitan mix,drink mix,,Mixer
+1662,daiquiri mix,drink mix,,Mixer
+1663,long island iced tea mix,drink mix,,Mixer
+1664,mango mix,drink mix,,Mixer
+1665,margarita mix,drink mix,,Mixer
+1666,blue curacao,Citrus/Orange Cordial,,Secondary liquor
+1667,orange curacao,Citrus/Orange Cordial,,Secondary liquor
+1668,amarula cream,cream,,common items
+1669,caribbean cream,cream,,common items
+1670,carnation creamy evaporated milk,cream,,common items
+1671,cocoa cream,cream,,common items
+1672,cream of coconut,cream,,common items
+1673,coffee creamer,cream,,common items
+1674,cream,cream,,common items
+1675,cream cheese,cream,,common items
+1676,creamer,cream,,common items
+1677,double cream,cream,,common items
+1678,french vanilla coffee creamer,cream,,common items
+1679,hazelnut creamer,cream,,common items
+1680,heavy cream,cream,,common items
+1681,light cream,cream,,common items
+1682,whipped cream,cream,,common items
+1683,cognac,brandy,cognac,Secondary liquor
+1684,courvoisier cognac,brandy,cognac,Secondary liquor
+1685,coffee,coffee,,Mixer
+1686,coffeemate,coffee,,Mixer
+1687,coffee powder,coffee,,Mixer
+1688,instant coffee,coffee,,Mixer
+1689,campari,campari,,Secondary liquor
+1690,aguardiente brandy,brandy,,Secondary liquor
+1691,apple brandy,brandy,,Secondary liquor
+1692,applejack brandy,brandy,,Secondary liquor
+1693,apricot brandy,brandy,,Secondary liquor
+1695,asbach uralt brandy,brandy,,Secondary liquor
+1696,blackberry brandy,brandy,,Secondary liquor
+1697,blueberry brandy,brandy,,Secondary liquor
+1698,brandy,brandy,,Secondary liquor
+1699,cherry brandy,brandy,,Secondary liquor
+1702,coconut brandy,brandy,,Secondary liquor
+1703,coffee brandy,brandy,,Secondary liquor
+1705,ginger brandy,brandy,,Secondary liquor
+1706,grappa brandy,brandy,,Secondary liquor
+1707,italian brandy,brandy,,Secondary liquor
+1708,kirschwasser cherry brandy,brandy,,Secondary liquor
+1709,korbel brandy,brandy,,Secondary liquor
+1710,metaxa brandy,brandy,,Secondary liquor
+1711,napolean brandy,brandy,,Secondary liquor
+1712,orange brandy,brandy,,Secondary liquor
+1713,peach brandy,brandy,,Secondary liquor
+1714,pear brandy,brandy,,Secondary liquor
+1715,pisco brandy,brandy,,Secondary liquor
+1716,plum brandy,brandy,,Secondary liquor
+1717,spanish brandy,brandy,,Secondary liquor
+1718,strawberry brandy,brandy,,Secondary liquor
+1719,white brandy,brandy,,Secondary liquor
+1720,amer picon orange bitters,bitters,,Mixer
+1721,angostura bitters,bitters,,Mixer
+1722,bitters,bitters,,Mixer
+1723,campari bitters,bitters,,Mixer
+1724,fernet branca bitters,bitters,,Mixer
+1725,old-fashioned bitters,bitters,,Mixer
+1726,orange bitters,bitters,,Mixer
+1727,peach bitters,bitters,,Mixer
+1728,peychaud bitters,bitters,,Mixer
+1729,underberg bitters,bitters,,Mixer
+1730,ale,beer,,Beer
+1731,beer,beer,,Beer
+1732,light beer,beer,,Beer
+1733,aperol,aperol,,Secondary liquor
+1734,absinthe,absinthe,,Secondary liquor
+1735,acerola,other - not categorized,,common items
+1736,advocaat,Cream Cordial,,Secondary liquor
+1737,aftershock,Cinnamon Cordial,,Secondary liquor
+1738,alexander keith's red amber ale,beer,,Beer
+1739,alize,other - not categorized,,common items
+1740,allspice,other - not categorized,,common items
+1741,almond,other - not categorized,,common items
+1742,almond extract,other - not categorized,,common items
+1743,almond flavoring,other - not categorized,,common items
+1744,almonds,other - not categorized,,common items
+1745,amer picon,other - not categorized,,common items
+1746,andes chocolate mint,soda,,Mixer
+1747,angelica root,root,,common items
+1748,angostura bloody mary seasoning,drink mix,,Mixer
+1749,anise,Herbal/Botanical Cordial,,Secondary liquor
+1751,apfelkorn,other - not categorized,,Secondary liquor
+1752,apple,other - not categorized,,common items
+1753,apple cider,other - not categorized,,common items
+1754,applejack,other - not categorized,,common items
+1755,apples,other - not categorized,,common items
+1756,apple sauce,other - not categorized,,common items
+1757,apricot,other - not categorized,,common items
+1758,apricot nectar,other - not categorized,,common items
+1759,aquavit,Herbal/Botanical Cordial,,Secondary liquor
+1760,arak,Herbal/Botanical Cordial,,Secondary liquor
+1761,armagnac,brandy,,Secondary liquor
+1762,artificial sweetener,other - not categorized,,common items
+1763,asafoetida,other - not categorized,,common items
+1764,avocado,other - not categorized,,common items
+1765,b & b benedictine,Other Cordial,,Secondary liquor
+1766,bacardi breezer,malt liquor,,Beer
+1767,bacardi breezer lime,malt liquor,,Beer
+1768,bacardi breezer orange,malt liquor,,Beer
+1769,bacardi limon,rum,flavored rum,Primary liquor
+1770,baitz triple sec,triple sec,,Secondary liquor
+1771,baked apple,other - not categorized,,common items
+1772,banana,other - not categorized,,common items
+1773,banana pepper,other - not categorized,,common items
+1774,bananas,other - not categorized,,common items
+1775,barenjager,Other Cordial,,Secondary liquor
+1777,bartlett pear,other - not categorized,,common items
+1778,basil,other - not categorized,,common items
+1779,bass pale ale,beer,,Beer
+1780,batida de coco,other - not categorized,,common items
+1781,battery,other - not categorized,,common items
+1782,becherovka,other - not categorized,,common items
+1783,beef bouillon,other - not categorized,,common items
+1784,benedictine,Other Cordial,,Secondary liquor
+1785,berries,other - not categorized,,common items
+1786,bitter lemon,other - not categorized,,common items
+1788,blackberries,other - not categorized,,common items
+1789,blackcurrant cordial,Other Cordial,,Secondary liquor
+1790,blackcurrant squash,other - not categorized,,common items
+1791,black ice,other - not categorized,,common items
+1792,black pepper,other - not categorized,,common items
+1793,blood orange,other - not categorized,,common items
+1794,blueberries,other - not categorized,,common items
+1795,blueberry puree,other - not categorized,,common items
+1796,blue cheese,other - not categorized,,common items
+1797,bols creme de bananes,Fruit Cordial,,Secondary liquor
+1798,bols dark creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1799,bols triple sec,triple sec,,Secondary liquor
+1800,bols white creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1801,boone's farm blue hawaiian,other - not categorized,,common items
+1802,bread,other - not categorized,,common items
+1803,brown creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1804,brown sugar,other - not categorized,,common items
+1805,champagne,sparkling wine,,Wine
+1806,bud light lager,beer,,Beer
+1807,budweiser b to the e,beer,,Beer
+1808,budweiser lager,beer,,Beer
+1809,bulmers cider,other - not categorized,,common items
+1810,butter,other - not categorized,,common items
+1811,cachaca,rum,,Primary liquor
+1812,candy,other - not categorized,,common items
+1813,cantaloupe melons,other - not categorized,,common items
+1815,cappuccino,coffee,,common items
+1816,caramel,other - not categorized,,common items
+1817,caramel coloring,other - not categorized,,common items
+1818,caramel sauce,other - not categorized,,common items
+1819,carbonated soft drink,other - not categorized,,common items
+1820,carbonated water,other - not categorized,,common items
+1821,cardamom,other - not categorized,,common items
+1822,carrot,other - not categorized,,common items
+1823,caster sugar,other - not categorized,,common items
+1824,cayenne pepper,spices,,common items
+1825,celery,other - not categorized,,common items
+1826,celery salt,other - not categorized,,common items
+1828,charleston follies,other - not categorized,,common items
+1829,cheese,other - not categorized,,common items
+1830,cheri beri pucker,other - not categorized,,common items
+1831,cherries,other - not categorized,,common items
+1832,cherryade,other - not categorized,,common items
+1833,cherry cider,other - not categorized,,common items
+1834,cherry cola,soda,,Mixer
+1835,cherry conserve,other - not categorized,,common items
+1836,cherry cordial,Other Cordial,,Secondary liquor
+1837,cherry heering,other - not categorized,,common items
+1838,cherry limeade,other - not categorized,,common items
+1839,cherry puree,other - not categorized,,common items
+1840,chile piqions,other - not categorized,,common items
+1841,chili peppers,other - not categorized,,common items
+1842,chili sauce,other - not categorized,,common items
+1843,chinotto,soda,,Mixer
+1844,chocolate,soda,,Mixer
+1845,chocolate milk,milk,,common items
+1846,chocolate powder,other - not categorized,,common items
+1847,chocolate pudding,soda,,Mixer
+1848,chocolate sauce,soda,,Mixer
+1849,chocolate topping,soda,,Mixer
+1850,cider,other - not categorized,,common items
+1851,cinnamon,spices,,common items
+1852,cinnamon sugar,other - not categorized,,common items
+1853,claret,Other Cordial,,Secondary liquor
+1854,cloves,root,,common items
+1855,coca-cola,soda,,Mixer
+1856,coca-cola cherry coke,soda,,Mixer
+1857,coca-cola diet coke,soda,,Mixer
+1858,coca-cola diet lime coke,soda,,Mixer
+1859,coca-cola vanilla coke,soda,,Mixer
+1860,cocktail infusions cranberry twist,drink mix,,Mixer
+1861,cocktail onion,other - not categorized,,common items
+1862,cocoa,other - not categorized,,common items
+1863,cocoa powder,other - not categorized,,common items
+1864,coconut,other - not categorized,,common items
+1865,coconut extract,other - not categorized,,common items
+1866,coconut milk,other - not categorized,,common items
+1867,coconuts,other - not categorized,,common items
+1868,coconut water,other - not categorized,,common items
+1869,cola,soda,,Mixer
+1870,condensed milk,milk,,common items
+1871,cookies,other - not categorized,,common items
+1872,cool whip,other - not categorized,,common items
+1873,coriander,spices,,common items
+1874,corn,other - not categorized,,common items
+1875,cornstarch,other - not categorized,,common items
+1876,corona,beer,,Beer
+1877,corona extra lager,beer,,Beer
+1878,corona lager,beer,,Beer
+1879,cottage cheese,other - not categorized,,common items
+1880,cottee's ice magic chocolate coating,soda,,Mixer
+1881,cracked ice,other - not categorized,,common items
+1882,crackers,other - not categorized,,common items
+1883,cranberries,other - not categorized,,common items
+1884,creme d'armagnac,brandy,,Secondary liquor
+1885,creme de almond,Cream Cordial,,Secondary liquor
+1886,creme de banane,Fruit Cordial,,Secondary liquor
+1887,creme de bananes,Fruit Cordial,,Secondary liquor
+1888,creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1889,creme de cassis,Fruit Cordial,,Secondary liquor
+1890,creme de cerise,Cream Cordial,,Secondary liquor
+1891,creme de coconut,Cream Cordial,,Secondary liquor
+1892,creme de fraise,Fruit Cordial,,Secondary liquor
+1893,creme de fraise des bois,Fruit Cordial,,Secondary liquor
+1894,creme de framboise,Cream Cordial,,Secondary liquor
+1895,creme de griotte,Cream Cordial,,Secondary liquor
+1896,creme de menthe,Other Cordial,,Secondary liquor
+1897,creme de mure,Fruit Cordial,,Secondary liquor
+1898,creme de myrtille,Cream Cordial,,Secondary liquor
+1899,creme de noyaux,Nut/Seed Cordial,,Secondary liquor
+1900,creme de peche,Cream Cordial,,Secondary liquor
+1901,creme de violette,Cream Cordial,,Secondary liquor
+1902,crown royal,whiskey,,Primary liquor
+1903,crushed ice,ice,,common items
+1904,cucumber,other - not categorized,,common items
+1905,cumin seed,spices,,common items
+1906,cusenier freezomint creme de menthe,Other Cordial,,Secondary liquor
+1907,danish aquavit,Other Cordial,,Secondary liquor
+1908,dark creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1909,dekuyper creme de bananes,Fruit Cordial,,Secondary liquor
+1910,dekuyper dark creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1911,dekuyper triple sec,triple sec,,Secondary liquor
+1912,demerara sugar,other - not categorized,,common items
+1913,dill,common items,,common items
+1914,dr. pepper,soda,,Mixer
+1915,egg,egg,,common items
+1916,eggnog,drink mix,,Mixer
+1917,elderflower cordial,Herbal/Botanical Cordial,,Secondary liquor
+1918,espresso,coffee,,common items
+1919,evaporated milk,milk,,common items
+1920,grain alcohol,grain alcohol,,Secondary liquor
+1921,fanta,soda,,Mixer
+1922,fennel seeds,other - not categorized,,common items
+1923,fernet branca,Other Cordial,,Secondary liquor
+1924,fernet branca menta,Other Cordial,,Secondary liquor
+1925,fever tree tonic water,soda,,Mixer
+1926,figs,other - not categorized,,common items
+1927,food coloring,other - not categorized,,common items
+1928,fruit,other - not categorized,,common items
+1929,fruit cocktail,other - not categorized,,common items
+1930,galliano,Other Cordial,,Secondary liquor
+1931,garlic,common items,,common items
+1934,gatorade,punch,,Mixer
+1935,gekkaikan sake,Sake,,Wine
+1936,gelatin,other - not categorized,,common items
+1937,gelato,other - not categorized,,common items
+1938,glycerine,other - not categorized,,common items
+1939,goya peach nectar,other - not categorized,,common items
+1940,graham cinnamon crackers,other - not categorized,,common items
+1942,granulated sugar,other - not categorized,,common items
+1943,grapefruit,fruit,,common items
+1944,grape jello,jell-o,,common items
+1945,grape pucker,other - not categorized,,common items
+1946,grapes,fruit,,common items
+1947,grappa,Other Cordial,,Secondary liquor
+1948,greek seasoning,other - not categorized,,common items
+1949,green chartreuse,chartreuse,,Secondary liquor
+1950,green chili,common items,,common items
+1951,green creme de menthe,Other Cordial,,Secondary liquor
+1952,green tea,other - not categorized,,common items
+1953,grenadine,syrup,,common items
+1954,guava nectar,other - not categorized,,common items
+1955,guava puree,other - not categorized,,common items
+1956,guinness stout,beer,,Beer
+1957,gummi bears,candy,,common items
+1958,habanero pepper sauce,hot sauce,,common items
+1959,half-and-half,cream,,common items
+1960,hard cider,hard cider,,Beer
+1961,hard lemonade,malt liquor,,Beer
+1962,hawaiian sun passion-fruit drink,punch,,Mixer
+1963,hazelnuts,other - not categorized,,common items
+1964,holiday spice,other - not categorized,,common items
+1965,honey,common items,,common items
+1966,honeydew melon,fruit,,common items
+1967,hooper's hooch,malt liquor,,Beer
+1968,horchata,other - not categorized,,common items
+1969,horseradish,common items,,common items
+1970,hot chocolate,other - not categorized,,common items
+1971,hot cocoa,other - not categorized,,common items
+1972,hot pepper sauce,hot sauce,,common items
+1973,hot red pepper flakes,other - not categorized,,common items
+1974,hot sauce,hot sauce,,common items
+1975,ice,ice,,common items
+1976,ice cubes,ice,,common items
+1977,ice triple black,other - not categorized,,common items
+1978,irish mist,irish mist,,Secondary liquor
+1979,jagermeister,jagermeister,,Secondary liquor
+1980,jalapeno pepper,other - not categorized,,common items
+1981,jello,jell-o,,common items
+1982,jelly,other - not categorized,,common items
+1983,jolt cola,soda,,Mixer
+1984,kahlua,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+1985,key lime,other - not categorized,,common items
+1986,keystone lager,beer,,Beer
+1987,kiwi,fruit,,common items
+1988,kool-aid,punch,,Mixer
+1989,krekling arctic crowberry frost,other - not categorized,,common items
+1990,kummel,Herbal/Botanical Cordial,,Secondary liquor
+1991,kumquat,fruit,,common items
+1992,kumquats,fruit,,common items
+1993,lager,beer,,Beer
+1994,lakka,Other Cordial,,Secondary liquor
+1995,latte,coffee,,common items
+1996,lbv port,port,,Wine
+1997,lea & perrins worcestershire sauce,other - not categorized,,common items
+1998,lemon,fruit,,common items
+2000,lemon cordial,Citrus/Orange Cordial,,Secondary liquor
+2001,lemon grass,other - not categorized,,common items
+2002,lemon italian ice,other - not categorized,,common items
+2004,lemon peel,fruit,,common items
+2005,lemons,fruit,,common items
+2006,lemon sherbet,other - not categorized,,common items
+2008,licor 43,other - not categorized,,common items
+2009,licorice,other - not categorized,,common items
+2010,licorice root,other - not categorized,,common items
+2011,light berry blend,other - not categorized,,common items
+2013,lillet,Other Cordial,,Secondary liquor
+2014,lime,fruit,,common items
+2015,limeade,other - not categorized,,common items
+2016,lime cordial,Other Cordial,,Secondary liquor
+2017,lime-flavored seltzer water,soda,,Mixer
+2018,lime peel,fruit,,common items
+2019,limes,fruit,,common items
+2020,lime sherbet,other - not categorized,,common items
+2021,limoncello,Citrus/Orange Cordial,,Secondary liquor
+2022,lingonberry jam,other - not categorized,,common items
+2024,livewire,other - not categorized,,common items
+2025,looza banana nectar,other - not categorized,,common items
+2026,looza mango nectar,other - not categorized,,common items
+2027,looza pear nectar,other - not categorized,,common items
+2028,louisiana hot sauce,hot sauce,,common items
+2029,lychee,Other Cordial,,Secondary liquor
+2030,mace,other - not categorized,,common items
+2031,mad dog 20/20,wine,other wine,Wine
+2032,madeira,Fruit Cordial,,Secondary liquor
+2033,malt,other - not categorized,,common items
+2034,malt liquor,malt liquor,,Beer
+2035,mandarin,other - not categorized,,common items
+2036,mango,other - not categorized,,common items
+2037,mango nectar,other - not categorized,,common items
+2038,mango puree,other - not categorized,,common items
+2039,mangos,other - not categorized,,common items
+2040,mango sherbet,other - not categorized,,common items
+2042,maraschino cherries,other - not categorized,,common items
+2043,maraschino cherry,other - not categorized,,common items
+2044,marjoram leaves,other - not categorized,,common items
+2045,marmalade,other - not categorized,,common items
+2046,marshmallow,other - not categorized,,common items
+2047,marshmallows,other - not categorized,,common items
+2048,martinelli's apple cider,other - not categorized,,common items
+2049,maui,other - not categorized,,common items
+2050,mayonnaise,common items,,common items
+2051,mccormick's hot shot,other - not categorized,,common items
+2052,mello yello,soda,,Mixer
+2053,melons,other - not categorized,,common items
+2054,menthol candy,other - not categorized,,common items
+2055,metaxa,brandy,,Secondary liquor
+2056,metaxa 5 star,brandy,,Secondary liquor
+2057,metromint peppermint water,other - not categorized,,common items
+2058,mexican hot chocolate,other - not categorized,,common items
+2059,mezcal,tequila,,Primary liquor
+2060,mgd lite lager,beer,,Beer
+2061,mickey's malt liquor,malt liquor,,Beer
+2062,midori,Fruit Cordial,,Secondary liquor
+2063,mike's hard lemonade,hard cider,,Beer
+2064,milk,milk,,common items
+2065,miller lite,beer,,Beer
+2066,milo's sweet tea,iced tea,,Mixer
+2067,mineral water,other - not categorized,,common items
+2069,mint,other - not categorized,,common items
+2070,mohawk triple sec,triple sec,,Secondary liquor
+2071,molasses,other - not categorized,,common items
+2072,monin bitter,bitters,,Mixer
+2073,morton salt,other - not categorized,,common items
+2074,mustard,other - not categorized,,common items
+2075,nesquik chocolate powder,other - not categorized,,common items
+2076,nestle hot chocolate,other - not categorized,,common items
+2077,newcastle brown ale lager,other - not categorized,,common items
+2078,nutmeg,common items,,common items
+2079,nuts,common items,,common items
+2080,offley rich tawny port,port,,Wine
+2081,okra,common items,,common items
+2082,old orchard pomagranate cherry,other - not categorized,,common items
+2083,olive,other - not categorized,,common items
+2084,olives,other - not categorized,,common items
+2085,onions,other - not categorized,,common items
+2086,orancio,other - not categorized,,Secondary liquor
+2087,orange,other - not categorized,,common items
+2088,orangeade,other - not categorized,,common items
+2089,orange crush,other - not categorized,,common items
+2090,orange flower water,other - not categorized,,common items
+2091,orange peel,common items,,common items
+2092,oranges,other - not categorized,,common items
+2093,orange sherbet,other - not categorized,,common items
+2094,orange spiral,other - not categorized,,common items
+2095,orange squash,other - not categorized,,common items
+2096,orange-strawberry,other - not categorized,,common items
+2097,oregano,other - not categorized,,common items
+2098,oreo chocolate cookies,other - not categorized,,common items
+2099,oreo cookie,other - not categorized,,common items
+2101,ovaltine cocoa,other - not categorized,,common items
+2102,papaya,other - not categorized,,common items
+2103,papaya nectar,other - not categorized,,common items
+2104,paprika,common items,,common items
+2105,paraiso,other - not categorized,,common items
+2106,parfait d'amour,Other Cordial,,Secondary liquor
+2107,parmesan cheese,common items,,common items
+2108,partida agave nectar,other - not categorized,,common items
+2110,passion-fruit,other - not categorized,,common items
+2111,passion-fruit nectar,other - not categorized,,common items
+2112,passion-fruit puree,other - not categorized,,common items
+2113,passoa,other - not categorized,,Secondary liquor
+2114,peach,other - not categorized,,common items
+2115,peaches,other - not categorized,,common items
+2116,peach-flavored water,other - not categorized,,common items
+2117,peach kernel,other - not categorized,,common items
+2118,peach nectar,other - not categorized,,common items
+2119,peach puree,other - not categorized,,common items
+2120,peach sherbet,other - not categorized,,common items
+2121,peanut butter,other - not categorized,,common items
+2122,pear,other - not categorized,,common items
+2123,pear cider,other - not categorized,,common items
+2124,pear nectar,other - not categorized,,common items
+2125,pear puree,other - not categorized,,common items
+2126,pears,other - not categorized,,common items
+2127,pear soft drink,other - not categorized,,common items
+2128,pecan nuts,other - not categorized,,common items
+2129,pepper,common items,,common items
+2130,peppermint extract,common items,,common items
+2131,pepperoncini,other - not categorized,,common items
+2132,peppers,other - not categorized,,common items
+2133,pepper sauce,other - not categorized,,common items
+2134,pernod,Herbal/Botanical Cordial,,Secondary liquor
+2136,pickle,other - not categorized,,common items
+2137,pickle brine,other - not categorized,,common items
+2138,pickled pepper,other - not categorized,,common items
+2139,pimm's no. 1,Other Cordial,,Secondary liquor
+2140,pina colada,other - not categorized,,common items
+2141,pineapple,other - not categorized,,common items
+2142,pineapple-coconut nectar,other - not categorized,,common items
+2143,pineapples,other - not categorized,,common items
+2144,pineapple sherbet,other - not categorized,,common items
+2145,pineau des charentes,Other Cordial,,Secondary liquor
+2146,pink lemonade,punch,,Mixer
+2147,pisang ambon,Fruit Cordial,,Secondary liquor
+2148,pisco,brandy,,Secondary liquor
+2149,plums,common items,,common items
+2150,polmos,other - not categorized,,common items
+2151,pomegranate,other - not categorized,,common items
+2152,pop-ice,other - not categorized,,common items
+2153,pop rocks candy,candy,,common items
+2154,popsicle,other - not categorized,,common items
+2155,port,port,,Wine
+2156,powdered sugar,other - not categorized,,common items
+2157,powerade lemon-lime powder,other - not categorized,,common items
+2158,prune,other - not categorized,,common items
+2159,pumpkin,common items,,common items
+2160,pumpkin puree,other - not categorized,,common items
+2161,purple passion,other - not categorized,,Secondary liquor
+2163,rainbow sherbert,other - not categorized,,common items
+2164,rainier lager,other - not categorized,,common items
+2165,raisins,common items,,common items
+2166,raspberries,other - not categorized,,common items
+2167,raspberry,other - not categorized,,common items
+2168,raspberry cordial,Citrus/Orange Cordial,,Secondary liquor
+2169,raspberry di amore,other - not categorized,,common items
+2170,raspberry jam,other - not categorized,,common items
+2171,raspberry lemonade,other - not categorized,,common items
+2172,raspberry puree,other - not categorized,,common items
+2173,raspberry sherbet,other - not categorized,,common items
+2174,razzmatazz,Fruit Cordial,,Secondary liquor
+2175,red cayenne peppers,spices,,common items
+2176,red cordial,other - not categorized,,common items
+2177,red curry paste,common items,,common items
+2178,ribena blackcurrant cordial,Fruit Cordial,,Secondary liquor
+2179,ricard,Herbal/Botanical Cordial,,Secondary liquor
+2180,ricard pastis,Herbal/Botanical Cordial,,Secondary liquor
+2181,rock melon,other - not categorized,,common items
+2182,rose essence,common items,,common items
+2183,rosemary,common items,,common items
+2184,rosewater,other - not categorized,,common items
+2185,royal crown cola,soda,,Mixer
+2186,ruby port,port,,Wine
+2187,russchian,other - not categorized,,common items
+2188,russian tonic water,soda,,Mixer
+2190,safari,other - not categorized,,common items
+2191,sagatiba pura,rum,,Primary liquor
+2192,sake,sake,,Wine
+2193,salsa,common items,,common items
+2194,salt,common items,,common items
+2195,sarsaparilla,wine,other wine,Wine
+2196,saurer apfel,other - not categorized,,common items
+2197,sea dog blue paw wheat ale,other - not categorized,,common items
+2198,seagram 7,whiskey,,Primary liquor
+2199,semtex forte,other - not categorized,,common items
+2200,sherbet,other - not categorized,,common items
+2201,sho chiku bai sake,sake,,Wine
+2202,shochu,other - not categorized,,Secondary liquor
+2203,skimmed milk,milk,,common items
+2204,skittles,candy,,common items
+2205,slush puppie,other - not categorized,,common items
+2206,smoky barbecue sauce,other - not categorized,,common items
+2207,soju,other - not categorized,,Secondary liquor
+2208,sour apple pucker,other - not categorized,,common items
+2209,sour cherries,other - not categorized,,common items
+2210,sour lemonade,other - not categorized,,common items
+2211,sour puss,other - not categorized,,Secondary liquor
+2213,soy milk,other - not categorized,,common items
+2214,soy sauce,other - not categorized,,common items
+2215,sparkling berry jello,other - not categorized,,common items
+2216,sparkling water,other - not categorized,,common items
+2217,spearmint,other - not categorized,,common items
+2218,spiced cider,other - not categorized,,common items
+2219,squid,other - not categorized,,common items
+2220,steak sauce,other - not categorized,,common items
+2221,stella artois lager,beer,,Beer
+2223,stout,other - not categorized,,common items
+2224,strawberries,other - not categorized,,common items
+2225,strawberry-banana nectar,other - not categorized,,common items
+2226,strawberry breeze,other - not categorized,,common items
+2227,strawberry crush,other - not categorized,,common items
+2228,strawberry puree,other - not categorized,,common items
+2229,strongbow cider,other - not categorized,,common items
+2230,sugar,common items,,common items
+2231,superfine sugar,other - not categorized,,common items
+2232,surge,soda,,Mixer
+2233,swedish punsch,Other Cordial,,Secondary liquor
+2234,sweet'n low artificial sweetener,other - not categorized,,common items
+2235,sweet and sour,other - not categorized,,common items
+2236,sweet and sour sauce,other - not categorized,,common items
+2237,sweetened condensed milk,milk,,common items
+2238,tabasco sauce,hot sauce,,common items
+2239,taboo,other - not categorized,,Secondary liquor
+2240,tamarillo,other - not categorized,,common items
+2241,tamarind,other - not categorized,,common items
+2242,tamarindo puree,other - not categorized,,common items
+2243,tamarinds,common items,,common items
+2244,tang,punch,,Mixer
+2245,tang powdered soft drink,soda,,Mixer
+2246,tapatio hot sauce,hot sauce,,common items
+2248,tawny port,port,,Wine
+2249,tazo passion tea,other - not categorized,,common items
+2250,tea,other - not categorized,,common items
+2251,thunderbird,other - not categorized,,Secondary liquor
+2252,tia maria,Other Cordial,,Secondary liquor
+2253,tictac,other - not categorized,,common items
+2254,toffee,other - not categorized,,common items
+2255,tonic water,soda,,Mixer
+2256,tony chachere's creole seasoning,other - not categorized,,common items
+2257,trader joe's spicy cider,other - not categorized,,common items
+2258,tropical fruit furry twister,punch,,Mixer
+2259,tropical-fruit puree,other - not categorized,,common items
+2260,twist cola,soda,,Mixer
+2261,twister kinetic kiwi strawberry,other - not categorized,,common items
+2262,uv blue,vodka,,Primary liquor
+2263,v8 splash raspberry lemonade,punch,,Mixer
+2264,v8 splash tropical blend,punch,,Mixer
+2265,vana tallinn,other - not categorized,,Secondary liquor
+2266,vanilla,other - not categorized,,common items
+2267,vanilla chai tea,other - not categorized,,common items
+2268,vanilla cola,soda,,Mixer
+2269,vanilla extract,common items,,common items
+2270,vault zero,soda,,Mixer
+2271,vimto blackcurrant squash,other - not categorized,,common items
+2272,vinegar,other - not categorized,,common items
+2273,vita coco coconut water,other - not categorized,,common items
+2274,vitamin c,other - not categorized,,common items
+2275,viuda de sanchez,other - not categorized,,common items
+2276,walnut,common items,,common items
+2277,wasabi,common items,,common items
+2278,water,common items,,common items
+2279,watermelon,other - not categorized,,common items
+2280,watermelon cocktail infusion,other - not categorized,,common items
+2281,watermelons,other - not categorized,,common items
+2282,west coast cooler,other - not categorized,,common items
+2283,white creme de cacao,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+2284,white creme de menthe,Other Cordial,,Secondary liquor
+2285,white lightning cider,other - not categorized,,common items
+2286,white pepper,common items,,common items
+2287,white port,port,,Wine
+2288,wilcox chocolate milk,milk,,common items
+2289,wild cherry cola,soda,,Mixer
+2290,wi on the uwec campus,other - not categorized,,common items
+2291,worcestershire sauce,common items,,common items
+2292,wormwood,absinthe,,Secondary liquor
+2293,yeast,other - not categorized,,common items
+2294,yellow chartreuse,chartreuse,,Secondary liquor
+2295,yellow lemonade,punch,,Mixer
+2296,yoghurt,other - not categorized,,common items
+2297,yoo-hoo chocolate milk,milk,,common items
+2298,ypioca ouro cachaca,rum,,Primary liquor
+2299,yukon jack,whiskey,,Primary liquor
+2300,zima,malt liquor,,Beer
+2304,strawberry vodka,vodka,flavored vodka,Primary liquor
+2307,blue raspberry vodka,vodka,flavored vodka,Primary liquor
+2315,passion fruit liqueur,Fruit Cordial,,Secondary liquor
+2323,caraway liqueur,Herbal/Botanical Cordial,,Secondary liquor
+2325,blue schnapps,Fruit Cordial,,Secondary liquor
+2331,energy drink,energy drink,,Mixer
+2338,sparkling wine,wine,sparkling wine,Wine
+2339,egg yolk,egg,,common items
+2344,coffee vodka,vodka,flavored vodka,Primary liquor
+2353,canadian whisky,whiskey,,Primary liquor
+2358,blue liqueur,Fruit Cordial,,Secondary liquor
+2367,blanc vermouth,vermouth,,Secondary liquor
+2379,blue vodka,vodka,flavored vodka,Primary liquor
+2382,scotch whisky,whiskey,,Primary liquor
+2383,london dry gin,gin,,Primary liquor
+2390,scotch liqueur,Fruit Cordial,,Secondary liquor
+2394,orange aperitif,Other Cordial,,Secondary liquor
+2402,aged tequila,tequila,anejo (aged),Primary liquor
+2403,dry ginger ale,soda,,Mixer
+2404,eggs,egg,,common items
+2405,energy soda,energy drink,,Mixer
+2407,blueberi vodka,vodka,flavored vodka,Primary liquor
+2408,pertsovka vodka,vodka,flavored vodka,Primary liquor
+2413,dark jamaica rum,rum,dark rum,Primary liquor
+2414,tropico rum,rum,flavored rum,Primary liquor
+2415,vanil rum,rum,flavored rum,Primary liquor
+2416,birch beer,soda,,Mixer
+2421,clasico silver tequila,tequila,blanco (silver or white),Primary liquor
+2423,lakka cloudberry liqueur,Fruit Cordial,,Secondary liquor
+2426,orange-flower water,soda,,Mixer
+2432,single cream,cream,,common items
+2433,black cherry twist vodka,vodka,flavored vodka,Primary liquor
+2435,sparks energy drink,energy drink,,Mixer
+2438,swiss chocolate almond liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+2439,vault energy drink,energy drink,,Mixer
+2443,absinthe herbal liqueur,Herbal/Botanical Cordial,,Secondary liquor
+2454,framboise raspberry liqueur,Fruit Cordial,,Secondary liquor
+2455,french kiss vanilla liqueur,Other Cordial,,Secondary liquor
+2457,glacier freeze energy drink,energy drink,,Mixer
+2458,genever,gin,,Primary liquor
+2460,george dickel,whiskey,,Primary liquor
+2468,apple soda,soda,,Mixer
+2470,especial coffee liqueur,Coffee/Chocolate/Dessert Cordial,,Secondary liquor
+2473,poire williams pear liqueur,Fruit Cordial,,Secondary liquor
+2476,pastis liqueur,Herbal/Botanical Cordial,,Secondary liquor
+2478,raki liqueur,Herbal/Botanical Cordial,,Secondary liquor
+2479,lime twisted gin,gin,flavored gin,Primary liquor
+2480,citrus twist vodka,vodka,flavored vodka,Primary liquor
+2481,lime twist vodka,vodka,flavored vodka,Primary liquor
+2483,citros vodka,vodka,flavored vodka,Primary liquor
+2484,zinamon vodka,vodka,flavored vodka,Primary liquor
+2485,tropical-fruit schnapps,Fruit Cordial,,Secondary liquor
+2487,ginger soda,soda,,Mixer
+2488,dutch chocolate vodka,vodka,flavored vodka,Primary liquor
+2489,boiling water,water,,common items
+2490,bartlett pear,fruit,,common items
+2491,rhubarb,fruit,,common items
+2492,fresh ginger,root,,common items
+2493,apricot syrup,syrup,,common items

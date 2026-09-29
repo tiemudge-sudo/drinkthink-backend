@@ -1,0 +1,60 @@
+{
+  "version": "master-canonical-correction-v1",
+  "mode": "DRY_RUN",
+  "started_at": "2026-09-28T23:50:10.145625+00:00",
+  "source": "DrinkThink_db.zip master generation",
+  "counts": {
+    "master_cocktails": 12256,
+    "master_ingredients": 1321,
+    "lookup_keys": 3661,
+    "merge_map_entries": 1489,
+    "db_cocktails_before": 16359,
+    "db_ingredients_before": 1333,
+    "master_rows_bridged_or_creatable": 12252
+  },
+  "exceptions": [
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 1,
+      "count": 2,
+      "method": "migration_legacy_drink_id"
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 2,
+      "count": 2,
+      "method": "migration_legacy_drink_id"
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 5,
+      "count": 2,
+      "method": "migration_legacy_drink_id"
+    },
+    {
+      "kind": "ambiguous_bridge",
+      "master_id": 7,
+      "count": 2,
+      "method": "migration_legacy_drink_id"
+    }
+  ],
+  "bridge": {
+    "create_from_master": 562,
+    "migration_legacy_drink_id": 11690,
+    "ambiguous": 4
+  },
+  "ingredients": {
+    "prepared": 1321,
+    "categories": 6,
+    "integer_ids": true,
+    "unique_ids": true
+  },
+  "recipes": {
+    "source_ingredient_references": 46577,
+    "prepared_relationships": 46577,
+    "merge_redirected_references": 3,
+    "failures": 0
+  },
+  "apply_gate_passed": false,
+  "completed_at": "2026-09-28T23:50:15.879109+00:00"
+}

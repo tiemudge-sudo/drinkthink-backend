@@ -1,0 +1,35 @@
+{
+  "version": "master-canonical-correction-v2",
+  "mode": "DRY_RUN",
+  "started_at": "2026-09-29T00:08:04.940148+00:00",
+  "source": "DrinkThink_db.zip master generation",
+  "counts": {
+    "master_cocktails": 12256,
+    "master_ingredients": 1321,
+    "lookup_keys": 3661,
+    "merge_map_entries": 1489,
+    "db_cocktails_before": 16359,
+    "db_ingredients_before": 1333,
+    "master_rows_bridged_or_creatable": 12256
+  },
+  "exceptions": [],
+  "bridge": {
+    "create_from_master": 562,
+    "migration_legacy_drink_id": 11690,
+    "explicit_bridge_repair": 4
+  },
+  "ingredients": {
+    "prepared": 1321,
+    "categories": 6,
+    "integer_ids": true,
+    "unique_ids": true
+  },
+  "recipes": {
+    "source_ingredient_references": 46590,
+    "prepared_relationships": 46590,
+    "merge_redirected_references": 3,
+    "failures": 0
+  },
+  "apply_gate_passed": true,
+  "completed_at": "2026-09-29T00:08:10.782822+00:00"
+}

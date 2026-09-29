@@ -1,72 +1,35 @@
-# DrinkThink MongoDB Migration v1
+# DrinkThink Master Canonical Correction v2
 
-This package implements the first additive backfill step from the legacy MongoDB model to the locked canonical schema.
+Authoritative source generation: the contents of `DrinkThink_db.zip` supplied by the user.
 
-## Safety
+This revision resolves the four known bridge collisions from `canonical-reset-v3` by explicit canonical document identity. It does **not** introduce name matching.
 
-**Dry-run is the default.** The script does not write anything unless `--apply` is supplied.
+Explicit repairs:
+- master 1 -> `ckt_fa85b1610cf1c9037a6a`; clear corrupt nested bridge from `ckt_2c601e519114bb8da094`
+- master 2 -> `ckt_322c1edca869513e2995`; clear corrupt nested bridge from `ckt_54b0537b291c8b5bcc79`
+- master 5 -> `ckt_09b83c71abc3b22b1683`; clear corrupt nested bridge from `ckt_4b26cfb5619351939abb`
+- master 7 -> `ckt_18c8ee0de51e30ac38bf`; clear corrupt nested bridge from `ckt_e9f991046ec2717349a4`
 
-It never:
-- drops a collection;
-- deletes a production document;
-- rewrites the legacy `drinks` collection;
-- guesses unresolved ingredient mappings;
-- guesses glass mappings;
-- converts legacy free-text recipes directly into authoritative `cocktail_ingredients`.
+The unrelated cocktails are retained. Only their erroneous nested `migration.legacy_drink_id` value is removed when it still equals the corrupted value.
 
-## Before running
-
-Run this from the backend environment where `MONGO_URL` and `DB_NAME` are already configured, or supply them explicitly.
-
-The script expects the same Python dependencies already used by the backend: `motor`, `pymongo`, and `python-dotenv`.
-
-## Dry run
+## Dry run first
 
 ```bash
-python tools/migrate_canonical_schema.py --report migration-report.json
+python tools/master_canonical_correction_v1.py --report master-canonical-correction-v2-report.json
 ```
 
-Review:
-- counts;
-- `glass_mapping_required` exceptions;
-- non-numeric ingredient IDs;
-- orphan favorites/blocked/pending-share references;
-- cupboard IDs that do not resolve;
-- cocktail count expectations.
+Expected gate before apply:
+- 12,256 / 12,256 master cocktails bridged or creatable
+- 4 explicit bridge repairs
+- 562 create-from-master rows
+- 46,577 / 46,577 recipe relationships
+- 0 recipe failures
+- `apply_gate_passed: true`
 
-## Apply
+Do not apply unless those checks pass.
 
-Only after the dry-run report is accepted:
+## Apply (only after dry-run review)
 
 ```bash
-python tools/migrate_canonical_schema.py --apply --report migration-apply-report.json
+python tools/master_canonical_correction_v1.py --apply --confirm-apply MASTER_CANONICAL_CORRECTION_V2 --report master-canonical-correction-v2-apply-report.json
 ```
-
-The apply pass:
-- creates canonical indexes;
-- backfills `ingredient_categories` and resolvable canonical `ingredients`;
-- backfills `cocktails` with permanent `cocktail_id` + `legacy_drink_id`;
-- adds `cocktail_id` references to favorites, blocked, and pending shares;
-- normalizes resolvable cupboard IDs;
-- records migration state in `schema_migrations`.
-
-## Intentionally deferred
-
-These require explicit mapping/review rather than inference:
-1. glass value → canonical `glass_id`;
-2. free-text recipe → authoritative `cocktail_ingredients`;
-3. `main_ingredient_ids`;
-4. location/POS inventory/capability data;
-5. switching production API reads from `db.drinks` to canonical collections.
-
-Those are handled after the dry-run report tells us exactly what exists in production.
-
-## Recommended execution sequence
-
-1. Commit this package to the backend repo.
-2. Run dry-run against the development database.
-3. Review the generated report.
-4. Resolve mapping exceptions.
-5. Run `--apply` in development.
-6. Regression test.
-7. Only then repeat the controlled process for preview/production.

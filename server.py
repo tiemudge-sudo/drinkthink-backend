@@ -334,28 +334,45 @@ async def drinks_count():
     return {"count": await db.cocktails.count_documents({"status": "active"})}
 
 
-SPIRIT_KEYWORDS = {
-    "vodka": ("vodka",),
-    "gin": ("gin",),
-    "rum": ("rum",),
-    "whiskey": ("whiskey", "whisky", "bourbon", "scotch", "rye"),
-    "tequila": ("tequila", "mezcal"),
+MAIN_INGREDIENT_PRIMARY = {
+    "vodka": "vodka",
+    "gin": "gin",
+    "rum": "rum",
+    "whiskey": "whiskey",
+    "tequila": "tequila",
 }
-ALLOWED_ALCOHOL_FILTERS = set(SPIRIT_KEYWORDS.keys()) | {"non_alcoholic"}
+ALLOWED_ALCOHOL_FILTERS = set(MAIN_INGREDIENT_PRIMARY) | {"non_alcoholic"}
 
-# Glass family → substrings that must appear in d_glass (lowercased).
-GLASS_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "cocktail":      ("cocktail glass", "margarita glass", "pina colada"),
-    "highball":      ("highball", "collins", "cooler"),
-    "old_fashioned": ("old-fashioned", "old fashioned", "whiskey sour",
-                      "sour glass", "cordial", "brandy snifter"),
-    "shot":          ("shot glass", "pousse cafe"),
-    "hurricane":     ("hurricane", "parfait"),
-    "wine":          ("wine glass", "wine goblet"),
-    "champagne":     ("champagne",),
-    "mug":           ("mug", "irish coffee", "mason jar", " cup", "coffee cup"),
+# Existing mobile filter tokens -> canonical glass_id families.
+# This preserves the public query contract while filtering canonical fields.
+GLASS_ID_FAMILIES: dict[str, set[str]] = {
+    "cocktail": {"cocktail", "martini", "margarita", "pina_colada"},
+    "highball": {"highball", "collins", "cooler", "pint"},
+    "old_fashioned": {"rocks", "sour", "cordial", "snifter"},
+    "shot": {"shot", "pousse_cafe"},
+    "hurricane": {"hurricane", "parfait"},
+    "wine": {"wine", "sherry"},
+    "champagne": {"champagne_flute", "coupe"},
+    "mug": {"mug", "beer_mug", "irish_coffee", "coffee_mug", "cup", "mason_jar"},
 }
-ALLOWED_GLASS_FILTERS = set(GLASS_KEYWORDS.keys())
+ALLOWED_GLASS_FILTERS = set(GLASS_ID_FAMILIES)
+
+
+def _int_ids(values) -> set[int]:
+    out: set[int] = set()
+    for value in values or []:
+        try:
+            out.add(int(value))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def _ingredient_signature(ingredient: dict) -> tuple[str, str]:
+    return (
+        str(ingredient.get("primary_category") or "").strip().lower(),
+        str(ingredient.get("primary_ingredient") or "").strip().lower(),
+    )
 
 
 @api_router.get("/drinks/match", response_model=MatchResponse)
@@ -365,38 +382,22 @@ async def match_drink(
     limit: int = 5,
     alcohols: Optional[str] = None,
     glasses: Optional[str] = None,
+    location_id: Optional[str] = None,
     authorization: Optional[str] = Header(None),
 ):
-    """Return the top matching drinks.
+    """Return top canonical cocktails after What-I-Want, location/cupboard and user filters.
 
-    scoring:
-      * "differential" (default) — pure ratio-shape distance.
-        Σ |user_ratio_i − drink_ratio_i|. All-5s == all-10s.
-      * "alternate" — differential + |drink_sum − user_sum| / user_sum.
-        Adds a magnitude penalty; all-5s ≠ all-10s.
-
-    alcohols: comma-separated list from
-      {vodka, gin, rum, whiskey, tequila, non_alcoholic}. OR-combined.
-      Omit / empty → no filter.
-
-    glasses: comma-separated list from
-      {cocktail, highball, old_fashioned, shot, hurricane, wine, champagne, mug}.
-      OR-combined. Applied on top of alcohols (both must match).
-
-    When authenticated (Bearer token, optional):
-      * Blocked drinks are excluded from results.
-      * The best-scoring favorite drink is guaranteed to appear at slot #5
-        (index 4) if no favorite is already present in the natural top 5.
-        Other favorites elsewhere in the results stay at their natural
-        ranked position.
+    `alcohols` and `glasses` retain the existing mobile API names for backward
+    compatibility. Main-ingredient matching is canonical: the cocktail's
+    `main_ingredient_ids` resolve to canonical ingredients and their
+    `primary_ingredient` classification. Cupboard matching uses structured
+    `cocktail_ingredients` and canonical ingredient identity/substitution.
     """
     if scoring not in ("differential", "alternate"):
-        raise HTTPException(status_code=400,
-                            detail="scoring must be 'differential' or 'alternate'")
+        raise HTTPException(status_code=400, detail="scoring must be 'differential' or 'alternate'")
     if limit < 1 or limit > 50:
         raise HTTPException(status_code=400, detail="limit must be 1..50")
 
-    # Optional auth — silent-fail to anonymous
     me: Optional[User] = None
     if authorization:
         try:
@@ -408,131 +409,144 @@ async def match_drink(
                    "party": party, "thirsty": thirsty}
     for name, v in slider_vals.items():
         if not isinstance(v, int) or v < 1 or v > 10:
-            raise HTTPException(status_code=400,
-                                detail=f"{name} must be an integer between 1 and 10")
+            raise HTTPException(status_code=400, detail=f"{name} must be an integer between 1 and 10")
 
-    alcohol_filters: set[str] = set()
-    if alcohols:
-        alcohol_filters = {a.strip().lower() for a in alcohols.split(",") if a.strip()}
-        unknown = alcohol_filters - ALLOWED_ALCOHOL_FILTERS
-        if unknown:
-            raise HTTPException(
-                status_code=400,
-                detail=f"unknown alcohol filters: {sorted(unknown)}",
-            )
+    alcohol_filters = {a.strip().lower() for a in (alcohols or "").split(",") if a.strip()}
+    unknown = alcohol_filters - ALLOWED_ALCOHOL_FILTERS
+    if unknown:
+        raise HTTPException(status_code=400, detail=f"unknown alcohol filters: {sorted(unknown)}")
 
-    glass_filters: set[str] = set()
-    if glasses:
-        glass_filters = {g.strip().lower() for g in glasses.split(",") if g.strip()}
-        unknown_g = glass_filters - ALLOWED_GLASS_FILTERS
-        if unknown_g:
-            raise HTTPException(
-                status_code=400,
-                detail=f"unknown glass filters: {sorted(unknown_g)}",
-            )
+    glass_filters = {g.strip().lower() for g in (glasses or "").split(",") if g.strip()}
+    unknown_g = glass_filters - ALLOWED_GLASS_FILTERS
+    if unknown_g:
+        raise HTTPException(status_code=400, detail=f"unknown glass filters: {sorted(unknown_g)}")
 
     dim_vals = {SLIDER_TO_DIM[k]: v for k, v in slider_vals.items()}
     user_sum = sum(dim_vals.values())
     user_ratios = {d: dim_vals[d] / user_sum for d in DIMS}
 
     canonical_docs = await db.cocktails.find({"status": "active"}, {"_id": 0}).to_list(length=None)
-    docs = [_canonical_to_drink(d) for d in canonical_docs]
-    if not docs:
+    if not canonical_docs:
         raise HTTPException(status_code=404, detail="No drinks in database")
 
-    def matches_filter(doc: dict) -> bool:
-        # Alcohol filter (OR within group)
-        if alcohol_filters:
-            want_nonalc = "non_alcoholic" in alcohol_filters
-            spirit_keys = alcohol_filters - {"non_alcoholic"}
-            ok = False
-            if want_nonalc and doc.get("alcohol", "").lower().startswith("non"):
-                ok = True
-            if not ok and spirit_keys:
-                txt = (doc.get("ingredients", "") + " " +
-                       doc.get("shopping", "")).lower()
-                for sp in spirit_keys:
-                    if any(kw in txt for kw in SPIRIT_KEYWORDS[sp]):
+    ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
+
+    # What I Want: canonical main ingredient filter.
+    if alcohol_filters:
+        spirit_filters = alcohol_filters - {"non_alcoholic"}
+        want_nonalc = "non_alcoholic" in alcohol_filters
+        kept = []
+        for c in canonical_docs:
+            ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
+            if not ok and spirit_filters:
+                for iid in _int_ids(c.get("main_ingredient_ids")):
+                    ing = ingredients_by_id.get(iid) or {}
+                    if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
                         ok = True
                         break
-            if not ok:
-                return False
+            if ok:
+                kept.append(c)
+        canonical_docs = kept
 
-        # Glass filter (OR within group)
-        if glass_filters:
-            gtxt = doc.get("glass", "").lower()
-            if not any(
-                any(kw in gtxt for kw in GLASS_KEYWORDS[g])
-                for g in glass_filters
+    # What I Want: canonical glass filter.  The 562 master-created rows retain
+    # legacy_glass but did not have a glass_id at import; use the established
+    # canonical glass normalization only for that migration field.
+    if glass_filters:
+        allowed_glass_ids = set().union(*(GLASS_ID_FAMILIES[g] for g in glass_filters))
+        legacy_to_id = {
+            "cocktail glass":"cocktail", "martini":"martini", "highball glass":"highball",
+            "collins glass":"collins", "shot glass":"shot", "old-fashioned glass":"rocks",
+            "hurricane glass":"hurricane", "margarita glass":"margarita", "beer mug":"beer_mug",
+            "beer pilsner":"pilsner", "pint glass":"pint", "champagne flute":"champagne_flute",
+            "champagne saucer":"coupe", "champagne tulip":"champagne_flute", "coupe glass":"coupe",
+            "white wine glass":"wine", "red wine glass":"wine", "wine goblet":"wine",
+            "irish coffee cup":"irish_coffee", "coffee mug":"coffee_mug", "cup":"cup",
+            "whiskey sour glass":"sour", "sour glass":"sour", "parfait glass":"parfait",
+            "pina colada glass":"pina_colada", "brandy snifter":"snifter", "cordial glass":"cordial",
+            "mason jar":"mason_jar", "mug":"mug", "pousse cafe glass":"pousse_cafe",
+            "sherry glass":"sherry", "cooler":"cooler",
+        }
+        kept = []
+        for c in canonical_docs:
+            gid = c.get("glass_id")
+            if not gid:
+                raw = str((c.get("migration") or {}).get("legacy_glass") or "").strip().lower()
+                gid = legacy_to_id.get(raw)
+            if gid in allowed_glass_ids:
+                kept.append(c)
+        canonical_docs = kept
+
+    # Checked-in location replaces home cupboard constraint.
+    if location_id:
+        can_make_ids = {
+            row["cocktail_id"]
+            async for row in db.location_drinks.find(
+                {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
+            )
+        }
+        canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in can_make_ids]
+    elif me:
+        cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
+        if cupboard and cupboard.get("active"):
+            saved_ids = _int_ids(cupboard.get("item_ids"))
+            saved_signatures = {
+                _ingredient_signature(ingredients_by_id[iid])
+                for iid in saved_ids if iid in ingredients_by_id
+            }
+            cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+            requirements: dict[str, list[int]] = {}
+            async for row in db.cocktail_ingredients.find(
+                {"cocktail_id": {"$in": cocktail_ids}, "required": True},
+                {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
             ):
-                return False
+                requirements.setdefault(row["cocktail_id"], []).append(int(row["ingredient_id"]))
 
-        return True
+            def cupboard_satisfies(cid: str) -> bool:
+                reqs = requirements.get(cid)
+                if not reqs:  # No structured recipe => cannot claim "can make".
+                    return False
+                for iid in reqs:
+                    if iid in saved_ids:
+                        continue
+                    ing = ingredients_by_id.get(iid)
+                    if not ing or _ingredient_signature(ing) not in saved_signatures:
+                        return False
+                return True
 
-    filtered = [d for d in docs if matches_filter(d)]
+            canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
-    # Auth-aware filtering: exclude blocked
+    docs = [_canonical_to_drink(d) for d in canonical_docs]
+
     blocked_ids: set[str] = set()
     favorite_ids: set[str] = set()
     if me:
-        blocked_ids = {
-            b["drink_id"]
-            async for b in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})
-        }
-        favorite_ids = {
-            f["drink_id"]
-            async for f in db.favorites.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})
-        }
+        blocked_ids = {b["drink_id"] async for b in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
+        favorite_ids = {f["drink_id"] async for f in db.favorites.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
     if blocked_ids:
-        filtered = [d for d in filtered if d["id"] not in blocked_ids]
+        docs = [d for d in docs if d["id"] not in blocked_ids]
 
     def score_of(doc: dict) -> float:
-        s = doc["fancy"] + doc["dark"] + doc["thirsty"] + doc["calm"] + doc["celebrate"]
-        if s <= 0:
+        total = doc["fancy"] + doc["dark"] + doc["thirsty"] + doc["calm"] + doc["celebrate"]
+        if total <= 0:
             return float("inf")
-        diff = sum(abs(user_ratios[d] - doc[d] / s) for d in DIMS)
+        diff = sum(abs(user_ratios[d] - doc[d] / total) for d in DIMS)
         if scoring == "alternate":
-            diff += abs(s - user_sum) / user_sum
+            diff += abs(total - user_sum) / user_sum
         return diff
 
-    scored_all = sorted(
-        ((d, score_of(d)) for d in filtered),
-        key=lambda x: x[1],
-    )
+    scored_all = sorted(((d, score_of(d)) for d in docs), key=lambda x: x[1])
     top = scored_all[:limit]
-
-    # Favorite pinning: the single best-scoring favorite gets moved up into
-    # slot #5 (index 4) if — and only if — no favorite already appears
-    # anywhere in the natural top 5. Any other favorites elsewhere in the
-    # returned set are left exactly where their score naturally placed them
-    # (still flagged is_favorite, just not repositioned).
-    PIN_SLOT = 4  # zero-indexed -> slot number 5
-    if favorite_ids and len(top) > PIN_SLOT:
+    pin_slot = 4
+    if favorite_ids and len(top) > pin_slot:
         top5_ids = {d["id"] for d, _ in top[:5]}
-        need_pin = not (favorite_ids & top5_ids)
-        if need_pin:
-            best_fav_pair = next(
-                ((d, s) for d, s in scored_all if d["id"] in favorite_ids),
-                None,
-            )
+        if not (favorite_ids & top5_ids):
+            best_fav_pair = next(((d, score) for d, score in scored_all if d["id"] in favorite_ids), None)
             if best_fav_pair:
-                top = (top[:PIN_SLOT] + [best_fav_pair] + top[PIN_SLOT:])[:limit]
+                top = (top[:pin_slot] + [best_fav_pair] + top[pin_slot:])[:limit]
 
-    results = [
-        MatchItem(
-            drink=Drink(**d),
-            score=float(s),
-            is_favorite=d["id"] in favorite_ids,
-        )
-        for d, s in top
-    ]
-
-    return MatchResponse(
-        results=results,
-        scoring=scoring,
-        query=slider_vals,
-        query_mapped=dim_vals,
-    )
+    results = [MatchItem(drink=Drink(**d), score=float(score), is_favorite=d["id"] in favorite_ids) for d, score in top]
+    return MatchResponse(results=results, scoring=scoring, query=slider_vals, query_mapped=dim_vals)
 
 
 class DrinkSearchResult(BaseModel):
@@ -976,14 +990,9 @@ async def update_remote_config(body: UpdateFlagsRequest):
 
 @api_router.get("/ingredients")
 async def get_ingredients_tree():
-    """Project canonical ingredient collections into the existing mobile 3-level payload."""
-    categories = await db.ingredient_categories.find(
-        {"status": "active"}, {"_id": 0}
-    ).sort("display_order", 1).to_list(length=None)
-    ingredients = await db.ingredients.find(
-        {"status": "active"}, {"_id": 0}
-    ).to_list(length=None)
-
+    """Project the integer canonical master into the existing 3-level mobile payload."""
+    categories = await db.ingredient_categories.find({"status": "active"}, {"_id": 0}).sort("display_order", 1).to_list(length=None)
+    ingredients = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
     by_category: dict[str, list[dict]] = {}
     for ingredient in ingredients:
         by_category.setdefault(ingredient.get("category_id"), []).append(ingredient)
@@ -991,30 +1000,41 @@ async def get_ingredients_tree():
     result = []
     for category in categories:
         rows = by_category.get(category["category_id"], [])
-        primaries = [r for r in rows if not r.get("parent_ingredient_id")]
-        primary_payload = []
-        for primary in primaries:
-            items = [
-                {"id": r["ingredient_id"], "name": r.get("name") or r["ingredient_id"]}
-                for r in rows
-                if r.get("parent_ingredient_id") == primary["ingredient_id"]
-            ]
-            primary_payload.append({
-                "id": primary["ingredient_id"],
-                "name": primary.get("name") or primary["ingredient_id"],
-                "items": items,
+        groups: dict[str, list[dict]] = {}
+        display_names: dict[str, str] = {}
+        for row in rows:
+            pname = str(row.get("primary_ingredient") or row.get("name") or "Other").strip()
+            pkey = re.sub(r"[^a-z0-9]+", "_", pname.lower()).strip("_") or "other"
+            groups.setdefault(pkey, []).append(row)
+            display_names[pkey] = pname
+        primaries = []
+        for pkey in sorted(groups, key=lambda k: display_names[k].lower()):
+            items = sorted(groups[pkey], key=lambda r: str(r.get("name") or "").lower())
+            primaries.append({
+                "id": f"{category['category_id']}:{pkey}",
+                "name": display_names[pkey],
+                # IDs are serialized as strings so the current React Native
+                # selection model remains unchanged; save/match normalize to int.
+                "items": [{"id": str(r["ingredient_id"]), "name": r.get("name") or str(r["ingredient_id"])} for r in items],
             })
-        result.append({
-            "id": category["category_id"],
-            "name": category.get("name") or category["category_id"],
-            "primaries": primary_payload,
-        })
+        result.append({"id": category["category_id"], "name": category.get("name") or category["category_id"], "primaries": primaries})
     return result
 
 
 class CupboardRequest(BaseModel):
     item_ids: List[str]
     active: bool
+
+    @field_validator("item_ids")
+    @classmethod
+    def canonical_integer_ids(cls, values: List[str]) -> List[str]:
+        normalized = []
+        for value in values:
+            try:
+                normalized.append(str(int(value)))
+            except (TypeError, ValueError):
+                raise ValueError(f"cupboard item_id must be a canonical integer ingredient ID: {value}")
+        return normalized
 
 
 @api_router.get("/me/cupboard")
@@ -1025,9 +1045,20 @@ async def get_cupboard(user: User = Depends(current_user)):
 
 @api_router.post("/me/cupboard")
 async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user)):
+    ids = _int_ids(body.item_ids)
+    existing = {
+        row["ingredient_id"]
+        async for row in db.ingredients.find(
+            {"ingredient_id": {"$in": list(ids)}, "status": "active"},
+            {"_id": 0, "ingredient_id": 1},
+        )
+    }
+    missing = sorted(ids - existing)
+    if missing:
+        raise HTTPException(status_code=400, detail=f"unknown canonical ingredient IDs: {missing}")
     await db.user_cupboard.update_one(
         {"user_id": user.user_id},
-        {"$set": {"item_ids": body.item_ids, "active": body.active}},
+        {"$set": {"item_ids": [str(i) for i in sorted(ids)], "active": body.active}},
         upsert=True,
     )
     return {"ok": True}

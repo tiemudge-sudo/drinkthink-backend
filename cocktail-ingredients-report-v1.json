@@ -1,0 +1,1524 @@
+{
+  "version": "cocktail-ingredients-v1",
+  "mode": "DRY_RUN",
+  "started_at": "2026-09-28T22:00:55.334602+00:00",
+  "counts": {
+    "canonical_cocktails": 16359,
+    "canonical_ingredients": 1333,
+    "legacy_drinks": 16359,
+    "curated_csv_rows": 15805,
+    "fully_resolved_cocktails": 0,
+    "unresolved_cocktails": 16359,
+    "cocktail_ingredient_rows": 0
+  },
+  "exceptions": [
+    {
+      "cocktail_id": "ckt_96d13f13124229b47887",
+      "name": "Unky Norm",
+      "legacy_drink_id": 16143,
+      "reason": "missing canonical ingredient ids: 1350,1589"
+    },
+    {
+      "cocktail_id": "ckt_30d5eea228f46bede698",
+      "name": "The David G.",
+      "legacy_drink_id": 15959,
+      "reason": "missing canonical ingredient ids: 1338,1097,1550,1148,1647,2069,1549,1722,1333"
+    },
+    {
+      "cocktail_id": "ckt_9f741bfd186375d062e9",
+      "name": "Sneaky Snake Bite",
+      "legacy_drink_id": 7748,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_68eac2ca708fe925b62e",
+      "name": "Berry LemonTini",
+      "legacy_drink_id": 8785,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_573327747ce7fa60ef39",
+      "name": "Snowball Dokkie",
+      "legacy_drink_id": 15676,
+      "reason": "missing canonical ingredient ids: 2455,2358,1462,1644"
+    },
+    {
+      "cocktail_id": "ckt_ccb9ce0e5e9f7d0a484f",
+      "name": "Blackout Punch",
+      "legacy_drink_id": 2441,
+      "reason": "4-5 packages Fruit punch mix (dry)|Lots of Fruit (sliced)|Lite Beer (Optional)"
+    },
+    {
+      "cocktail_id": "ckt_b17718d356068658aae9",
+      "name": "Talon",
+      "legacy_drink_id": 15879,
+      "reason": "3/4 - 1 ozpremium Champagne"
+    },
+    {
+      "cocktail_id": "ckt_07514595bb8e663c387b",
+      "name": "Citrus Eden",
+      "legacy_drink_id": 10109,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_c97fa80578cec35b8ab5",
+      "name": "Caribbean Afterburner",
+      "legacy_drink_id": 6591,
+      "reason": "missing canonical ingredient ids: 1321,1408"
+    },
+    {
+      "cocktail_id": "ckt_115de5346671065dd025",
+      "name": "Pinkeye II",
+      "legacy_drink_id": 14930,
+      "reason": "3 ozSquirt soda"
+    },
+    {
+      "cocktail_id": "ckt_8b9f0bd9a69810e359fc",
+      "name": "Superbly Snowy (Snowball)",
+      "legacy_drink_id": 15839,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_c0b70bbd07e81b242668",
+      "name": "Seagalmageddon",
+      "legacy_drink_id": 15537,
+      "reason": "3 ozFruit-Flavored vodka|4-6 oz Steven Seagal's Lightning Bolt"
+    },
+    {
+      "cocktail_id": "ckt_ac757d834053cea84403",
+      "name": "Tony Montana",
+      "legacy_drink_id": 16065,
+      "reason": "missing canonical ingredient ids: 2069,1985,1146,1337,1855"
+    },
+    {
+      "cocktail_id": "ckt_c2482f650183b9e90468",
+      "name": "Pompous Mexican",
+      "legacy_drink_id": 15062,
+      "reason": "missing canonical ingredient ids: 1878,1650,1549"
+    },
+    {
+      "cocktail_id": "ckt_a29f902b39d8eda5e0a7",
+      "name": "Cucumber-Rosemary Gin and Tonic",
+      "legacy_drink_id": 10536,
+      "reason": "1 sprig of Rosemary"
+    },
+    {
+      "cocktail_id": "ckt_932eb8aa41ea7635c976",
+      "name": "Thai-Pirinha",
+      "legacy_drink_id": 15929,
+      "reason": "2 Crystalized ginger|1 leaf Thai basil|0.5 ozDomaine de Canton ginger-infused coconut rum|0.5 ozCoconut Jack milk|1.5 ozCoconut maraschino cherries"
+    },
+    {
+      "cocktail_id": "ckt_cff55b2237f8bed7ae5c",
+      "name": "Neo-Tokyo",
+      "legacy_drink_id": 14247,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_fef37bcb36af3ac4c72e",
+      "name": "Fruity Islander",
+      "legacy_drink_id": 6974,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_119918f63b538f09e777",
+      "name": "Pisco Sour with Egg Whites and...",
+      "legacy_drink_id": 14949,
+      "reason": "4-5 ozfine granulated sugar"
+    },
+    {
+      "cocktail_id": "ckt_66fbeae2c4cf8d272c77",
+      "name": "Smirnoff Moscow Mule",
+      "legacy_drink_id": 15655,
+      "reason": "missing canonical ingredient ids: 1084,1107,1550"
+    },
+    {
+      "cocktail_id": "ckt_9339c886b4913bfed2d4",
+      "name": "Tiffatini",
+      "legacy_drink_id": 16046,
+      "reason": "Top with a lemon"
+    },
+    {
+      "cocktail_id": "ckt_9c7af6312723f8d9931a",
+      "name": "Vodka Dragon",
+      "legacy_drink_id": 16201,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_04acd088882001a5dc60",
+      "name": "Pink Valdimar",
+      "legacy_drink_id": 14933,
+      "reason": "missing canonical ingredient ids: 1575,2224,1084"
+    },
+    {
+      "cocktail_id": "ckt_af6c8415a7fffc6c0e5d",
+      "name": "Green-Eyed Monster",
+      "legacy_drink_id": 12013,
+      "reason": "missing canonical ingredient ids: 1044,1097,1390,1200,1408"
+    },
+    {
+      "cocktail_id": "ckt_db76d3768cacbe5a2d21",
+      "name": "Dysentery",
+      "legacy_drink_id": 6837,
+      "reason": "missing canonical ingredient ids: 1627,1114,1170,1084"
+    },
+    {
+      "cocktail_id": "ckt_2fc1ecded064e9b0eca1",
+      "name": "Leeds Rainbow",
+      "legacy_drink_id": 13270,
+      "reason": "1/2 packageSkittles candies|1/2 packageMarshmellows candies"
+    },
+    {
+      "cocktail_id": "ckt_d596d36a939c70797f31",
+      "name": "Vernon's Grog",
+      "legacy_drink_id": 16180,
+      "reason": "1 tspdemera or muscovado sugar"
+    },
+    {
+      "cocktail_id": "ckt_df80668957593c903a9f",
+      "name": "Red Lotus",
+      "legacy_drink_id": 15308,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_1b826eebe70e0bc65f4f",
+      "name": "Real Sazerac",
+      "legacy_drink_id": 15284,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_fb8685675bf91846a5df",
+      "name": "Georgia's",
+      "legacy_drink_id": 11692,
+      "reason": "30 mlWyborowa Exquisit vodka"
+    },
+    {
+      "cocktail_id": "ckt_2541f300943cf08c874f",
+      "name": "Bone Crusher",
+      "legacy_drink_id": 9201,
+      "reason": "missing canonical ingredient ids: 1650,1084,1097,1348,1123,1550,1390,1805"
+    },
+    {
+      "cocktail_id": "ckt_ec3dce29271160da4ecd",
+      "name": "Flor de Mayo",
+      "legacy_drink_id": 11328,
+      "reason": "2 ozPampero Anniversario rum|1/2 ozQi White Tea liqueur"
+    },
+    {
+      "cocktail_id": "ckt_330f7623107d48e52a31",
+      "name": "Flaming A-style",
+      "legacy_drink_id": 6897,
+      "reason": "missing canonical ingredient ids: 1920,1321,1550"
+    },
+    {
+      "cocktail_id": "ckt_809e55130d07998aef18",
+      "name": "Original Firecracker",
+      "legacy_drink_id": 14543,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_e8208476b498509d3ca6",
+      "name": "Tropical Pepsi Float",
+      "legacy_drink_id": 16101,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_b0228b7ea6a453f17840",
+      "name": "Pickled Tink",
+      "legacy_drink_id": 14823,
+      "reason": "1 dashground paprika"
+    },
+    {
+      "cocktail_id": "ckt_78b53c4ed62f799d9944",
+      "name": "Smooth Johnny",
+      "legacy_drink_id": 15660,
+      "reason": "missing canonical ingredient ids: 1979,1350,1857,1676"
+    },
+    {
+      "cocktail_id": "ckt_d5256a54b3a081f2dcdc",
+      "name": "Area 151",
+      "legacy_drink_id": 6318,
+      "reason": "missing canonical ingredient ids: 1654,1470,1295,1491"
+    },
+    {
+      "cocktail_id": "ckt_652ada7e8679ca31e41e",
+      "name": "Phil Collins",
+      "legacy_drink_id": 14846,
+      "reason": "missing canonical ingredient ids: 1295,1549,1165,1564"
+    },
+    {
+      "cocktail_id": "ckt_ebde6dbc516b631ce65c",
+      "name": "Barbados Fondue",
+      "legacy_drink_id": 8633,
+      "reason": "1/2 peeled lime|1/2 chopped mango|6 small chunks of young coconut"
+    },
+    {
+      "cocktail_id": "ckt_20f03937c39a642c578d",
+      "name": "Top Cat",
+      "legacy_drink_id": 16072,
+      "reason": "Pure orange juice"
+    },
+    {
+      "cocktail_id": "ckt_a094baa450b3a7e4845e",
+      "name": "Vegan - Hot indian milk\" drink\"",
+      "legacy_drink_id": 5898,
+      "reason": "1/2 L unflavored Soy milk (thicker is better)|1/2 tsp ground Ginger|1/2 tsp ground Cloves|1/2 tsp ground Cinnamon|1/2 tsp ground Allspice"
+    },
+    {
+      "cocktail_id": "ckt_a5df3c534311373c46cd",
+      "name": "B52-Slovak",
+      "legacy_drink_id": 6340,
+      "reason": "missing canonical ingredient ids: 2443,1627,1428"
+    },
+    {
+      "cocktail_id": "ckt_ca8ee1b432b945217375",
+      "name": "Greg's Basement",
+      "legacy_drink_id": 12018,
+      "reason": "missing canonical ingredient ids: 1084,1650,1191"
+    },
+    {
+      "cocktail_id": "ckt_522420bebcdf659e1b3e",
+      "name": "Sweater Kitten",
+      "legacy_drink_id": 7781,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_ba26472a708078d5a14a",
+      "name": "Tequila Sunrise Jello Shot",
+      "legacy_drink_id": 7810,
+      "reason": "1 small package orange"
+    },
+    {
+      "cocktail_id": "ckt_93b8631cff33e7312e69",
+      "name": "California Car Jacker",
+      "legacy_drink_id": 6563,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_2b37b5fe012cf507e4a0",
+      "name": "Gatarou Cocktail",
+      "legacy_drink_id": 11653,
+      "reason": "fresh cucumber"
+    },
+    {
+      "cocktail_id": "ckt_c92cad5792b4721cf981",
+      "name": "Tequila Stuntman",
+      "legacy_drink_id": 7808,
+      "reason": "missing canonical ingredient ids: 1104,1549"
+    },
+    {
+      "cocktail_id": "ckt_3b66fba7788aa2d0416f",
+      "name": "UTI",
+      "legacy_drink_id": 16152,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_70a8d6275088f88e8a70",
+      "name": "Dudi Drop",
+      "legacy_drink_id": 6834,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_929142fe03671d533674",
+      "name": "Pincher",
+      "legacy_drink_id": 14852,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_878426f659e0777707c9",
+      "name": "Latavia",
+      "legacy_drink_id": 13239,
+      "reason": "1 Carlo Rossi Burgundy wine|Marchino cherries"
+    },
+    {
+      "cocktail_id": "ckt_bd46affe232d931dcf3d",
+      "name": "The Gripper",
+      "legacy_drink_id": 7827,
+      "reason": "missing canonical ingredient ids: 1037,1627,1042,1654"
+    },
+    {
+      "cocktail_id": "ckt_bd4509128a832130c4b6",
+      "name": "Manhattan Skyscraper",
+      "legacy_drink_id": 13680,
+      "reason": "1 fresh orange|1 cocktail cherry"
+    },
+    {
+      "cocktail_id": "ckt_b083cb075a73c24371a0",
+      "name": "The Snow Leopard",
+      "legacy_drink_id": 16018,
+      "reason": "missing canonical ingredient ids: 1084,1097,1550,1576,1528"
+    },
+    {
+      "cocktail_id": "ckt_83ea97515f4774a7437d",
+      "name": "Pineapple Mint Mojito",
+      "legacy_drink_id": 14867,
+      "reason": "12 Pineapple mint"
+    },
+    {
+      "cocktail_id": "ckt_63f1a0ceeaa13093231e",
+      "name": "Flaming Lamborghini #2",
+      "legacy_drink_id": 11299,
+      "reason": "missing canonical ingredient ids: 1320,1408,1949,1930,1627"
+    },
+    {
+      "cocktail_id": "ckt_094f9b03a94f4272cd2f",
+      "name": "Hard Cory",
+      "legacy_drink_id": 12131,
+      "reason": "missing canonical ingredient ids: 1037,1321,1502,1097,1869"
+    },
+    {
+      "cocktail_id": "ckt_26bc10e9a2b2a1a79076",
+      "name": "Machu Picchu",
+      "legacy_drink_id": 13550,
+      "reason": "missing canonical ingredient ids: 1715,1462,1564,1123"
+    },
+    {
+      "cocktail_id": "ckt_13d55f304f7f4b52ebc1",
+      "name": "Lincolnshire Fields Lemonade (...",
+      "legacy_drink_id": 13374,
+      "reason": "missing canonical ingredient ids: 1052,2230,1549,1357,2278"
+    },
+    {
+      "cocktail_id": "ckt_122014326c529bfac622",
+      "name": "The Battle of the 7 Soul",
+      "legacy_drink_id": 15938,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_7c2ee41bb7a214932d86",
+      "name": "Perfect Brandy Manhattan",
+      "legacy_drink_id": 14792,
+      "reason": "missing canonical ingredient ids: 1087,1094,1698"
+    },
+    {
+      "cocktail_id": "ckt_868ac344e4b581606817",
+      "name": "Flame Blazer",
+      "legacy_drink_id": 11287,
+      "reason": "missing canonical ingredient ids: 1088,1084,1723,1564,1528,2000,2443,1460,1123"
+    },
+    {
+      "cocktail_id": "ckt_2b55225f2f7b7a9f890e",
+      "name": "Orange Cream Dream",
+      "legacy_drink_id": 14409,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_2c610b8f50500abb6268",
+      "name": "Pudding Shots",
+      "legacy_drink_id": 7648,
+      "reason": "8 ozFrozen Cool Whip|8 ozStrawberry Cool Whip"
+    },
+    {
+      "cocktail_id": "ckt_eac3dbfed04459c3cf23",
+      "name": "Biotini",
+      "legacy_drink_id": 8841,
+      "reason": "missing canonical ingredient ids: 1650,1084,1460,1550"
+    },
+    {
+      "cocktail_id": "ckt_1c2593557895ede3798a",
+      "name": "Perfect Classic Manhattan",
+      "legacy_drink_id": 14791,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_ff419da7fd4ee3d18d79",
+      "name": "Irish Coffee #3",
+      "legacy_drink_id": 2830,
+      "reason": "4 Orange peel strips|4 Lemon peel strips|16 whole Cloves|1 stick Cinnamon|3/4 pint strong and hot Coffee"
+    },
+    {
+      "cocktail_id": "ckt_5257597801ba0551e1d6",
+      "name": "Strawberry Buster",
+      "legacy_drink_id": 15781,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_911e172658ea3b1d14b4",
+      "name": "Flaming Jamaican Bobsled",
+      "legacy_drink_id": 6920,
+      "reason": "1/2 Red Stripe beer"
+    },
+    {
+      "cocktail_id": "ckt_15b161592f96c9082507",
+      "name": "Magic Sam",
+      "legacy_drink_id": 13571,
+      "reason": "2  melon juice"
+    },
+    {
+      "cocktail_id": "ckt_571b8639c54c277bd176",
+      "name": "Eerie Witch's Brew",
+      "legacy_drink_id": 1838,
+      "reason": "1 cup chopped & candied Ginger|12 oz frozen Apple juice concentrate|6 oz frozen Limeade concentrate|2 cups seedless Grapes"
+    },
+    {
+      "cocktail_id": "ckt_87821d25db5a5e24aa8e",
+      "name": "WWIII",
+      "legacy_drink_id": 7901,
+      "reason": "missing canonical ingredient ids: 1491,1650,1339,1408"
+    },
+    {
+      "cocktail_id": "ckt_ab04b047150b7537d305",
+      "name": "Holiday Crush",
+      "legacy_drink_id": 12344,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_a4a46baee8c2a5991f09",
+      "name": "Cesar Chavez",
+      "legacy_drink_id": 9804,
+      "reason": "missing canonical ingredient ids: 1123,1278,1460,1191"
+    },
+    {
+      "cocktail_id": "ckt_981add16952f8d278c97",
+      "name": "The Ooze",
+      "legacy_drink_id": 15994,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_1fee4c854279a9001f07",
+      "name": "White Irish",
+      "legacy_drink_id": 16265,
+      "reason": "missing canonical ingredient ids: 1627,1040,1681"
+    },
+    {
+      "cocktail_id": "ckt_c14f8784e9f1c590725e",
+      "name": "Crownarita",
+      "legacy_drink_id": 10492,
+      "reason": "missing canonical ingredient ids: 2353,1665"
+    },
+    {
+      "cocktail_id": "ckt_c1005d4d2c3887fe4e3e",
+      "name": "Denny Bay",
+      "legacy_drink_id": 10696,
+      "reason": "missing canonical ingredient ids: 1576,1330,1481"
+    },
+    {
+      "cocktail_id": "ckt_611bcd7cdfe3507e207a",
+      "name": "Canadian Snake Bite",
+      "legacy_drink_id": 6568,
+      "reason": "missing canonical ingredient ids: 1319,1104,2238"
+    },
+    {
+      "cocktail_id": "ckt_2b5a08511555374f4329",
+      "name": "Cane and Abel",
+      "legacy_drink_id": 6575,
+      "reason": "2-2.5 oz rum"
+    },
+    {
+      "cocktail_id": "ckt_3e4e46b502a342b7879d",
+      "name": "Shanan's Bloody Mary",
+      "legacy_drink_id": 15614,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_de1fa62e4592064a7ed0",
+      "name": "Janosik's Letisko",
+      "legacy_drink_id": 12787,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_80b6597018294b5573d9",
+      "name": "Optimus Prime",
+      "legacy_drink_id": 14458,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_b453db580bb3b5e16cd5",
+      "name": "Gaudi Johann",
+      "legacy_drink_id": 11659,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_0f3d0253cc26fc7940a5",
+      "name": "Pink Panther 420",
+      "legacy_drink_id": 7610,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_77dbd218252877cfb296",
+      "name": "Daywalker's Blood",
+      "legacy_drink_id": 6751,
+      "reason": "missing canonical ingredient ids: 2443,1123,1550"
+    },
+    {
+      "cocktail_id": "ckt_294342e39ad61de72ee0",
+      "name": "Juicy Pirate",
+      "legacy_drink_id": 12943,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_d9a16e57438d90617917",
+      "name": "Upstate Manhattan",
+      "legacy_drink_id": 16149,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_d90802c592bb990d5ccb",
+      "name": "Hollieywood",
+      "legacy_drink_id": 12334,
+      "reason": "missing canonical ingredient ids: 1470,1295,1564,1357"
+    },
+    {
+      "cocktail_id": "ckt_d5e11c96c95f748015fd",
+      "name": "Jersey KRowe",
+      "legacy_drink_id": 12834,
+      "reason": "missing canonical ingredient ids: 1084,1550,1528"
+    },
+    {
+      "cocktail_id": "ckt_5166baaad4a170d6a2c3",
+      "name": "Georgian Redneck",
+      "legacy_drink_id": 11693,
+      "reason": "missing canonical ingredient ids: 1042,1295,1191"
+    },
+    {
+      "cocktail_id": "ckt_c70c61b72ba4f064c8a6",
+      "name": "Chris' Flaming Skull",
+      "legacy_drink_id": 10050,
+      "reason": "missing canonical ingredient ids: 1627,1305,1261"
+    },
+    {
+      "cocktail_id": "ckt_4d0acd3856594496e279",
+      "name": "Jack's Log Cabin",
+      "legacy_drink_id": 12702,
+      "reason": "missing canonical ingredient ids: 1042,1390,1129"
+    },
+    {
+      "cocktail_id": "ckt_0a4d089ca1be5d199bc0",
+      "name": "Balboa",
+      "legacy_drink_id": 6351,
+      "reason": "missing canonical ingredient ids: 2059,2443,1084"
+    },
+    {
+      "cocktail_id": "ckt_d11a7916e7843c229e57",
+      "name": "Egg-Nog - Classic Cooked",
+      "legacy_drink_id": 1844,
+      "reason": "1 qt Milk, divided"
+    },
+    {
+      "cocktail_id": "ckt_ef28f5170a145951b32c",
+      "name": "Blood-Orange Margarita",
+      "legacy_drink_id": 8988,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_7adf725747a7445a4f47",
+      "name": "Jurere 12",
+      "legacy_drink_id": 12954,
+      "reason": "missing canonical ingredient ids: 1084,1408,1868"
+    },
+    {
+      "cocktail_id": "ckt_808cbb2229bfc2297420",
+      "name": "Retro Girl Bloody Mary",
+      "legacy_drink_id": 15344,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_56525fafd0a06f6c70e2",
+      "name": "Flying Penguin",
+      "legacy_drink_id": 11352,
+      "reason": "missing canonical ingredient ids: 1084,1352,1650,1721,1582,1550,1148"
+    },
+    {
+      "cocktail_id": "ckt_dea453ae98e3c589af34",
+      "name": "Lips of Myristica",
+      "legacy_drink_id": 13376,
+      "reason": "missing canonical ingredient ids: 1084,1343,2269,2078,1647"
+    },
+    {
+      "cocktail_id": "ckt_889456dd7a26c3416e9c",
+      "name": "Dixie Cup",
+      "legacy_drink_id": 10824,
+      "reason": "missing canonical ingredient ids: 1470,1497,1295,1097,1528,1390,1191"
+    },
+    {
+      "cocktail_id": "ckt_1dc7641fea91cd93b4ce",
+      "name": "Starry Night Martini",
+      "legacy_drink_id": 15751,
+      "reason": "missing canonical ingredient ids: 1051,1083,1627,1428,1674"
+    },
+    {
+      "cocktail_id": "ckt_5041e0856ed4b6ae7f49",
+      "name": "Afterparty Dregs",
+      "legacy_drink_id": 8064,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_4a3849a6e6d670477717",
+      "name": "Egg Nog - Cooked",
+      "legacy_drink_id": 1846,
+      "reason": "missing canonical ingredient ids: 1942,2278,1549,1915,2064,2269,2078,1680,1440,2230"
+    },
+    {
+      "cocktail_id": "ckt_43ac3ac844d268520961",
+      "name": "Terry's  Chocolate Orange",
+      "legacy_drink_id": 15920,
+      "reason": "missing canonical ingredient ids: 1428,1627,1467,1677,1846"
+    },
+    {
+      "cocktail_id": "ckt_c359d5000858e503f8b1",
+      "name": "Italian Limoncello",
+      "legacy_drink_id": 2893,
+      "reason": "Zest of 15 fresh Lemon"
+    },
+    {
+      "cocktail_id": "ckt_4e2448dde80b0ccd0c34",
+      "name": "Dudley",
+      "legacy_drink_id": 10989,
+      "reason": "missing canonical ingredient ids: 1042,1295"
+    },
+    {
+      "cocktail_id": "ckt_facaea607996f9a0e3c3",
+      "name": "Tropical Morgan",
+      "legacy_drink_id": 16098,
+      "reason": "2 cupscooked sugar|1/4 cupcooked honey"
+    },
+    {
+      "cocktail_id": "ckt_977740acbd05fd13249c",
+      "name": "Flaming Moz",
+      "legacy_drink_id": 2041,
+      "reason": "missing canonical ingredient ids: 1666,1320,1949"
+    },
+    {
+      "cocktail_id": "ckt_17b862cf1151674136ba",
+      "name": "La Bella Blu'z",
+      "legacy_drink_id": 13188,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_bd5046b80a9d928c7821",
+      "name": "Jolly Vodka",
+      "legacy_drink_id": 12916,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_c9ad2b25fe86357ff20d",
+      "name": "Shpivo",
+      "legacy_drink_id": 15596,
+      "reason": "1 LCityA vodka|2 LJelenA beer"
+    },
+    {
+      "cocktail_id": "ckt_97ea3a711a9f3014ed90",
+      "name": "Artic Polarbear",
+      "legacy_drink_id": 6323,
+      "reason": "3-4 cl vodka"
+    },
+    {
+      "cocktail_id": "ckt_0a8ddd8b45f918e18aa9",
+      "name": "Green Meadows",
+      "legacy_drink_id": 11990,
+      "reason": "missing canonical ingredient ids: 1084,1650,1348,1095,1097,1408,1564,1550"
+    },
+    {
+      "cocktail_id": "ckt_94cb3b4ef844ff63035b",
+      "name": "Dish Water",
+      "legacy_drink_id": 6799,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_fdc086201e6aab6ef752",
+      "name": "Captain Morgan's a Limey!",
+      "legacy_drink_id": 9691,
+      "reason": "missing canonical ingredient ids: 1350,1550,2230,1220"
+    },
+    {
+      "cocktail_id": "ckt_fc7caa7c0eef1dd23a0d",
+      "name": "Cold Blood",
+      "legacy_drink_id": 10245,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_6d7c9c70e34ff045e5bd",
+      "name": "kitchen sink martini",
+      "legacy_drink_id": 13136,
+      "reason": "missing canonical ingredient ids: 1048,1079,1044,1066,1528,1357,1276,1550,1097"
+    },
+    {
+      "cocktail_id": "ckt_522f754af826b522543c",
+      "name": "Vanilla Liqueur",
+      "legacy_drink_id": 5893,
+      "reason": "3 Vanilla beans|500-600 ml Brandy (or vodka)"
+    },
+    {
+      "cocktail_id": "ckt_d93bf0cfe46c25eb8e6e",
+      "name": "Pinebrook Screwdriver (Scranton)",
+      "legacy_drink_id": 14877,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_59609783f101915d41bc",
+      "name": "Pina Colada Punch",
+      "legacy_drink_id": 4263,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_e6cc14b14128b72980e7",
+      "name": "Bad Acid Trip",
+      "legacy_drink_id": 8513,
+      "reason": "missing canonical ingredient ids: 1460,1330,1650,1084,1408,1481,1390"
+    },
+    {
+      "cocktail_id": "ckt_8cf7457617bd69661db7",
+      "name": "Chilled Cinnamon Cookie",
+      "legacy_drink_id": 6637,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_a2e5b6d59693ba0a163e",
+      "name": "Sour Patch Kid",
+      "legacy_drink_id": 15694,
+      "reason": "missing canonical ingredient ids: 1084,1408,1123,1390,1550"
+    },
+    {
+      "cocktail_id": "ckt_ddea67076d92b74bb29b",
+      "name": "Red Lemon",
+      "legacy_drink_id": 15306,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_932b066e94a2ce57e6f2",
+      "name": "Cosmopolitan #7",
+      "legacy_drink_id": 10354,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_0906d04941c35af0bb28",
+      "name": "Cubbie Bomb and/or  Sox Bomb",
+      "legacy_drink_id": 6729,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_1f1484efa1ef3457fa48",
+      "name": "Bat Beast",
+      "legacy_drink_id": 8668,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_a0fef388bfc3d6fa61b4",
+      "name": "Cinco de Mayo #2",
+      "legacy_drink_id": 10089,
+      "reason": "1 gold foil covered chocolate"
+    },
+    {
+      "cocktail_id": "ckt_0b1cb7f79061ccbf1ce3",
+      "name": "Tropical Legionaire",
+      "legacy_drink_id": 16094,
+      "reason": "2 ozfresh pineapple juice"
+    },
+    {
+      "cocktail_id": "ckt_811612e4e0665e00e6a9",
+      "name": "Banaquiri",
+      "legacy_drink_id": 8618,
+      "reason": "1/2 large banana|1 sprig mint"
+    },
+    {
+      "cocktail_id": "ckt_f1d9f3e9aeb6a36c9aae",
+      "name": "Chocolate Chequita",
+      "legacy_drink_id": 9995,
+      "reason": "1 whole fresh banana"
+    },
+    {
+      "cocktail_id": "ckt_823b654ba42d3f2d8965",
+      "name": "Still Water",
+      "legacy_drink_id": 15763,
+      "reason": "3 ozMyers's dark rum"
+    },
+    {
+      "cocktail_id": "ckt_fec0aae6becdc1338b1f",
+      "name": "Sunny Sex",
+      "legacy_drink_id": 5500,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_5f8cdb26c07b1ff9f338",
+      "name": "Tropial Twist",
+      "legacy_drink_id": 16087,
+      "reason": "missing canonical ingredient ids: 1330,1097,1576,1460"
+    },
+    {
+      "cocktail_id": "ckt_849c0014811d98e3da99",
+      "name": "Poisonous Dog",
+      "legacy_drink_id": 15057,
+      "reason": "1/2 pintIcelandic orange soda"
+    },
+    {
+      "cocktail_id": "ckt_53072454650dd3bfeace",
+      "name": "Green-tini (aka Green Tea-ni)",
+      "legacy_drink_id": 12015,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_547b11255e8d59f92690",
+      "name": "Red Apple Martini",
+      "legacy_drink_id": 15289,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_6471346012c53f777e3d",
+      "name": "Terrybuster",
+      "legacy_drink_id": 7822,
+      "reason": "missing canonical ingredient ids: 1321,2443"
+    },
+    {
+      "cocktail_id": "ckt_3563b4e3b2bfd2defce4",
+      "name": "Stockholm Imperial",
+      "legacy_drink_id": 15766,
+      "reason": "1/2 - 3/4 oz Chambord raspberry liqueur"
+    },
+    {
+      "cocktail_id": "ckt_f8062620291c05880d7f",
+      "name": "L.A. Sunset",
+      "legacy_drink_id": 13183,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_69b1d2d443a3f4f86af0",
+      "name": "Burning TicTac",
+      "legacy_drink_id": 6539,
+      "reason": "missing canonical ingredient ids: 2253,1084"
+    },
+    {
+      "cocktail_id": "ckt_ee365d9f752acba784b1",
+      "name": "Bushwacker #2",
+      "legacy_drink_id": 979,
+      "reason": "Mostly Bailey's irish cream|Healthy splash Amaretto|Healthy splash Kahlua|Small splash Vodka|Small splash Grand Marnier|Sprinkling Nutmeg|Lots Ice"
+    },
+    {
+      "cocktail_id": "ckt_7c9b5daf423f473e9cae",
+      "name": "Bob Abbotts Sunshine",
+      "legacy_drink_id": 9174,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_8bb9e8c2aed3c0b1cce3",
+      "name": "Iconoclast",
+      "legacy_drink_id": 12538,
+      "reason": "diet Vernors Original ginger soda|cubed or crushed ice|premium gin"
+    },
+    {
+      "cocktail_id": "ckt_f95e551a2bbad6dd7479",
+      "name": "Glogg - Swedish",
+      "legacy_drink_id": 2366,
+      "reason": "1 cup blanched Almond|12 Cardamom seeds , peeled|12 whole Cloves|6 Cinnamon sticks|Peel of 1 Orange|1 cup dark Raisins|1 cup Sugar cubes, crushed"
+    },
+    {
+      "cocktail_id": "ckt_fdb6ca109c146560dbcb",
+      "name": "Oklahoma Tropical Twister",
+      "legacy_drink_id": 4005,
+      "reason": "1 1/2 oz Captain Morgan's Spiced rum|Pineapple wedge"
+    },
+    {
+      "cocktail_id": "ckt_13b11ea82e7f1742d7ed",
+      "name": "Teskinha",
+      "legacy_drink_id": 15933,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_0f05a3519d04f2cc029d",
+      "name": "Deer Hunter",
+      "legacy_drink_id": 10680,
+      "reason": "2 ozchilled Jagermeister herbal liqueur|1 squeeze lemons|3 - 5 ozchilled root beer"
+    },
+    {
+      "cocktail_id": "ckt_be811292c17b9a5cfd24",
+      "name": "Citrus Gin Cooler",
+      "legacy_drink_id": 10110,
+      "reason": "100 mlSparkling lemon|100 mlSparkling bitter lemon soda|100 mlSparkling water"
+    },
+    {
+      "cocktail_id": "ckt_7178baa8a2a7ae93270c",
+      "name": "Chocolate Covered Strawberry II",
+      "legacy_drink_id": 6648,
+      "reason": "Strawberry Flavered vodka"
+    },
+    {
+      "cocktail_id": "ckt_0226cfe54d2a06b9dbe5",
+      "name": "Mexican Coffee Liqueur",
+      "legacy_drink_id": 3660,
+      "reason": "1 Vanilla bean , split|1 drop red Food coloring"
+    },
+    {
+      "cocktail_id": "ckt_b1a8e0ea41051578c94b",
+      "name": "Bahama Slamma",
+      "legacy_drink_id": 6348,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_c5afae70036ffb3ca2a0",
+      "name": "Colorado Hunter",
+      "legacy_drink_id": 10264,
+      "reason": "1 ozCanadian Hunter whiskey|6-8 ozDiet Dr. Pepper soda"
+    },
+    {
+      "cocktail_id": "ckt_5233b749c94d9232a71e",
+      "name": "Bleeding Orgasm #2",
+      "legacy_drink_id": 8965,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_dfb7082c922de595e073",
+      "name": "Drunken Stuntman",
+      "legacy_drink_id": 6830,
+      "reason": "missing canonical ingredient ids: 1104,1550"
+    },
+    {
+      "cocktail_id": "ckt_becd09aa6086bf9a7547",
+      "name": "Islander 22",
+      "legacy_drink_id": 7180,
+      "reason": "missing canonical ingredient ids: 1084,1502,1654"
+    },
+    {
+      "cocktail_id": "ckt_fed87c46c1c87435a356",
+      "name": "St. Martin",
+      "legacy_drink_id": 15747,
+      "reason": "missing canonical ingredient ids: 1333,1543,2416"
+    },
+    {
+      "cocktail_id": "ckt_d5b52bba6b06c2bc8733",
+      "name": "Saurian Brandy",
+      "legacy_drink_id": 4877,
+      "reason": "1/4 cup grated Orange rind|2/3 cup grade \\A\\\" Maple syrup\""
+    },
+    {
+      "cocktail_id": "ckt_535ccaa0917273ffa8d0",
+      "name": "Dark Side",
+      "legacy_drink_id": 6750,
+      "reason": "missing canonical ingredient ids: 1426,1352,1114"
+    },
+    {
+      "cocktail_id": "ckt_c002d9d76e7666fd233e",
+      "name": "Danny's Blue Devil",
+      "legacy_drink_id": 10609,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_7cbb0cd985e1430cf10e",
+      "name": "Trini Bruiser",
+      "legacy_drink_id": 16079,
+      "reason": "1/3 Trinidad rum|1/3 10 Cane rum"
+    },
+    {
+      "cocktail_id": "ckt_5bef261c1cc45d3ff941",
+      "name": "Guerrilla",
+      "legacy_drink_id": 7057,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_abdd58f9121c340aad70",
+      "name": "Astro Pop",
+      "legacy_drink_id": 6328,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_8de66149483a995becf1",
+      "name": "pepsi pleaser",
+      "legacy_drink_id": 14789,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_cecd4e0d207018bcbc3f",
+      "name": "Grandma's Bloody Mary",
+      "legacy_drink_id": 11900,
+      "reason": "1 - 2 tbsp Worcestershire sauce|2 - 3 pinches celery salt|2 - 3 splashes Tabasco sauce"
+    },
+    {
+      "cocktail_id": "ckt_89309bea25eb229ee4f3",
+      "name": "Tropical Blast",
+      "legacy_drink_id": 16086,
+      "reason": "a handful maraschino cherries"
+    },
+    {
+      "cocktail_id": "ckt_7ead9d7558c6b3a70585",
+      "name": "After Five",
+      "legacy_drink_id": 126,
+      "reason": "missing canonical ingredient ids: 1298,1984,1627"
+    },
+    {
+      "cocktail_id": "ckt_869510e728881313363c",
+      "name": "Motherfucker",
+      "legacy_drink_id": 7471,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_bea5a7a3ec32c2f3d9d8",
+      "name": "Red Hot Chilli's",
+      "legacy_drink_id": 15301,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_3d01758a71d2b8622624",
+      "name": "Flaming Tiki Torch",
+      "legacy_drink_id": 6944,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_9a1e09e236ed1444e637",
+      "name": "Chocolate Ravage",
+      "legacy_drink_id": 10034,
+      "reason": "1 sheet Pop-Ice|15 ozbottle Yoo-hoo chocolate milk"
+    },
+    {
+      "cocktail_id": "ckt_7f429c9382d3fe9b9ffe",
+      "name": "Chili Margarita",
+      "legacy_drink_id": 9960,
+      "reason": "1 fresh pineapple|fresh limes|fresh lemons"
+    },
+    {
+      "cocktail_id": "ckt_4f92bedcb7854cb32a6d",
+      "name": "Egg Nog #4",
+      "legacy_drink_id": 1835,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_482994cd76358c2f6098",
+      "name": "Sweet Home Chicago",
+      "legacy_drink_id": 15856,
+      "reason": "missing canonical ingredient ids: 1627,1440,1305,1481,1083"
+    },
+    {
+      "cocktail_id": "ckt_f80ebf0a7363c9d2954e",
+      "name": "Wrathwilde's Ultimate Margarita",
+      "legacy_drink_id": 16315,
+      "reason": "missing canonical ingredient ids: 1103,1097,1467,1564,1550,1390"
+    },
+    {
+      "cocktail_id": "ckt_5960f1774cc5fcb822de",
+      "name": "Shrek",
+      "legacy_drink_id": 7728,
+      "reason": "missing canonical ingredient ids: 1330,1084,1460,1295,1191,1576"
+    },
+    {
+      "cocktail_id": "ckt_9539b15daa38ca2f973d",
+      "name": "Southern Sunbeam",
+      "legacy_drink_id": 15713,
+      "reason": "3 shotsCherry 7-Up soda|3 shotsStrawberry lemonade|3/4 shotapprox. Southern Comfort peach liqueur"
+    },
+    {
+      "cocktail_id": "ckt_3c455f00c671c721aaf7",
+      "name": "Miles",
+      "legacy_drink_id": 13921,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_1a49714c65bde2d575cd",
+      "name": "Guava Rose Martini",
+      "legacy_drink_id": 12039,
+      "reason": "2 ozfresh guava puree|Squeeze of limes"
+    },
+    {
+      "cocktail_id": "ckt_c713cf48796d3c88dc8f",
+      "name": "Wassail #1",
+      "legacy_drink_id": 5999,
+      "reason": "2 sticks Cinnamon"
+    },
+    {
+      "cocktail_id": "ckt_eae80b2e31b470245c84",
+      "name": "Spicy Asian",
+      "legacy_drink_id": 15734,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_0d5d1110747aa639d333",
+      "name": "A Curious Feeling",
+      "legacy_drink_id": 7965,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_b12cd45c93974d552bf1",
+      "name": "The Stepfather",
+      "legacy_drink_id": 16021,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_58f86592acc0f633bccf",
+      "name": "Bitter Cleet",
+      "legacy_drink_id": 8876,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_f3a85f5dc20307ffe95e",
+      "name": "The Real Jolly Rancher",
+      "legacy_drink_id": 16004,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_fe67f755194f697be37a",
+      "name": "Bruce Doucet",
+      "legacy_drink_id": 9395,
+      "reason": "missing canonical ingredient ids: 1295,1350,1243,1540,2230"
+    },
+    {
+      "cocktail_id": "ckt_d9a2f214c4dd3910aed2",
+      "name": "Savage Car Bomb",
+      "legacy_drink_id": 15509,
+      "reason": "missing canonical ingredient ids: 1627,1040,1216"
+    },
+    {
+      "cocktail_id": "ckt_3182080c954564767fed",
+      "name": "Spicey Sword",
+      "legacy_drink_id": 15732,
+      "reason": "1 whole Baby banana"
+    },
+    {
+      "cocktail_id": "ckt_a56cb322a726a24c2b36",
+      "name": "Tropical Sunset",
+      "legacy_drink_id": 16106,
+      "reason": "missing canonical ingredient ids: 1330,1647,1564,1528"
+    },
+    {
+      "cocktail_id": "ckt_bfbcbc7f46104301a4fb",
+      "name": "Paultini",
+      "legacy_drink_id": 14689,
+      "reason": "missing canonical ingredient ids: 2186,1087"
+    },
+    {
+      "cocktail_id": "ckt_be148ce309b2a34252cc",
+      "name": "Two Lesbians for Flavour",
+      "legacy_drink_id": 16131,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_17355ab2994180975682",
+      "name": "Pac-Man",
+      "legacy_drink_id": 14573,
+      "reason": "missing canonical ingredient ids: 1459,1307,1295,1506,1576"
+    },
+    {
+      "cocktail_id": "ckt_935d9619bfa222be7ab5",
+      "name": "Glogg #1",
+      "legacy_drink_id": 2357,
+      "reason": "1.75 L Vodka|20 Cardamom pods|2 sticks Cinnamon bark|1 1/2 cup blanched whole Almond|10 dried Figs|1 lb Sugar lump"
+    },
+    {
+      "cocktail_id": "ckt_d7ac9f7a081214746994",
+      "name": "Little Green Men",
+      "legacy_drink_id": 13419,
+      "reason": "missing canonical ingredient ids: 1650,1979,1658,1831"
+    },
+    {
+      "cocktail_id": "ckt_0dc6d4d6b253b058cf51",
+      "name": "Silent Touch",
+      "legacy_drink_id": 15604,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_67f25604b1773672b6bb",
+      "name": "Long Island Iced Tea",
+      "legacy_drink_id": 13453,
+      "reason": "missing canonical ingredient ids: 1084,1104,1348,1650,1097,1390,1855"
+    },
+    {
+      "cocktail_id": "ckt_248ad749be644cec34ed",
+      "name": "Teabomb",
+      "legacy_drink_id": 7801,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_4a8570386b7d42b7d0e3",
+      "name": "Paddy's Girl",
+      "legacy_drink_id": 14630,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_4fae41c4208bedd25ee7",
+      "name": "Ginger Nut",
+      "legacy_drink_id": 11769,
+      "reason": "1 ozChestnut liqueur"
+    },
+    {
+      "cocktail_id": "ckt_9a0d34b87d3995eb2f53",
+      "name": "Breath of God #2",
+      "legacy_drink_id": 6517,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_20b1c29027fce0c77e3e",
+      "name": "Jamaican Iced Tea",
+      "legacy_drink_id": 12757,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_5d9e8342e990c2f31404",
+      "name": "Chocolate Bulldog",
+      "legacy_drink_id": 6641,
+      "reason": "missing canonical ingredient ids: 1627,1428,1440,1114,1959,1855"
+    },
+    {
+      "cocktail_id": "ckt_5cb0680455ab6aa20273",
+      "name": "The Waffler",
+      "legacy_drink_id": 7841,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_15f4d86121e1bbf08640",
+      "name": "MacuA?i",
+      "legacy_drink_id": 13556,
+      "reason": "1.5 ozFlor de CaA?a Extra Lite white rum|1 Green cherry"
+    },
+    {
+      "cocktail_id": "ckt_eb1d98bf385bf11aaba8",
+      "name": "The Marines Alibi",
+      "legacy_drink_id": 7832,
+      "reason": "missing canonical ingredient ids: 2331,1979,1295"
+    },
+    {
+      "cocktail_id": "ckt_5263f84cd0a3262815d9",
+      "name": "Jamaican Rum-Ginger Zinger",
+      "legacy_drink_id": 12766,
+      "reason": "3/4 cup+ 1 tsp, fresh lime juice|1 tbsp(packed) golden brown sugar"
+    },
+    {
+      "cocktail_id": "ckt_f2058667e39ce3fe840f",
+      "name": "MDW's Buffalo Call",
+      "legacy_drink_id": 13784,
+      "reason": "6-8 ozBuffalo Trace Burbon whiskey"
+    },
+    {
+      "cocktail_id": "ckt_9fa88ee0c4c0fca0fb3f",
+      "name": "Sparty's Beach Party",
+      "legacy_drink_id": 15721,
+      "reason": "missing canonical ingredient ids: 1330,1326,1350,1564,1528,1576,2230"
+    },
+    {
+      "cocktail_id": "ckt_7bf0031381ac91da97d9",
+      "name": "Evie's Jello Shot Delight",
+      "legacy_drink_id": 6862,
+      "reason": "1 packet orange jell-o"
+    },
+    {
+      "cocktail_id": "ckt_552599411beaefc10d00",
+      "name": "Amaretto Liqueur",
+      "legacy_drink_id": 200,
+      "reason": "2 Apricot dried halves|1 tblsp Almond flavoring / extract|1/2 cup pure Grain alcohol|3 drops yellow Food coloring|6 drops red Food coloring|2 drops blue Food coloring"
+    },
+    {
+      "cocktail_id": "ckt_b88f03696787025fef2d",
+      "name": "Grand Orange-Cognac Liqueur",
+      "legacy_drink_id": 2447,
+      "reason": "1/3 cup Orange zest"
+    },
+    {
+      "cocktail_id": "ckt_7f104c792987e2b003b8",
+      "name": "Dreamin' Caribbean Cocktail",
+      "legacy_drink_id": 10932,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_006d945891d6ae3e0636",
+      "name": "The Haggar",
+      "legacy_drink_id": 15975,
+      "reason": "missing canonical ingredient ids: 1104,1357"
+    },
+    {
+      "cocktail_id": "ckt_f1a5ec17dd00e99e3f0c",
+      "name": "Halle Berry",
+      "legacy_drink_id": 12100,
+      "reason": "garnish with cherry"
+    },
+    {
+      "cocktail_id": "ckt_9253e46a4562f74307c7",
+      "name": "Bot Cocktail",
+      "legacy_drink_id": 9249,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_55c617aa2d6848b0c876",
+      "name": "Zen Sake-tini",
+      "legacy_drink_id": 16339,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_42e1dafdf48cf56bb380",
+      "name": "Speedboat Manatee",
+      "legacy_drink_id": 15727,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_e28baa48c006cd999075",
+      "name": "Apple Scotch",
+      "legacy_drink_id": 8311,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_b737fe60a80fcdc3d301",
+      "name": "Egg Nog #5",
+      "legacy_drink_id": 1841,
+      "reason": "12 separated Egg"
+    },
+    {
+      "cocktail_id": "ckt_34cc691c9281608106d6",
+      "name": "Blue Jeans",
+      "legacy_drink_id": 9100,
+      "reason": "missing canonical ingredient ids: 1650,1549,1408,2255"
+    },
+    {
+      "cocktail_id": "ckt_38e790fc68a0b4f7b0e9",
+      "name": "Grand Tuaca Drop",
+      "legacy_drink_id": 11896,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_05241d32bab6979de01d",
+      "name": "Black Ferrari",
+      "legacy_drink_id": 8931,
+      "reason": "1 shotBlack sambuca|enough Chinotto"
+    },
+    {
+      "cocktail_id": "ckt_9d9d676dff5e863afee6",
+      "name": "Get Your Jollies",
+      "legacy_drink_id": 11707,
+      "reason": "2 ozBarton's Sour Apple vodka"
+    },
+    {
+      "cocktail_id": "ckt_5e3af5dd95df88ec33db",
+      "name": "Pork Chop",
+      "legacy_drink_id": 7636,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_a0ceef296097339749f6",
+      "name": "Orginal 1912 Mint Julep",
+      "legacy_drink_id": 14539,
+      "reason": "4 tsppowdered sugar"
+    },
+    {
+      "cocktail_id": "ckt_720740058802f89b8058",
+      "name": "Whynatte",
+      "legacy_drink_id": 7894,
+      "reason": "1/2 pintglass hot latte"
+    },
+    {
+      "cocktail_id": "ckt_af3f861ae8c5ffa3283e",
+      "name": "Fresh Mint Liqueur",
+      "legacy_drink_id": 2136,
+      "reason": "1 1/4 cup fresh Mint leaves, slightly packed|8 drops green Food coloring|2 drops blue Food coloring"
+    },
+    {
+      "cocktail_id": "ckt_9a046ca9e27fc742f33f",
+      "name": "The Molotov",
+      "legacy_drink_id": 15991,
+      "reason": "2 dropsred food coloring"
+    },
+    {
+      "cocktail_id": "ckt_ed6cc35a94f65bd6b0da",
+      "name": "Canadian Sweet Tea",
+      "legacy_drink_id": 9610,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_e20e20c6e31c8d829bd1",
+      "name": "Bot",
+      "legacy_drink_id": 831,
+      "reason": "missing canonical ingredient ids: 1528,1084,1097,1550,1564"
+    },
+    {
+      "cocktail_id": "ckt_d1745fc6a82b9acffde2",
+      "name": "Filthy Mudblood",
+      "legacy_drink_id": 11249,
+      "reason": "missing canonical ingredient ids: 1084,1097,2238,2159,1873"
+    },
+    {
+      "cocktail_id": "ckt_764a7863a295a1f75c72",
+      "name": "Rum Float",
+      "legacy_drink_id": 15440,
+      "reason": "0.5-1 oz Captain Morgan spiced rum|1 scoopBlack cherry|4-6 fresh juice"
+    },
+    {
+      "cocktail_id": "ckt_1115c01216c180b3b528",
+      "name": "Fuzzy Tounge",
+      "legacy_drink_id": 11610,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_2b78ce1142efc3dd4faa",
+      "name": "Mexican Thunderstorm",
+      "legacy_drink_id": 7419,
+      "reason": "missing canonical ingredient ids: 1315,1104,1261"
+    },
+    {
+      "cocktail_id": "ckt_312b8f9201046aa79c17",
+      "name": "Caribbean Frenzy",
+      "legacy_drink_id": 9737,
+      "reason": "missing canonical ingredient ids: 1333,1352,1350,1554,1321"
+    },
+    {
+      "cocktail_id": "ckt_8d8b10a6ead5c1c32dd8",
+      "name": "Abortion #2",
+      "legacy_drink_id": 6219,
+      "reason": "missing canonical ingredient ids: 1295,1627,1123"
+    },
+    {
+      "cocktail_id": "ckt_7f5cbea628765361685b",
+      "name": "The Death Blaster",
+      "legacy_drink_id": 15961,
+      "reason": "missing canonical ingredient ids: 1261,1084,1352,1191"
+    },
+    {
+      "cocktail_id": "ckt_e3a9c87351ceec8a00e5",
+      "name": "Wake up Call",
+      "legacy_drink_id": 16227,
+      "reason": "missing canonical ingredient ids: 2304,1339,1491,1920,2405,1357,1123"
+    },
+    {
+      "cocktail_id": "ckt_496c79b2a8cc7c3fa9d0",
+      "name": "Manhattan Cocktail",
+      "legacy_drink_id": 13675,
+      "reason": "missing canonical ingredient ids: 1094,1037,1721,1564"
+    },
+    {
+      "cocktail_id": "ckt_2cdd37e0e49ecf3d7869",
+      "name": "Malibu Zinger",
+      "legacy_drink_id": 13626,
+      "reason": "missing canonical ingredient ids: 1330,1295,1576,1528,1123,1682"
+    },
+    {
+      "cocktail_id": "ckt_10c06c6360e0ebc70857",
+      "name": "Water (the original)",
+      "legacy_drink_id": 6003,
+      "reason": "missing canonical ingredient ids: 2278"
+    },
+    {
+      "cocktail_id": "ckt_c48eec0900e8f9483edc",
+      "name": "Flaming Nate",
+      "legacy_drink_id": 11303,
+      "reason": "missing canonical ingredient ids: 1295,1403,1696,1321"
+    },
+    {
+      "cocktail_id": "ckt_05e96b9e3c0bdf97958f",
+      "name": "Gooseberry St Matrix",
+      "legacy_drink_id": 7027,
+      "reason": "missing canonical ingredient ids: 1261,1320"
+    },
+    {
+      "cocktail_id": "ckt_9e82e01ef7185c57902c",
+      "name": "Zach's Mambo",
+      "legacy_drink_id": 16336,
+      "reason": "Garnish with oranges|Garnish with cherries"
+    },
+    {
+      "cocktail_id": "ckt_56257ea22f8ec5885c78",
+      "name": "Tarheel shot",
+      "legacy_drink_id": 7798,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_9917fda7cc23fac875dd",
+      "name": "Ginger Kiss",
+      "legacy_drink_id": 11766,
+      "reason": "no complete curated ingredient resolution"
+    },
+    {
+      "cocktail_id": "ckt_1be9f482cad8cd6dd661",
+      "name": "Profondo Rosso",
+      "legacy_drink_id": 15092,
+      "reason": "no complete curated ingredient resolution"
+    }
+  ],
+  "validation": {
+    "all_written_ingredient_ids_exist": true,
+    "duplicate_cocktail_ingredient_pairs": 0,
+    "resolved_plus_unresolved_equals_canonical": true,
+    "coverage_pct": 0.0
+  },
+  "exceptions_truncated": true,
+  "completed_at": "2026-09-28T22:01:04.417830+00:00"
+}
