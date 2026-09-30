@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorClient
 from location_geocoding import geocode_canonical_address
 
-EXPECTED_DB_NAME = "DrinkThinkV0"
+EXPECTED_DB_NAME = "DrinkThinkv0"
 ORG_ID = "org_ties_house"
 LOCATION_ID = "loc_ties_house"
 CHECK_IN_CONFIG_ID = "location_check_in"
