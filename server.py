@@ -1254,6 +1254,95 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
     return {"ok": True, "item_ids": [str(i) for i in canonical_ids], "active": body.active}
 
 
+CHECK_IN_CONFIG_ID = "location_check_in"
+CHECK_IN_RADIUS_FEET = 200
+FEET_TO_METERS = 0.3048
+
+
+class LocationCoordinatesRequest(BaseModel):
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+
+
+async def _check_in_radius() -> tuple[float, float]:
+    """Resolve the single canonical platform check-in radius from app_config."""
+    doc = await db.app_config.find_one({"_id": CHECK_IN_CONFIG_ID}, {"_id": 0, "check_in_radius_feet": 1})
+    if not doc or doc.get("check_in_radius_feet") is None:
+        raise HTTPException(status_code=503, detail="Check-in proximity is not configured")
+    feet = float(doc["check_in_radius_feet"])
+    return feet, feet * FEET_TO_METERS
+
+
+def _location_address_display(address: dict) -> str:
+    address = address or {}
+    street = " ".join(part for part in [address.get("line1"), address.get("line2")] if part)
+    locality = ", ".join(part for part in [address.get("city"), address.get("state")] if part)
+    if address.get("postal_code"):
+        locality = f"{locality} {address['postal_code']}".strip()
+    return ", ".join(part for part in [street, locality, address.get("country")] if part)
+
+
+async def _closest_active_location(latitude: float, longitude: float) -> Optional[dict]:
+    """One canonical geospatial source for discovery and check-in eligibility."""
+    pipeline = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": [longitude, latitude]},
+                "key": "geo",
+                "distanceField": "distance_meters",
+                "spherical": True,
+                "query": {"status": "active"},
+            }
+        },
+        {"$limit": 1},
+        {"$project": {"_id": 0}},
+    ]
+    rows = await db.locations.aggregate(pipeline).to_list(length=1)
+    return rows[0] if rows else None
+
+
+def _location_api_shape(doc: Optional[dict]) -> Optional[dict]:
+    if not doc:
+        return None
+    geo = doc.get("geo") or {}
+    coordinates = geo.get("coordinates") or []
+    longitude = coordinates[0] if len(coordinates) >= 2 else None
+    latitude = coordinates[1] if len(coordinates) >= 2 else None
+    distance_meters = float(doc.get("distance_meters") or 0)
+    return {
+        "location_id": doc.get("location_id"),
+        "name": doc.get("name") or "DrinkThink location",
+        "address": doc.get("address") or {},
+        "display_address": _location_address_display(doc.get("address") or {}),
+        "distance_meters": round(distance_meters, 2),
+        "distance_feet": round(distance_meters / FEET_TO_METERS, 2),
+        "coordinates": {"latitude": latitude, "longitude": longitude},
+    }
+
+
+@api_router.post("/locations/closest")
+async def closest_location(body: LocationCoordinatesRequest):
+    """Return the closest active canonical location, regardless of check-in radius."""
+    location = await _closest_active_location(body.latitude, body.longitude)
+    return {"closest_location": _location_api_shape(location)}
+
+
+@api_router.post("/locations/check-in-eligibility")
+async def check_in_eligibility(body: LocationCoordinatesRequest):
+    """Evaluate check-in eligibility using the same canonical closest-location query."""
+    location = await _closest_active_location(body.latitude, body.longitude)
+    radius_feet, radius_meters = await _check_in_radius()
+    shaped = _location_api_shape(location)
+    eligible = bool(location and float(location.get("distance_meters") or 0) <= radius_meters)
+    return {
+        "closest_location": shaped,
+        "check_in_eligible": eligible,
+        "eligible_location": shaped if eligible else None,
+        "check_in_radius_feet": radius_feet,
+        "check_in_radius_meters": radius_meters,
+    }
+
+
 class ShareCheckInRequest(BaseModel):
     location_id: str
     expires_at: datetime
@@ -1321,12 +1410,13 @@ async def _share_location(location_id: str) -> Optional[dict]:
         {"_id": 0},
     )
     if doc:
+        coordinates = (doc.get("geo") or {}).get("coordinates") or []
         return {
             "location_id": location_id,
             "name": doc.get("display_name") or doc.get("name") or "DrinkThink location",
             "address": doc.get("address"),
-            "latitude": doc.get("latitude"),
-            "longitude": doc.get("longitude"),
+            "latitude": coordinates[1] if len(coordinates) >= 2 else None,
+            "longitude": coordinates[0] if len(coordinates) >= 2 else None,
         }
     return SHAREABLE_LOCATIONS.get(location_id)
 
@@ -1511,7 +1601,18 @@ async def ensure_canonical_indexes():
     await db.ingredients.create_index("parent_ingredient_id")
     await db.ingredient_categories.create_index("category_id", unique=True)
     await db.glasses.create_index("glass_id", unique=True)
-    logger.info("Canonical knowledge indexes ensured")
+    await db.organizations.create_index("organization_id", unique=True)
+    await db.locations.create_index("location_id", unique=True)
+    await db.locations.create_index("organization_id")
+    await db.locations.create_index("status")
+    await db.locations.create_index([("geo", "2dsphere")])
+    await db.app_config.update_one(
+        {"_id": CHECK_IN_CONFIG_ID},
+        {"$setOnInsert": {"check_in_radius_feet": CHECK_IN_RADIUS_FEET, "created_at": _now()},
+         "$set": {"updated_at": _now()}},
+        upsert=True,
+    )
+    logger.info("Canonical knowledge/location indexes and global check-in configuration ensured")
 
 
 @app.on_event("startup")
