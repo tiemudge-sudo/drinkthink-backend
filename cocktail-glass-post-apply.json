@@ -1,0 +1,587 @@
+{
+  "version": "rebuild-cocktail-glass-ids-v2",
+  "mode": "APPLY",
+  "started_at": "2026-09-29T19:14:40.023278+00:00",
+  "source": "data/drinks_clean_100pct.csv:d_glass_category",
+  "locked_glass_specs": {
+    "Champagne flute": {
+      "glass_id": "champagne_flute",
+      "filter_families": [
+        "champagne_flutes"
+      ],
+      "icon_key": "champagne_flute"
+    },
+    "Cordial glass": {
+      "glass_id": "cordial_glass",
+      "filter_families": [
+        "hurricane"
+      ],
+      "icon_key": "cordial"
+    },
+    "Highball glass": {
+      "glass_id": "highball_glass",
+      "filter_families": [
+        "pint",
+        "hurricane"
+      ],
+      "icon_key": "highball"
+    },
+    "Margarita glass": {
+      "glass_id": "margarita_glass",
+      "filter_families": [
+        "hurricane",
+        "martini"
+      ],
+      "icon_key": "margarita"
+    },
+    "Martini glass": {
+      "glass_id": "martini_glass",
+      "filter_families": [
+        "martini"
+      ],
+      "icon_key": "martini"
+    },
+    "Mug": {
+      "glass_id": "mug",
+      "filter_families": [
+        "pint",
+        "rocks"
+      ],
+      "icon_key": "mug"
+    },
+    "Pint glass": {
+      "glass_id": "pint_glass",
+      "filter_families": [
+        "pint"
+      ],
+      "icon_key": "pint"
+    },
+    "Rocks glass": {
+      "glass_id": "rocks_glass",
+      "filter_families": [
+        "rocks"
+      ],
+      "icon_key": "rocks"
+    },
+    "Shot glass": {
+      "glass_id": "shot_glass",
+      "filter_families": [
+        "shot"
+      ],
+      "icon_key": "shot"
+    },
+    "Wine glass": {
+      "glass_id": "wine_glass",
+      "filter_families": [
+        "hurricane",
+        "champagne_flutes"
+      ],
+      "icon_key": "wine"
+    }
+  },
+  "counts": {
+    "master_rows": 24512,
+    "planned_cocktail_updates": 24512,
+    "mapped_categories": 20
+  },
+  "exceptions": [],
+  "canonical_glasses_audit": {
+    "champagne_flute": {
+      "expected": {
+        "glass_id": "champagne_flute",
+        "filter_families": [
+          "champagne_flutes"
+        ],
+        "icon_key": "champagne_flute"
+      },
+      "actual": {
+        "glass_id": "champagne_flute",
+        "status": "active",
+        "filter_families": [
+          "champagne_flutes"
+        ],
+        "icon_key": "champagne_flute"
+      }
+    },
+    "cordial_glass": {
+      "expected": {
+        "glass_id": "cordial_glass",
+        "filter_families": [
+          "hurricane"
+        ],
+        "icon_key": "cordial"
+      },
+      "actual": {
+        "glass_id": "cordial_glass",
+        "filter_families": [
+          "hurricane"
+        ],
+        "icon_key": "cordial",
+        "status": "active"
+      }
+    },
+    "highball_glass": {
+      "expected": {
+        "glass_id": "highball_glass",
+        "filter_families": [
+          "pint",
+          "hurricane"
+        ],
+        "icon_key": "highball"
+      },
+      "actual": {
+        "glass_id": "highball_glass",
+        "filter_families": [
+          "pint",
+          "hurricane"
+        ],
+        "icon_key": "highball",
+        "status": "active"
+      }
+    },
+    "margarita_glass": {
+      "expected": {
+        "glass_id": "margarita_glass",
+        "filter_families": [
+          "hurricane",
+          "martini"
+        ],
+        "icon_key": "margarita"
+      },
+      "actual": {
+        "glass_id": "margarita_glass",
+        "filter_families": [
+          "hurricane",
+          "martini"
+        ],
+        "icon_key": "margarita",
+        "status": "active"
+      }
+    },
+    "martini_glass": {
+      "expected": {
+        "glass_id": "martini_glass",
+        "filter_families": [
+          "martini"
+        ],
+        "icon_key": "martini"
+      },
+      "actual": {
+        "glass_id": "martini_glass",
+        "filter_families": [
+          "martini"
+        ],
+        "icon_key": "martini",
+        "status": "active"
+      }
+    },
+    "mug": {
+      "expected": {
+        "glass_id": "mug",
+        "filter_families": [
+          "pint",
+          "rocks"
+        ],
+        "icon_key": "mug"
+      },
+      "actual": {
+        "glass_id": "mug",
+        "status": "active",
+        "filter_families": [
+          "pint",
+          "rocks"
+        ],
+        "icon_key": "mug"
+      }
+    },
+    "pint_glass": {
+      "expected": {
+        "glass_id": "pint_glass",
+        "filter_families": [
+          "pint"
+        ],
+        "icon_key": "pint"
+      },
+      "actual": {
+        "glass_id": "pint_glass",
+        "filter_families": [
+          "pint"
+        ],
+        "icon_key": "pint",
+        "status": "active"
+      }
+    },
+    "rocks_glass": {
+      "expected": {
+        "glass_id": "rocks_glass",
+        "filter_families": [
+          "rocks"
+        ],
+        "icon_key": "rocks"
+      },
+      "actual": {
+        "glass_id": "rocks_glass",
+        "filter_families": [
+          "rocks"
+        ],
+        "icon_key": "rocks",
+        "status": "active"
+      }
+    },
+    "shot_glass": {
+      "expected": {
+        "glass_id": "shot_glass",
+        "filter_families": [
+          "shot"
+        ],
+        "icon_key": "shot"
+      },
+      "actual": {
+        "glass_id": "shot_glass",
+        "filter_families": [
+          "shot"
+        ],
+        "icon_key": "shot",
+        "status": "active"
+      }
+    },
+    "wine_glass": {
+      "expected": {
+        "glass_id": "wine_glass",
+        "filter_families": [
+          "hurricane",
+          "champagne_flutes"
+        ],
+        "icon_key": "wine"
+      },
+      "actual": {
+        "glass_id": "wine_glass",
+        "filter_families": [
+          "hurricane",
+          "champagne_flutes"
+        ],
+        "icon_key": "wine",
+        "status": "active"
+      }
+    }
+  },
+  "canonical_glasses_errors": [],
+  "canonical_glasses_audit_passed": true,
+  "production_glass_id_distribution": {
+    "any": 223,
+    "aperitif": 4,
+    "beer_mug": 105,
+    "bottle": 4,
+    "bucket": 3,
+    "champagne_flute": 300,
+    "cocktail": 974,
+    "coffee_mug": 31,
+    "collins": 424,
+    "cooler": 1,
+    "cordial": 24,
+    "cordial_glass": 341,
+    "coupe": 40,
+    "cup": 60,
+    "highball": 893,
+    "highball_glass": 3239,
+    "hurricane": 202,
+    "irish_coffee": 30,
+    "jug": 4,
+    "margarita": 57,
+    "margarita_glass": 618,
+    "martini": 2,
+    "martini_glass": 2550,
+    "mason_jar": 41,
+    "mug": 268,
+    "parfait": 18,
+    "pilsner": 20,
+    "pina_colada": 37,
+    "pint": 21,
+    "pint_glass": 1568,
+    "pitcher": 12,
+    "pousse_cafe": 7,
+    "punch_bowl": 34,
+    "rocks": 499,
+    "rocks_glass": 1384,
+    "sherry": 7,
+    "shot": 661,
+    "shot_glass": 1840,
+    "snifter": 30,
+    "sour": 53,
+    "test_tube": 3,
+    "wine": 75,
+    "wine_glass": 214
+  },
+  "bridged_assignment_audit": {
+    "expected_glass_id_distribution": {
+      "champagne_flute": 241,
+      "cordial_glass": 341,
+      "highball_glass": 3239,
+      "margarita_glass": 618,
+      "martini_glass": 2550,
+      "mug": 261,
+      "pint_glass": 1568,
+      "rocks_glass": 1384,
+      "shot_glass": 1840,
+      "wine_glass": 214
+    },
+    "actual_glass_id_distribution": {
+      "champagne_flute": 241,
+      "cordial_glass": 341,
+      "highball_glass": 3239,
+      "margarita_glass": 618,
+      "martini_glass": 2550,
+      "mug": 261,
+      "pint_glass": 1568,
+      "rocks_glass": 1384,
+      "shot_glass": 1840,
+      "wine_glass": 214
+    },
+    "mismatch_count": 0,
+    "missing_glass_id_count": 0,
+    "mismatch_samples": []
+  },
+  "representative_cocktails": {
+    "champagne_flute": {
+      "legacy_drink_id": 16822,
+      "cocktail_id": "ckt_eace1dd4914f38b6e9f3",
+      "d_glass_category": "Champagne flute",
+      "expected_glass_id": "champagne_flute",
+      "actual_glass_id": "champagne_flute"
+    },
+    "cordial_glass": {
+      "legacy_drink_id": 16731,
+      "cocktail_id": "ckt_a1d02722b406ba051a94",
+      "d_glass_category": "Cordial glass",
+      "expected_glass_id": "cordial_glass",
+      "actual_glass_id": "cordial_glass"
+    },
+    "highball_glass": {
+      "legacy_drink_id": 16720,
+      "cocktail_id": "ckt_1146fc386ee341cf8d54",
+      "d_glass_category": "Highball glass",
+      "expected_glass_id": "highball_glass",
+      "actual_glass_id": "highball_glass"
+    },
+    "margarita_glass": {
+      "legacy_drink_id": 16721,
+      "cocktail_id": "ckt_3016a4c9db660eb111d0",
+      "d_glass_category": "Margarita glass",
+      "expected_glass_id": "margarita_glass",
+      "actual_glass_id": "margarita_glass"
+    },
+    "martini_glass": {
+      "legacy_drink_id": 16726,
+      "cocktail_id": "ckt_eeb471f0b94297f7d2c5",
+      "d_glass_category": "Martini glass",
+      "expected_glass_id": "martini_glass",
+      "actual_glass_id": "martini_glass"
+    },
+    "mug": {
+      "legacy_drink_id": 16730,
+      "cocktail_id": "ckt_217d013ebf3e9bedf135",
+      "d_glass_category": "Mug",
+      "expected_glass_id": "mug",
+      "actual_glass_id": "mug"
+    },
+    "pint_glass": {
+      "legacy_drink_id": 16724,
+      "cocktail_id": "ckt_15190df111aa6387b2a1",
+      "d_glass_category": "Pint glass",
+      "expected_glass_id": "pint_glass",
+      "actual_glass_id": "pint_glass"
+    },
+    "rocks_glass": {
+      "legacy_drink_id": 16729,
+      "cocktail_id": "ckt_2290c7f210c2e975ccf8",
+      "d_glass_category": "Rocks glass",
+      "expected_glass_id": "rocks_glass",
+      "actual_glass_id": "rocks_glass"
+    },
+    "shot_glass": {
+      "legacy_drink_id": 16722,
+      "cocktail_id": "ckt_f48dc1be98306cfb1c0a",
+      "d_glass_category": "Shot glass",
+      "expected_glass_id": "shot_glass",
+      "actual_glass_id": "shot_glass"
+    },
+    "wine_glass": {
+      "legacy_drink_id": 16719,
+      "cocktail_id": "ckt_518632bc86b18a7b7109",
+      "d_glass_category": "Wine glass",
+      "expected_glass_id": "wine_glass",
+      "actual_glass_id": "wine_glass"
+    }
+  },
+  "pina_colada": {
+    "legacy_drink_id": 14847,
+    "cocktail_id": "ckt_1df288743d86f74d0a94",
+    "d_glass_category": "Margarita glass",
+    "expected_glass_id": "margarita_glass",
+    "actual_glass_id": "margarita_glass"
+  },
+  "cocktails_glass_id_records_changed": 12050,
+  "post_apply_acceptance_passed": true,
+  "metadata_resolution_verification": [
+    {
+      "legacy_drink_id": 16822,
+      "cocktail_id": "ckt_eace1dd4914f38b6e9f3",
+      "d_glass_category": "Champagne flute",
+      "expected_glass_id": "champagne_flute",
+      "actual_glass_id": "champagne_flute",
+      "resolved_glass": {
+        "glass_id": "champagne_flute",
+        "filter_families": [
+          "champagne_flutes"
+        ],
+        "icon_key": "champagne_flute"
+      }
+    },
+    {
+      "legacy_drink_id": 16731,
+      "cocktail_id": "ckt_a1d02722b406ba051a94",
+      "d_glass_category": "Cordial glass",
+      "expected_glass_id": "cordial_glass",
+      "actual_glass_id": "cordial_glass",
+      "resolved_glass": {
+        "glass_id": "cordial_glass",
+        "filter_families": [
+          "hurricane"
+        ],
+        "icon_key": "cordial"
+      }
+    },
+    {
+      "legacy_drink_id": 16720,
+      "cocktail_id": "ckt_1146fc386ee341cf8d54",
+      "d_glass_category": "Highball glass",
+      "expected_glass_id": "highball_glass",
+      "actual_glass_id": "highball_glass",
+      "resolved_glass": {
+        "glass_id": "highball_glass",
+        "filter_families": [
+          "pint",
+          "hurricane"
+        ],
+        "icon_key": "highball"
+      }
+    },
+    {
+      "legacy_drink_id": 16721,
+      "cocktail_id": "ckt_3016a4c9db660eb111d0",
+      "d_glass_category": "Margarita glass",
+      "expected_glass_id": "margarita_glass",
+      "actual_glass_id": "margarita_glass",
+      "resolved_glass": {
+        "glass_id": "margarita_glass",
+        "filter_families": [
+          "hurricane",
+          "martini"
+        ],
+        "icon_key": "margarita"
+      }
+    },
+    {
+      "legacy_drink_id": 16726,
+      "cocktail_id": "ckt_eeb471f0b94297f7d2c5",
+      "d_glass_category": "Martini glass",
+      "expected_glass_id": "martini_glass",
+      "actual_glass_id": "martini_glass",
+      "resolved_glass": {
+        "glass_id": "martini_glass",
+        "filter_families": [
+          "martini"
+        ],
+        "icon_key": "martini"
+      }
+    },
+    {
+      "legacy_drink_id": 16730,
+      "cocktail_id": "ckt_217d013ebf3e9bedf135",
+      "d_glass_category": "Mug",
+      "expected_glass_id": "mug",
+      "actual_glass_id": "mug",
+      "resolved_glass": {
+        "glass_id": "mug",
+        "filter_families": [
+          "pint",
+          "rocks"
+        ],
+        "icon_key": "mug"
+      }
+    },
+    {
+      "legacy_drink_id": 16724,
+      "cocktail_id": "ckt_15190df111aa6387b2a1",
+      "d_glass_category": "Pint glass",
+      "expected_glass_id": "pint_glass",
+      "actual_glass_id": "pint_glass",
+      "resolved_glass": {
+        "glass_id": "pint_glass",
+        "filter_families": [
+          "pint"
+        ],
+        "icon_key": "pint"
+      }
+    },
+    {
+      "legacy_drink_id": 16729,
+      "cocktail_id": "ckt_2290c7f210c2e975ccf8",
+      "d_glass_category": "Rocks glass",
+      "expected_glass_id": "rocks_glass",
+      "actual_glass_id": "rocks_glass",
+      "resolved_glass": {
+        "glass_id": "rocks_glass",
+        "filter_families": [
+          "rocks"
+        ],
+        "icon_key": "rocks"
+      }
+    },
+    {
+      "legacy_drink_id": 16722,
+      "cocktail_id": "ckt_f48dc1be98306cfb1c0a",
+      "d_glass_category": "Shot glass",
+      "expected_glass_id": "shot_glass",
+      "actual_glass_id": "shot_glass",
+      "resolved_glass": {
+        "glass_id": "shot_glass",
+        "filter_families": [
+          "shot"
+        ],
+        "icon_key": "shot"
+      }
+    },
+    {
+      "legacy_drink_id": 16719,
+      "cocktail_id": "ckt_518632bc86b18a7b7109",
+      "d_glass_category": "Wine glass",
+      "expected_glass_id": "wine_glass",
+      "actual_glass_id": "wine_glass",
+      "resolved_glass": {
+        "glass_id": "wine_glass",
+        "filter_families": [
+          "hurricane",
+          "champagne_flutes"
+        ],
+        "icon_key": "wine"
+      }
+    },
+    {
+      "legacy_drink_id": 14847,
+      "cocktail_id": "ckt_1df288743d86f74d0a94",
+      "d_glass_category": "Margarita glass",
+      "expected_glass_id": "margarita_glass",
+      "actual_glass_id": "margarita_glass",
+      "resolved_glass": {
+        "glass_id": "margarita_glass",
+        "filter_families": [
+          "hurricane",
+          "martini"
+        ],
+        "icon_key": "margarita"
+      }
+    }
+  ],
+  "finished_at": "2026-09-29T19:24:01.559495+00:00"
+}

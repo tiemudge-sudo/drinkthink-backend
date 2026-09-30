@@ -717,10 +717,11 @@ class DrinkSearchResult(BaseModel):
     glass: str = ""
     icon_key: str = ""
     ingredients: str = ""
+    is_favorite: bool = False
 
 
 @api_router.get("/drinks/search", response_model=List[DrinkSearchResult])
-async def search_drinks(q: str, limit: int = 20):
+async def search_drinks(q: str, limit: int = 20, authorization: Optional[str] = Header(None)):
     """Search the canonical cocktail catalog by name (case-insensitive substring)."""
     q = (q or "").strip()
     if not q:
@@ -732,6 +733,13 @@ async def search_drinks(q: str, limit: int = 20):
         {"_id": 0},
     ).limit(limit)
     docs = await cursor.to_list(length=limit)
+    favorite_ids: set[str] = set()
+    if authorization:
+        try:
+            user = await current_user(authorization)
+            favorite_ids = {row["drink_id"] async for row in db.favorites.find({"user_id": user.user_id}, {"_id": 0, "drink_id": 1})}
+        except HTTPException:
+            pass
     glasses_by_id = await _canonical_glasses_by_id()
     return [
         DrinkSearchResult(
@@ -740,6 +748,7 @@ async def search_drinks(q: str, limit: int = 20):
             glass=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("display_name") or d.get("glass_id") or "",
             icon_key=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("icon_key") or "",
             ingredients=d.get("human_ingredients") or "",
+            is_favorite=d["cocktail_id"] in favorite_ids,
         )
         for d in docs
     ]
