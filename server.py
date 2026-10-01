@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.errors import PyMongoError
 from bson import json_util
 import os
 import json
@@ -890,6 +891,56 @@ async def auth_logout(authorization: Optional[str] = Header(None)):
     if authorization and authorization.lower().startswith("bearer "):
         token = authorization.split(" ", 1)[1].strip()
         await db.user_sessions.delete_one({"session_token": token})
+    return {"ok": True}
+
+
+class AccountDeletionError(RuntimeError):
+    """Raised when account deletion cannot complete atomically."""
+
+
+async def _delete_account_data(user_id: str, session) -> None:
+    """Delete every currently implemented consumer record owned by one user.
+
+    This helper must run inside the transaction opened by ``delete_account``.
+    Pending drink shares are deleted whether the user was sender or recipient:
+    there is no independent recipient-owned record to preserve, and deletion
+    prevents the removed user's email, name, or ID from remaining in another
+    user's pending-share context.
+    """
+    await db.user_sessions.delete_many({"user_id": user_id}, session=session)
+    await db.favorites.delete_many({"user_id": user_id}, session=session)
+    await db.blocked.delete_many({"user_id": user_id}, session=session)
+    await db.user_cupboard.delete_many({"user_id": user_id}, session=session)
+    await db.pending_shares.delete_many(
+        {"$or": [{"sender_user_id": user_id}, {"recipient_user_id": user_id}]},
+        session=session,
+    )
+    await db.share_checkins.delete_many({"sharer_user_id": user_id}, session=session)
+    result = await db.users.delete_one({"user_id": user_id}, session=session)
+    if result.deleted_count != 1:
+        raise AccountDeletionError("Authenticated user record was not deleted")
+
+
+@api_router.delete("/account")
+async def delete_account(user: User = Depends(current_user)):
+    """Permanently remove the authenticated user's currently stored data.
+
+    A MongoDB transaction is mandatory: if the deployment cannot provide
+    transactions or any write fails, the endpoint returns an operational error
+    and does not report deletion as successful.
+    """
+    try:
+        async with await client.start_session() as session:
+            async with session.start_transaction():
+                await _delete_account_data(user.user_id, session)
+    except (AccountDeletionError, PyMongoError):
+        # Do not include user identifiers, emails, sessions, or request data in
+        # operational logs.
+        logger.exception("Account deletion transaction failed")
+        raise HTTPException(
+            status_code=503,
+            detail="Account deletion could not be completed. Please try again.",
+        )
     return {"ok": True}
 
 
