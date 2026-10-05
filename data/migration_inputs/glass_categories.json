@@ -1,0 +1,72 @@
+[
+  {
+    "glass_category_id": "gcat_champagne_flute",
+    "name": "Champagne flute",
+    "normalized_name": "champagne flute",
+    "display_order": 1,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_cordial_glass",
+    "name": "Cordial glass",
+    "normalized_name": "cordial glass",
+    "display_order": 2,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_highball_glass",
+    "name": "Highball glass",
+    "normalized_name": "highball glass",
+    "display_order": 3,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_margarita_glass",
+    "name": "Margarita glass",
+    "normalized_name": "margarita glass",
+    "display_order": 4,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_martini_glass",
+    "name": "Martini glass",
+    "normalized_name": "martini glass",
+    "display_order": 5,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_mug",
+    "name": "Mug",
+    "normalized_name": "mug",
+    "display_order": 6,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_pint_glass",
+    "name": "Pint glass",
+    "normalized_name": "pint glass",
+    "display_order": 7,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_rocks_glass",
+    "name": "Rocks glass",
+    "normalized_name": "rocks glass",
+    "display_order": 8,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_shot_glass",
+    "name": "Shot glass",
+    "normalized_name": "shot glass",
+    "display_order": 9,
+    "status": "active"
+  },
+  {
+    "glass_category_id": "gcat_wine_glass",
+    "name": "Wine glass",
+    "normalized_name": "wine glass",
+    "display_order": 10,
+    "status": "active"
+  }
+]

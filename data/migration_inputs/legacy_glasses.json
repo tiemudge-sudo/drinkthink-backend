@@ -1,0 +1,626 @@
+[
+  {
+    "legacy_glass_id": "leg_champagne_flute",
+    "legacy_name": "Champagne Flute",
+    "normalized_name": "champagne flute",
+    "glass_id": "champagne_flute",
+    "glass_category_id": "gcat_champagne_flute",
+    "prior_glass_id": "champagne_flute",
+    "cocktail_count": 157,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_champagne_saucer",
+    "legacy_name": "Champagne Saucer",
+    "normalized_name": "champagne saucer",
+    "glass_id": "champagne_flute",
+    "glass_category_id": "gcat_champagne_flute",
+    "prior_glass_id": "champagne_flute",
+    "cocktail_count": 94,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_champagne_tulip",
+    "legacy_name": "Champagne Tulip",
+    "normalized_name": "champagne tulip",
+    "glass_id": "champagne_flute",
+    "glass_category_id": "gcat_champagne_flute",
+    "prior_glass_id": "champagne_flute",
+    "cocktail_count": 8,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_champagne_flute_champagne_flute",
+    "legacy_name": "Champagne flute",
+    "normalized_name": "champagne flute",
+    "glass_id": "champagne_flute",
+    "glass_category_id": "gcat_champagne_flute",
+    "prior_glass_id": "champagne_flute",
+    "cocktail_count": 78,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_aperitif_glass",
+    "legacy_name": "Aperitif Glass",
+    "normalized_name": "aperitif glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 13,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_brandy_snifter",
+    "legacy_name": "Brandy Snifter",
+    "normalized_name": "brandy snifter",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 63,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass_brandy_snifter",
+    "legacy_name": "Brandy snifter",
+    "normalized_name": "brandy snifter",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 46,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass",
+    "legacy_name": "Cordial Glass",
+    "normalized_name": "cordial glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 56,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass_cordial_glass",
+    "legacy_name": "Cordial glass",
+    "normalized_name": "cordial glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 39,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_coupe_glass",
+    "legacy_name": "Coupe glass",
+    "normalized_name": "coupe glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 8,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_parfait_glass",
+    "legacy_name": "Parfait Glass",
+    "normalized_name": "parfait glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 71,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass_parfait_glass",
+    "legacy_name": "Parfait glass",
+    "normalized_name": "parfait glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 25,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pousse_cafe_glass",
+    "legacy_name": "Pousse Cafe Glass",
+    "normalized_name": "pousse cafe glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 21,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass_pousse_cafe_glass",
+    "legacy_name": "Pousse cafe glass",
+    "normalized_name": "pousse cafe glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 14,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_sherry_glass",
+    "legacy_name": "Sherry Glass",
+    "normalized_name": "sherry glass",
+    "glass_id": "sherry",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "sherry",
+    "cocktail_count": 11,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cordial_glass_sherry_glass",
+    "legacy_name": "Sherry glass",
+    "normalized_name": "sherry glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 6,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_sour_glass",
+    "legacy_name": "Sour Glass",
+    "normalized_name": "sour glass",
+    "glass_id": "cordial_glass",
+    "glass_category_id": "gcat_cordial_glass",
+    "prior_glass_id": "cordial_glass",
+    "cocktail_count": 89,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_collins_glass",
+    "legacy_name": "Collins Glass",
+    "normalized_name": "collins glass",
+    "glass_id": "highball_glass",
+    "glass_category_id": "gcat_highball_glass",
+    "prior_glass_id": "highball_glass",
+    "cocktail_count": 1037,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_highball_glass_collins_glass",
+    "legacy_name": "Collins glass",
+    "normalized_name": "collins glass",
+    "glass_id": "highball_glass",
+    "glass_category_id": "gcat_highball_glass",
+    "prior_glass_id": "highball_glass",
+    "cocktail_count": 439,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cooler",
+    "legacy_name": "Cooler",
+    "normalized_name": "cooler",
+    "glass_id": "highball_glass",
+    "glass_category_id": "gcat_highball_glass",
+    "prior_glass_id": "highball_glass",
+    "cocktail_count": 4,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_highball_glass",
+    "legacy_name": "Highball Glass",
+    "normalized_name": "highball glass",
+    "glass_id": "highball_glass",
+    "glass_category_id": "gcat_highball_glass",
+    "prior_glass_id": "highball_glass",
+    "cocktail_count": 2067,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_highball_glass_highball_glass",
+    "legacy_name": "Highball glass",
+    "normalized_name": "highball glass",
+    "glass_id": "highball_glass",
+    "glass_category_id": "gcat_highball_glass",
+    "prior_glass_id": "highball_glass",
+    "cocktail_count": 1010,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_hurricane_glass",
+    "legacy_name": "Hurricane Glass",
+    "normalized_name": "hurricane glass",
+    "glass_id": "margarita_glass",
+    "glass_category_id": "gcat_margarita_glass",
+    "prior_glass_id": "margarita_glass",
+    "cocktail_count": 377,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_margarita_glass_hurricane_glass",
+    "legacy_name": "Hurricane glass",
+    "normalized_name": "hurricane glass",
+    "glass_id": "margarita_glass",
+    "glass_category_id": "gcat_margarita_glass",
+    "prior_glass_id": "margarita_glass",
+    "cocktail_count": 267,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_margarita_glass",
+    "legacy_name": "Margarita Glass",
+    "normalized_name": "margarita glass",
+    "glass_id": "margarita_glass",
+    "glass_category_id": "gcat_margarita_glass",
+    "prior_glass_id": "margarita_glass",
+    "cocktail_count": 199,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pina_colada_glass",
+    "legacy_name": "Pina Colada Glass",
+    "normalized_name": "pina colada glass",
+    "glass_id": "pina_colada",
+    "glass_category_id": "gcat_margarita_glass",
+    "prior_glass_id": "pina_colada",
+    "cocktail_count": 71,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cocktail_glass",
+    "legacy_name": "Cocktail Glass",
+    "normalized_name": "cocktail glass",
+    "glass_id": "martini_glass",
+    "glass_category_id": "gcat_martini_glass",
+    "prior_glass_id": "martini_glass",
+    "cocktail_count": 2323,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_martini_glass_cocktail_glass",
+    "legacy_name": "Cocktail glass",
+    "normalized_name": "cocktail glass",
+    "glass_id": "martini_glass",
+    "glass_category_id": "gcat_martini_glass",
+    "prior_glass_id": "martini_glass",
+    "cocktail_count": 1201,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_martini",
+    "legacy_name": "Martini",
+    "normalized_name": "martini",
+    "glass_id": "martini",
+    "glass_category_id": "gcat_martini_glass",
+    "prior_glass_id": "martini",
+    "cocktail_count": 2,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_mug_coffee_mug",
+    "legacy_name": "Coffee Mug",
+    "normalized_name": "coffee mug",
+    "glass_id": "mug",
+    "glass_category_id": "gcat_mug",
+    "prior_glass_id": "mug",
+    "cocktail_count": 20,
+    "status": "active",
+    "glass_category_name": "Mug"
+  },
+  {
+    "legacy_glass_id": "leg_coffee_mug",
+    "legacy_name": "Coffee mug",
+    "normalized_name": "coffee mug",
+    "glass_id": "mug",
+    "glass_category_id": "gcat_mug",
+    "prior_glass_id": "mug",
+    "cocktail_count": 106,
+    "status": "active",
+    "glass_category_name": "Mug"
+  },
+  {
+    "legacy_glass_id": "leg_mug_irish_coffee_cup",
+    "legacy_name": "Irish Coffee Cup",
+    "normalized_name": "irish coffee cup",
+    "glass_id": "mug",
+    "glass_category_id": "gcat_mug",
+    "prior_glass_id": "mug",
+    "cocktail_count": 25,
+    "status": "active",
+    "glass_category_name": "Mug"
+  },
+  {
+    "legacy_glass_id": "leg_irish_coffee_cup",
+    "legacy_name": "Irish coffee cup",
+    "normalized_name": "irish coffee cup",
+    "glass_id": "mug",
+    "glass_category_id": "gcat_mug",
+    "prior_glass_id": "mug",
+    "cocktail_count": 146,
+    "status": "active",
+    "glass_category_name": "Mug"
+  },
+  {
+    "legacy_glass_id": "leg_mug",
+    "legacy_name": "Mug",
+    "normalized_name": "mug",
+    "glass_id": "mug",
+    "glass_category_id": "gcat_mug",
+    "prior_glass_id": "mug",
+    "cocktail_count": 32,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_any_glass",
+    "legacy_name": "Any Glass",
+    "normalized_name": "any glass",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 1144,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_beer_mug",
+    "legacy_name": "Beer Mug",
+    "normalized_name": "beer mug",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 191,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass_beer_pilsner",
+    "legacy_name": "Beer Pilsner",
+    "normalized_name": "beer pilsner",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 26,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass_beer_mug",
+    "legacy_name": "Beer mug",
+    "normalized_name": "beer mug",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 135,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_beer_pilsner",
+    "legacy_name": "Beer pilsner",
+    "normalized_name": "beer pilsner",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 42,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_bottle",
+    "legacy_name": "Bottle",
+    "normalized_name": "bottle",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 12,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_bucket",
+    "legacy_name": "Bucket",
+    "normalized_name": "bucket",
+    "glass_id": "bucket",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "bucket",
+    "cocktail_count": 4,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_cup",
+    "legacy_name": "Cup",
+    "normalized_name": "cup",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 134,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_jug",
+    "legacy_name": "Jug",
+    "normalized_name": "jug",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 12,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass_mason_jar",
+    "legacy_name": "Mason Jar",
+    "normalized_name": "mason jar",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 38,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_mason_jar",
+    "legacy_name": "Mason jar",
+    "normalized_name": "mason jar",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 80,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass_mug",
+    "legacy_name": "Mug",
+    "normalized_name": "mug",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 1,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass",
+    "legacy_name": "Pint glass",
+    "normalized_name": "pint glass",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 85,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pitcher",
+    "legacy_name": "Pitcher",
+    "normalized_name": "pitcher",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 63,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_pint_glass_punch_bowl",
+    "legacy_name": "Punch Bowl",
+    "normalized_name": "punch bowl",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 13,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_punch_bowl",
+    "legacy_name": "Punch bowl",
+    "normalized_name": "punch bowl",
+    "glass_id": "pint_glass",
+    "glass_category_id": "gcat_pint_glass",
+    "prior_glass_id": "pint_glass",
+    "cocktail_count": 112,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_old_fashioned_glass",
+    "legacy_name": "Old-Fashioned Glass",
+    "normalized_name": "old fashioned glass",
+    "glass_id": "rocks_glass",
+    "glass_category_id": "gcat_rocks_glass",
+    "prior_glass_id": "rocks_glass",
+    "cocktail_count": 1307,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_rocks_glass_old_fashioned_glass",
+    "legacy_name": "Old-fashioned glass",
+    "normalized_name": "old fashioned glass",
+    "glass_id": "rocks_glass",
+    "glass_category_id": "gcat_rocks_glass",
+    "prior_glass_id": "rocks_glass",
+    "cocktail_count": 491,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_whiskey_sour_glass",
+    "legacy_name": "Whiskey sour glass",
+    "normalized_name": "whiskey sour glass",
+    "glass_id": "rocks_glass",
+    "glass_category_id": "gcat_rocks_glass",
+    "prior_glass_id": "rocks_glass",
+    "cocktail_count": 110,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_shot_glass",
+    "legacy_name": "Shot Glass",
+    "normalized_name": "shot glass",
+    "glass_id": "shot_glass",
+    "glass_category_id": "gcat_shot_glass",
+    "prior_glass_id": "shot_glass",
+    "cocktail_count": 1424,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_shot_glass_bottle",
+    "legacy_name": "Shot Glass | Bottle",
+    "normalized_name": "shot glass bottle",
+    "glass_id": "shot_glass",
+    "glass_category_id": "gcat_shot_glass",
+    "prior_glass_id": "shot_glass",
+    "cocktail_count": 1,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_shot_glass_shot_glass",
+    "legacy_name": "Shot glass",
+    "normalized_name": "shot glass",
+    "glass_id": "shot_glass",
+    "glass_category_id": "gcat_shot_glass",
+    "prior_glass_id": "shot_glass",
+    "cocktail_count": 1072,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_test_tube",
+    "legacy_name": "Test tube",
+    "normalized_name": "test tube",
+    "glass_id": "shot_glass",
+    "glass_category_id": "gcat_shot_glass",
+    "prior_glass_id": "shot_glass",
+    "cocktail_count": 7,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_red_wine_glass",
+    "legacy_name": "Red Wine Glass",
+    "normalized_name": "red wine glass",
+    "glass_id": "wine_glass",
+    "glass_category_id": "gcat_wine_glass",
+    "prior_glass_id": "wine_glass",
+    "cocktail_count": 41,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_wine_glass_red_wine_glass",
+    "legacy_name": "Red wine glass",
+    "normalized_name": "red wine glass",
+    "glass_id": "wine_glass",
+    "glass_category_id": "gcat_wine_glass",
+    "prior_glass_id": "wine_glass",
+    "cocktail_count": 31,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_white_wine_glass",
+    "legacy_name": "White Wine Glass",
+    "normalized_name": "white wine glass",
+    "glass_id": "wine_glass",
+    "glass_category_id": "gcat_wine_glass",
+    "prior_glass_id": "wine_glass",
+    "cocktail_count": 98,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_wine_glass_white_wine_glass",
+    "legacy_name": "White wine glass",
+    "normalized_name": "white wine glass",
+    "glass_id": "wine_glass",
+    "glass_category_id": "gcat_wine_glass",
+    "prior_glass_id": "wine_glass",
+    "cocktail_count": 33,
+    "status": "active"
+  },
+  {
+    "legacy_glass_id": "leg_wine_goblet",
+    "legacy_name": "Wine Goblet",
+    "normalized_name": "wine goblet",
+    "glass_id": "wine_glass",
+    "glass_category_id": "gcat_wine_glass",
+    "prior_glass_id": "wine_glass",
+    "cocktail_count": 86,
+    "status": "active"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-10-05T19:42:45.392770+00:00",
+  "purpose": "Glass schema hierarchy push to Atlas",
+  "collections": {
+    "glass_categories": {
+      "file": "glass_categories.json",
+      "count": 10,
+      "action": "upsert new collection"
+    },
+    "glasses": {
+      "file": "glasses.json",
+      "count": 45,
+      "action": "replace/upsert \u2014 new schema with glass_category_id"
+    },
+    "legacy_glasses": {
+      "file": "legacy_glasses.json",
+      "count": 64,
+      "action": "upsert new collection"
+    },
+    "cocktails": {
+      "file": "cocktails.json",
+      "count": 16921,
+      "action": "update glass fields only; do not treat drinks as master"
+    }
+  },
+  "notes": [
+    "cocktails is canonical; drinks is legacy \u2014 do not overwrite cocktails from drinks",
+    "glass_category is authoritative upper level",
+    "No content remaps applied (Hurricane under Margarita etc. left as-is per user)",
+    "prior_glass_id preserves pre-change glass_id on cocktails"
+  ]
+}
