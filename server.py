@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.errors import PyMongoError
+from pymongo.errors import PyMongoError, DuplicateKeyError
 from bson import json_util
 import os
 import json
@@ -17,9 +17,11 @@ import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
-from typing import List, Optional, Literal
+from typing import Any, List, Optional, Literal
 
 import httpx
+import jwt
+from cryptography.fernet import Fernet, InvalidToken
 
 
 ROOT_DIR = Path(__file__).parent
@@ -895,6 +897,99 @@ async def get_drink(drink_id: str):
 
 EMERGENT_SESSION_DATA_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 SESSION_TTL_DAYS = 7
+PREMIUM_PRODUCT_ID = "app.drinkthink.premium"
+PREMIUM_PLATFORMS = {"ios", "android"}
+
+
+def _premium_config(name: str) -> str:
+    """Read a server-only Premium setting without ever returning its value."""
+    value = os.environ.get(name)
+    if not value:
+        raise HTTPException(status_code=503, detail="Premium verification is not configured")
+    return value
+
+
+def _purchase_identity_hash(platform: str, identity: str) -> str:
+    key = _premium_config("PREMIUM_PURCHASE_IDENTITY_HMAC_KEY").encode()
+    return hmac.new(key, f"{platform}:{identity}".encode(), hashlib.sha256).hexdigest()
+
+
+def _encrypt_verification_reference(reference: str) -> str:
+    try:
+        return Fernet(_premium_config("PREMIUM_VERIFICATION_REFERENCE_ENCRYPTION_KEY").encode()).encrypt(reference.encode()).decode()
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=503, detail="Premium verification is not configured")
+
+
+def _decode_jws_payload(value: str) -> dict:
+    """Decode only to obtain a transaction id; Apple is queried for authority."""
+    try:
+        payload = value.split(".")[1] + "=" * (-len(value.split(".")[1]) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload.encode()))
+    except (IndexError, ValueError, json.JSONDecodeError):
+        raise HTTPException(status_code=400, detail="Invalid Apple transaction evidence")
+
+
+async def _verify_apple_purchase(transaction_jws: str) -> tuple[str, str, str, bool, Optional[str]]:
+    supplied = _decode_jws_payload(transaction_jws)
+    transaction_id = str(supplied.get("transactionId") or "")
+    if not transaction_id:
+        raise HTTPException(status_code=400, detail="Invalid Apple transaction evidence")
+    private_key = _premium_config("APPLE_APP_STORE_PRIVATE_KEY").replace("\\n", "\n")
+    now = int(_now().timestamp())
+    token = jwt.encode({"iss": _premium_config("APPLE_APP_STORE_ISSUER_ID"), "iat": now, "exp": now + 300, "aud": "appstoreconnect-v1", "bid": _premium_config("APPLE_BUNDLE_ID")}, private_key, algorithm="ES256", headers={"kid": _premium_config("APPLE_APP_STORE_KEY_ID")})
+    environment = os.environ.get("APPLE_APP_STORE_ENVIRONMENT", "Production").lower()
+    base = "https://api.storekit-sandbox.apple.com" if environment == "sandbox" else "https://api.storekit.itunes.apple.com"
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client_http:
+            response = await client_http.get(f"{base}/inApps/v1/transactions/{transaction_id}", headers={"Authorization": f"Bearer {token}"})
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="Apple verification is temporarily unavailable")
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Apple transaction could not be verified")
+    server_payload = _decode_jws_payload(str(response.json().get("signedTransactionInfo") or ""))
+    if server_payload.get("bundleId") != _premium_config("APPLE_BUNDLE_ID") or server_payload.get("productId") != PREMIUM_PRODUCT_ID:
+        raise HTTPException(status_code=400, detail="Apple transaction does not match DrinkThink Premium")
+    original = str(server_payload.get("originalTransactionId") or "")
+    if not original:
+        raise HTTPException(status_code=400, detail="Apple transaction is incomplete")
+    revoked = bool(server_payload.get("revocationDate"))
+    return original, transaction_id, "revoked" if revoked else "active", revoked, server_payload.get("revocationReason")
+
+
+async def _google_access_token() -> str:
+    try:
+        credentials = json.loads(_premium_config("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"))
+        now = int(_now().timestamp())
+        assertion = jwt.encode({"iss": credentials["client_email"], "scope": "https://www.googleapis.com/auth/androidpublisher", "aud": "https://oauth2.googleapis.com/token", "iat": now, "exp": now + 3600}, credentials["private_key"], algorithm="RS256")
+        async with httpx.AsyncClient(timeout=15.0) as client_http:
+            response = await client_http.post("https://oauth2.googleapis.com/token", data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": assertion})
+        response.raise_for_status()
+        return str(response.json()["access_token"])
+    except (KeyError, ValueError, jwt.PyJWTError, httpx.HTTPError):
+        raise HTTPException(status_code=503, detail="Google Play verification is unavailable")
+
+
+async def _verify_google_purchase(purchase_token: str) -> tuple[str, str, Optional[str]]:
+    access_token = await _google_access_token()
+    package = _premium_config("GOOGLE_PLAY_PACKAGE_NAME")
+    url = f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{package}/purchases/productsv2/tokens/{purchase_token}"
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client_http:
+            response = await client_http.get(url, headers={"Authorization": f"Bearer {access_token}"})
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Google Play purchase could not be verified")
+            data = response.json()
+            state = (data.get("purchaseStateContext") or {}).get("purchaseState")
+            products = [item.get("productId") for item in data.get("productLineItem", [])]
+            if state != "PURCHASED" or PREMIUM_PRODUCT_ID not in products:
+                raise HTTPException(status_code=400, detail="Google Play purchase is not valid for DrinkThink Premium")
+            if data.get("acknowledgementState") != "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED":
+                ack = await client_http.post(url + ":acknowledge", headers={"Authorization": f"Bearer {access_token}"}, json={})
+                ack.raise_for_status()
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="Google Play verification is temporarily unavailable")
+    return purchase_token, purchase_token, None
 
 
 class User(BaseModel):
@@ -912,6 +1007,66 @@ class SessionRequest(BaseModel):
 class SessionResponse(BaseModel):
     session_token: str
     user: User
+
+
+class PremiumEntitlementResponse(BaseModel):
+    platform: Literal["ios", "android"]
+    product_id: str = PREMIUM_PRODUCT_ID
+    premium: bool
+    verified_at: Optional[str] = None
+
+
+class PremiumVerificationRequest(BaseModel):
+    platform: Literal["ios", "android"]
+    product_id: str
+    transaction_jws: Optional[str] = None
+    purchase_token: Optional[str] = None
+
+
+async def _entitlement_response(user_id: str, platform: str) -> PremiumEntitlementResponse:
+    doc = await db.premium_entitlements.find_one({"user_id": user_id, "platform": platform, "product_id": PREMIUM_PRODUCT_ID}, {"_id": 0})
+    if not doc or doc.get("status") != "active":
+        return PremiumEntitlementResponse(platform=platform, premium=False)
+    verified_at = doc.get("last_verified_at")
+    return PremiumEntitlementResponse(platform=platform, premium=True, verified_at=verified_at.isoformat() if isinstance(verified_at, datetime) else verified_at)
+
+
+@api_router.get("/premium/entitlement", response_model=PremiumEntitlementResponse)
+async def premium_entitlement(platform: Literal["ios", "android"], user: User = Depends(current_user)):
+    return await _entitlement_response(user.user_id, platform)
+
+
+@api_router.post("/premium/verify", response_model=PremiumEntitlementResponse)
+async def verify_premium_purchase(body: PremiumVerificationRequest, user: User = Depends(current_user)):
+    if body.product_id != PREMIUM_PRODUCT_ID:
+        raise HTTPException(status_code=400, detail="Unsupported Premium product")
+    if body.platform == "ios":
+        if not body.transaction_jws:
+            raise HTTPException(status_code=400, detail="Apple transaction evidence is required")
+        identity, reference, status, _revoked, reason = await _verify_apple_purchase(body.transaction_jws)
+    else:
+        if not body.purchase_token:
+            raise HTTPException(status_code=400, detail="Google Play purchase token is required")
+        identity, reference, reason = await _verify_google_purchase(body.purchase_token)
+        status = "active"
+    identity_hash = _purchase_identity_hash(body.platform, identity)
+    existing = await db.premium_entitlements.find_one({"platform": body.platform, "purchase_identity_hash": identity_hash}, {"_id": 0})
+    if existing and existing.get("user_id") != user.user_id:
+        raise HTTPException(status_code=409, detail="This Premium purchase is already associated with another DrinkThink account")
+    now = _now()
+    if status == "revoked":
+        await db.premium_entitlements.update_one({"platform": body.platform, "purchase_identity_hash": identity_hash}, {"$set": {"status": "revoked", "last_verified_at": now, "revoked_at": now, "revocation_reason": str(reason or "store_revocation")}}, upsert=bool(existing))
+        return PremiumEntitlementResponse(platform=body.platform, premium=False)
+    try:
+        await db.premium_entitlements.update_one(
+            {"platform": body.platform, "purchase_identity_hash": identity_hash},
+            {"$setOnInsert": {"user_id": user.user_id, "platform": body.platform, "product_id": PREMIUM_PRODUCT_ID, "purchase_identity_hash": identity_hash, "first_verified_at": now},
+             "$set": {"verification_reference_encrypted": _encrypt_verification_reference(reference), "status": "active", "last_verified_at": now, "revoked_at": None, "revocation_reason": None}},
+            upsert=True,
+        )
+    except DuplicateKeyError:
+        raise HTTPException(status_code=409, detail="This Premium purchase is already associated with another DrinkThink account")
+    return await _entitlement_response(user.user_id, body.platform)
 
 
 def _now() -> datetime:
@@ -1036,6 +1191,7 @@ async def _delete_account_data(user_id: str, session) -> None:
         session=session,
     )
     await db.share_checkins.delete_many({"sharer_user_id": user_id}, session=session)
+    await db.premium_entitlements.delete_many({"user_id": user_id}, session=session)
     result = await db.users.delete_one({"user_id": user_id}, session=session)
     if result.deleted_count != 1:
         raise AccountDeletionError("Authenticated user record was not deleted")
@@ -1304,7 +1460,6 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
 # endpoint below using ADMIN_TOGGLE_KEY.
 
 DEFAULT_FLAGS = {
-    "cupboard_filter_enabled": True,
     # Consumer ordering and new Premium sales must fail closed until enabled.
     "consumer_ordering_enabled": False,
     "consumer_premium_sales_enabled": False,
@@ -1804,6 +1959,9 @@ async def seed_auth_indexes():
     await db.blocked.create_index(
         [("user_id", 1), ("drink_id", 1)], unique=True
     )
+    await db.premium_entitlements.create_index([("platform", 1), ("purchase_identity_hash", 1)], unique=True)
+    await db.premium_entitlements.create_index([("user_id", 1), ("platform", 1), ("product_id", 1)], unique=True)
+    await db.premium_entitlements.create_index([("status", 1), ("last_verified_at", 1)])
     logger.info("Auth indexes ensured")
 
 

@@ -84,6 +84,10 @@ class FakeDb:
             {"share_id": "checkin-delete", "sharer_user_id": "user_delete"},
             {"share_id": "checkin-keep", "sharer_user_id": "user_keep"},
         ], fail=failing_collection == "share_checkins")
+        self.premium_entitlements = FakeCollection([
+            {"user_id": "user_delete", "platform": "ios", "product_id": "app.drinkthink.premium"},
+            {"user_id": "user_keep", "platform": "android", "product_id": "app.drinkthink.premium"},
+        ], fail=failing_collection == "premium_entitlements")
 
     def snapshot(self):
         return {name: copy.deepcopy(getattr(self, name).documents) for name in self.__dict__}
@@ -153,6 +157,7 @@ def test_authenticated_user_deletes_only_own_data_and_all_sessions(backend_state
     assert all(d["user_id"] == "user_keep" for d in backend_state.user_cupboard.documents)
     assert [d["share_id"] for d in backend_state.pending_shares.documents] == ["keep"]
     assert [d["share_id"] for d in backend_state.share_checkins.documents] == ["checkin-keep"]
+    assert backend_state.premium_entitlements.documents == [{"user_id": "user_keep", "platform": "android", "product_id": "app.drinkthink.premium"}]
 
 
 def test_unauthenticated_or_old_session_cannot_authenticate_after_deletion(backend_state):
