@@ -1304,7 +1304,6 @@ async def decline_pending_share(share_id: str, user: User = Depends(current_user
 # endpoint below using ADMIN_TOGGLE_KEY.
 
 DEFAULT_FLAGS = {
-    "new_filters_enabled": True,
     "cupboard_filter_enabled": True,
     # Consumer ordering and new Premium sales must fail closed until enabled.
     "consumer_ordering_enabled": False,
