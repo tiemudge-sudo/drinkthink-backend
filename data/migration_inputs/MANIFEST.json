@@ -14,7 +14,7 @@
     },
     "legacy_glasses": {
       "file": "legacy_glasses.json",
-      "count": 64,
+      "count": 62,
       "action": "upsert new collection"
     },
     "cocktails": {
