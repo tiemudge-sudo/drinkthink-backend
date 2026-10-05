@@ -334,7 +334,8 @@ async def audit_index_readiness(db):
         indexes = await db[collection].index_information()
         matching = []
         for name, info in indexes.items():
-            key = list((info.get("key") or {}).items())
+            raw_key = info.get("key") or []
+            key = list(raw_key.items()) if hasattr(raw_key, "items") else [tuple(item) for item in raw_key]
             if key == [(field, 1)]:
                 matching.append({"name": name, "unique": bool(info.get("unique"))})
         unique_names = [item["name"] for item in matching if item["unique"]]
