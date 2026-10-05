@@ -829,7 +829,7 @@ async def shake_a_shot(
     if not canonical_docs:
         return ShakeShotResponse()
     selected = secrets.choice(canonical_docs)
-    return ShakeShotResponse(drink=Drink(**_canonical_to_drink(selected, glasses_by_id.get(str(selected.get("glass_id")))))
+    return ShakeShotResponse(drink=Drink(**_canonical_to_drink(selected, glasses_by_id.get(str(selected.get("glass_id"))))))
 
 
 class DrinkSearchResult(BaseModel):
