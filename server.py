@@ -272,6 +272,11 @@ class MatchResponse(BaseModel):
     query_mapped: dict  # mapped to DB dims
 
 
+class ShakeShotResponse(BaseModel):
+    """One randomly selected, already-eligible Shot drink, if any."""
+    drink: Optional[Drink] = None
+
+
 
 # ------------- Public Hospitality Partner Applications -------------
 
@@ -710,6 +715,121 @@ async def match_drink(
 
     results = [MatchItem(drink=Drink(**d), score=float(score), is_favorite=d["id"] in favorite_ids) for d, score in top]
     return MatchResponse(results=results, scoring=scoring, query=slider_vals, query_mapped=dim_vals)
+
+
+@api_router.get("/drinks/shake-shot", response_model=ShakeShotResponse)
+async def shake_a_shot(
+    alcohols: Optional[str] = None,
+    use_cupboard: bool = False,
+    location_id: Optional[str] = None,
+    previous_drink_id: Optional[str] = None,
+    authorization: Optional[str] = Header(None),
+):
+    """Select a random canonical Shot without using preference-slider scoring.
+
+    Premium constraints are supplied only by an entitled client. The endpoint
+    deliberately does not infer entitlement or retain it: it applies the
+    requested main-ingredient/cupboard constraints, the authenticated user's
+    blocked list, and canonical location availability.
+    """
+    me: Optional[User] = None
+    if authorization:
+        try:
+            me = await current_user(authorization)
+        except HTTPException:
+            me = None
+
+    alcohol_filters = {a.strip().lower() for a in (alcohols or "").split(",") if a.strip()}
+    unknown = alcohol_filters - ALLOWED_ALCOHOL_FILTERS
+    if unknown:
+        raise HTTPException(status_code=400, detail=f"unknown alcohol filters: {sorted(unknown)}")
+
+    canonical_docs = await db.cocktails.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    if not canonical_docs:
+        return ShakeShotResponse()
+
+    # Shot membership comes only from the locked canonical glasses record,
+    # never from legacy glass names or cocktail recipe/category text.
+    glasses_by_id = await _canonical_glasses_by_id()
+    canonical_docs = [
+        cocktail for cocktail in canonical_docs
+        if "shot" in set((glasses_by_id.get(str(cocktail.get("glass_id"))) or {}).get("filter_families") or [])
+    ]
+
+    ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
+
+    if alcohol_filters:
+        spirit_filters = alcohol_filters - {"non_alcoholic"}
+        wants_non_alcoholic = "non_alcoholic" in alcohol_filters
+        filtered_docs = []
+        for cocktail in canonical_docs:
+            matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
+            if not matches and spirit_filters:
+                matches = any(
+                    str((ingredients_by_id.get(ingredient_id) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
+                    for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
+                )
+            if matches:
+                filtered_docs.append(cocktail)
+        canonical_docs = filtered_docs
+
+    # Checked-in location is authoritative and replaces the home-cupboard
+    # constraint, exactly as normal match results do.
+    if location_id:
+        can_make_ids = {
+            row["cocktail_id"]
+            async for row in db.location_drinks.find(
+                {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
+            )
+        }
+        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail.get("cocktail_id") in can_make_ids]
+    elif me and use_cupboard:
+        cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
+        if cupboard and cupboard.get("active"):
+            saved_ids = _int_ids(cupboard.get("item_ids"))
+            saved_signatures = {
+                _ingredient_signature(ingredients_by_id[ingredient_id])
+                for ingredient_id in saved_ids if ingredient_id in ingredients_by_id
+            }
+            cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
+            requirements: dict[str, list[int]] = {}
+            async for row in db.cocktail_ingredients.find(
+                {"cocktail_id": {"$in": cocktail_ids}, "required": True},
+                {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
+            ):
+                requirements.setdefault(row["cocktail_id"], []).append(int(row["ingredient_id"]))
+
+            def cupboard_satisfies(cocktail_id: str) -> bool:
+                required_ids = requirements.get(cocktail_id)
+                if not required_ids:
+                    return False
+                for ingredient_id in required_ids:
+                    if ingredient_id in saved_ids:
+                        continue
+                    ingredient = ingredients_by_id.get(ingredient_id)
+                    if not ingredient or _ingredient_signature(ingredient) not in saved_signatures:
+                        return False
+                return True
+
+            canonical_docs = [
+                cocktail for cocktail in canonical_docs if cupboard_satisfies(cocktail["cocktail_id"])
+            ]
+
+    if me:
+        blocked_ids = {
+            row["drink_id"] async for row in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})
+        }
+        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] not in blocked_ids]
+
+    # Never immediately repeat if another eligible Shot exists.
+    if previous_drink_id and len(canonical_docs) > 1:
+        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] != previous_drink_id]
+
+    if not canonical_docs:
+        return ShakeShotResponse()
+    selected = secrets.choice(canonical_docs)
+    return ShakeShotResponse(drink=Drink(**_canonical_to_drink(selected, glasses_by_id.get(str(selected.get("glass_id")))))
 
 
 class DrinkSearchResult(BaseModel):
