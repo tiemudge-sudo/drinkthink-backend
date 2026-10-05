@@ -16,6 +16,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import UpdateOne
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -301,8 +302,14 @@ async def build_operations(db, data):
                             "delete_count": 0, "update_samples": details}
     # Cocktails are intentionally limited to the glass hierarchy fields.
     inserts = updates = unchanged = 0
+    # One bounded collection scan avoids 16,921 sequential network round trips.
+    # The package/database identity reconciliation has already been validated.
+    current_cocktails = {}
+    projection = {"_id": 0, "cocktail_id": 1, **{field: 1 for field in COCKTAIL_GLASS_FIELDS}}
+    async for doc in db.cocktails.find({}, projection):
+        current_cocktails[doc.get("cocktail_id")] = doc
     for row in data["cocktails"]:
-        old = await db.cocktails.find_one({"cocktail_id": row["cocktail_id"]}, {"_id": 0, **{field: 1 for field in COCKTAIL_GLASS_FIELDS}})
+        old = current_cocktails.get(row["cocktail_id"])
         if old is None:
             inserts += 1
         elif any(old.get(field) != row.get(field) for field in COCKTAIL_GLASS_FIELDS):
@@ -327,13 +334,25 @@ async def apply_changes(db, data):
             upserted += int(result.upserted_id is not None)
         changed.append({"collection": collection, "modified_count": modified, "upserted_count": upserted})
 
-    modified = 0
+    current_cocktails = {}
+    projection = {"_id": 0, "cocktail_id": 1, **{field: 1 for field in COCKTAIL_GLASS_FIELDS}}
+    async for doc in db.cocktails.find({}, projection):
+        current_cocktails[doc.get("cocktail_id")] = doc
+    operations = []
     for row in data["cocktails"]:
         fields = {field: row.get(field) for field in COCKTAIL_GLASS_FIELDS}
-        result = await db.cocktails.update_one({"cocktail_id": row["cocktail_id"]}, {"$set": fields})
-        if result.matched_count != 1:
-            raise RuntimeError("cocktail identity disappeared during apply: " + row["cocktail_id"])
+        current = current_cocktails.get(row["cocktail_id"])
+        if current is None:
+            raise RuntimeError("cocktail identity disappeared before apply: " + row["cocktail_id"])
+        if any(current.get(field) != value for field, value in fields.items()):
+            operations.append(UpdateOne({"cocktail_id": row["cocktail_id"]}, {"$set": fields}))
+    modified = matched = 0
+    for start in range(0, len(operations), 500):
+        result = await db.cocktails.bulk_write(operations[start:start + 500], ordered=True)
         modified += result.modified_count
+        matched += result.matched_count
+    if matched != len(operations):
+        raise RuntimeError("one or more cocktail identities disappeared during apply")
     changed.append({"collection": "cocktails", "modified_count": modified, "upserted_count": 0,
                     "fields_limited_to": list(COCKTAIL_GLASS_FIELDS)})
 
@@ -359,9 +378,14 @@ async def validate_post_state(db, data):
         ("ingredient_id_merges", "from_id", data["ingredient_id_merges"], None),
         ("cocktails", "cocktail_id", data["cocktails"], COCKTAIL_GLASS_FIELDS),
     ):
+        actual_by_identity = {}
+        if collection == "cocktails":
+            projection = {"_id": 0, "cocktail_id": 1, **{field: 1 for field in COCKTAIL_GLASS_FIELDS}}
+            async for doc in db.cocktails.find({}, projection):
+                actual_by_identity[doc.get("cocktail_id")] = doc
         mismatches = []
         for expected in rows:
-            actual = await db[collection].find_one({key: expected[key]}, {"_id": 0})
+            actual = actual_by_identity.get(expected[key]) if collection == "cocktails" else await db[collection].find_one({key: expected[key]}, {"_id": 0})
             compared_fields = fields or tuple(expected.keys())
             changed_fields = [field for field in compared_fields if (actual or {}).get(field) != expected.get(field)]
             if changed_fields:
