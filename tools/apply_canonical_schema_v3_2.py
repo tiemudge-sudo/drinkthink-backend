@@ -61,20 +61,35 @@ def sample(values, limit=25):
 
 
 def load_package(package_path, merge_entries_path):
-    """Load and validate the exact source artifact without extracting it."""
-    if not package_path.is_file():
-        raise RuntimeError("source package does not exist")
-    with zipfile.ZipFile(package_path) as archive:
-        names = set(archive.namelist())
-        required = {"MANIFEST.json", *PACKAGE_FILES.values()}
-        missing = sorted(required - names)
+    """Load the canonical ZIP or its identical unpacked directory form."""
+    required = {"MANIFEST.json", *PACKAGE_FILES.values()}
+    if package_path.is_dir():
+        missing = sorted(name for name in required if not (package_path / name).is_file())
         if missing:
-            raise RuntimeError("package missing required files: " + ", ".join(missing))
+            raise RuntimeError("source directory missing required files: " + ", ".join(missing))
 
         def read_json(name):
-            with archive.open(name) as source:
-                return json.load(source)
+            return json.loads((package_path / name).read_text(encoding="utf-8"))
+    elif package_path.is_file():
+        archive = zipfile.ZipFile(package_path)
+        try:
+            names = set(archive.namelist())
+            missing = sorted(required - names)
+            if missing:
+                raise RuntimeError("package missing required files: " + ", ".join(missing))
 
+            def read_json(name):
+                with archive.open(name) as source:
+                    return json.load(source)
+
+            manifest = read_json("MANIFEST.json")
+            data = {key: read_json(filename) for key, filename in PACKAGE_FILES.items()}
+        finally:
+            archive.close()
+    else:
+        raise RuntimeError("source package path does not exist")
+
+    if package_path.is_dir():
         manifest = read_json("MANIFEST.json")
         data = {key: read_json(filename) for key, filename in PACKAGE_FILES.items()}
 
@@ -440,7 +455,7 @@ async def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--package", required=True, help="Path to atlas_push_glass (1).zip")
+    parser.add_argument("--package", required=True, help="Path to atlas_push_glass (1).zip or its unpacked source directory")
     parser.add_argument("--merge-entries", required=True, help="Path to ingredient_id_merge_map_entries.json")
     parser.add_argument("--env-file", default=".env")
     parser.add_argument("--report", default="test_reports/canonical-schema-v3-2-audit.json")
