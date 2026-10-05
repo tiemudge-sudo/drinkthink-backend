@@ -40,6 +40,12 @@ COCKTAIL_GLASS_FIELDS = (
     "glass_id", "glass_category_id", "glass_category", "prior_glass_id",
     "legacy_glass_id", "legacy_glass",
 )
+INDEX_REQUIREMENTS = (
+    ("glass_categories", "glass_category_id"),
+    ("glasses", "glass_id"),
+    ("legacy_glasses", "legacy_glass_id"),
+    ("ingredient_id_merges", "from_id"),
+)
 
 
 def utc_now():
@@ -321,6 +327,32 @@ async def build_operations(db, data):
     return plan
 
 
+async def audit_index_readiness(db):
+    """Accept an equivalent unique index even when it has a legacy name."""
+    statuses, exceptions = [], []
+    for collection, field in INDEX_REQUIREMENTS:
+        indexes = await db[collection].index_information()
+        matching = []
+        for name, info in indexes.items():
+            key = list((info.get("key") or {}).items())
+            if key == [(field, 1)]:
+                matching.append({"name": name, "unique": bool(info.get("unique"))})
+        unique_names = [item["name"] for item in matching if item["unique"]]
+        incompatible_names = [item["name"] for item in matching if not item["unique"]]
+        status = {"collection": collection, "field": field, "existing_indexes": matching,
+                  "satisfied_by_existing_unique_index": bool(unique_names),
+                  "will_create": not matching}
+        statuses.append(status)
+        if incompatible_names:
+            exceptions.append({"kind": "incompatible_non_unique_index", "collection": collection,
+                               "field": field, "indexes": incompatible_names,
+                               "required": "unique index; no automatic index removal is permitted"})
+        elif len(unique_names) > 1:
+            exceptions.append({"kind": "duplicate_equivalent_unique_indexes", "collection": collection,
+                               "field": field, "indexes": unique_names})
+    return statuses, exceptions
+
+
 async def apply_changes(db, data):
     changed = []
     for collection, key, rows in (("glass_categories", "glass_category_id", data["glass_categories"]),
@@ -356,13 +388,19 @@ async def apply_changes(db, data):
     changed.append({"collection": "cocktails", "modified_count": modified, "upserted_count": 0,
                     "fields_limited_to": list(COCKTAIL_GLASS_FIELDS)})
 
+    readiness, index_exceptions = await audit_index_readiness(db)
+    if index_exceptions:
+        raise RuntimeError("APPLY BLOCKED: index readiness changed after preflight")
     indexes = []
-    for collection, field in (("glass_categories", "glass_category_id"), ("glasses", "glass_id"),
-                              ("legacy_glasses", "legacy_glass_id"), ("ingredient_id_merges", "from_id")):
+    for status in readiness:
+        collection, field = status["collection"], status["field"]
+        if status["satisfied_by_existing_unique_index"]:
+            indexes.append({"collection": collection, "index": status["existing_indexes"][0]["name"],
+                            "created": False, "unique": True, "key": field})
+            continue
         name = f"uniq_{field}"
-        before = await db[collection].index_information()
         await db[collection].create_index([(field, 1)], unique=True, name=name)
-        indexes.append({"collection": collection, "index": name, "created": name not in before,
+        indexes.append({"collection": collection, "index": name, "created": True,
                         "unique": True, "key": field})
     return changed, indexes
 
@@ -448,8 +486,11 @@ async def run(args):
         report["preflight_audit"] = database_audit
         report["exceptions"].extend(database_exceptions)
         report["proposed_operations"] = await build_operations(client[db_name], data)
+        report["index_preflight"], index_exceptions = await audit_index_readiness(client[db_name])
+        report["exceptions"].extend(index_exceptions)
         gates = {"package_validation_passed": not package_exceptions,
                  "database_validation_passed": not database_exceptions,
+                 "index_readiness_passed": not index_exceptions,
                  "no_deletes_are_planned": all(item["delete_count"] == 0 for item in report["proposed_operations"].values()),
                  "cocktails_have_no_insert_plan": report["proposed_operations"]["cocktails"]["insert_count"] == 0}
         report["pre_write_validation"] = gates
