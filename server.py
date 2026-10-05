@@ -1031,6 +1031,26 @@ async def _entitlement_response(user_id: str, platform: str) -> PremiumEntitleme
     return PremiumEntitlementResponse(platform=platform, premium=True, verified_at=verified_at.isoformat() if isinstance(verified_at, datetime) else verified_at)
 
 
+async def current_user(authorization: Optional[str] = Header(None)) -> User:
+    """Resolve the bearer token into a User. 401s on any failure."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    token = authorization.split(" ", 1)[1].strip()
+    session = await db.user_sessions.find_one({"session_token": token}, {"_id": 0})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    exp = session.get("expires_at")
+    if isinstance(exp, datetime):
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < _now():
+            raise HTTPException(status_code=401, detail="Session expired")
+    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return User(**user)
+
+
 @api_router.get("/premium/entitlement", response_model=PremiumEntitlementResponse)
 async def premium_entitlement(platform: Literal["ios", "android"], user: User = Depends(current_user)):
     return await _entitlement_response(user.user_id, platform)
@@ -1071,27 +1091,6 @@ async def verify_premium_purchase(body: PremiumVerificationRequest, user: User =
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
-
-
-async def current_user(authorization: Optional[str] = Header(None)) -> User:
-    """Resolve the bearer token into a User. 401s on any failure."""
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(status_code=401, detail="Missing bearer token")
-    token = authorization.split(" ", 1)[1].strip()
-    session = await db.user_sessions.find_one({"session_token": token}, {"_id": 0})
-    if not session:
-        raise HTTPException(status_code=401, detail="Invalid session")
-    # Normalize expires_at to aware
-    exp = session.get("expires_at")
-    if isinstance(exp, datetime):
-        if exp.tzinfo is None:
-            exp = exp.replace(tzinfo=timezone.utc)
-        if exp < _now():
-            raise HTTPException(status_code=401, detail="Session expired")
-    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0})
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    return User(**user)
 
 
 @api_router.post("/auth/session", response_model=SessionResponse)
