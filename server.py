@@ -864,11 +864,28 @@ async def resolve_effective_location_inventory(
         if not cupboard or (source.get("require_active", False) and not cupboard.get("active")):
             return set()
         return set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
+    if source.get("kind") == "menu_catalog":
+        # Menu-catalog evidence is derived from the catalog cocktails' canonical
+        # recipe requirements by rebuild_location_drinks, not stored inventory.
+        return set()
     # The commercial default remains location_inventory; no Tie's-House branch.
     if source and source.get("kind") not in {"location_inventory", None}:
         return set()
     rows = await db.location_inventory.find({"location_id": location_id, "in_stock": True}, {"_id": 0, "ingredient_id": 1}).to_list(length=None)
     return set(await _resolved_historical_ids((row.get("ingredient_id") for row in rows), read_model))
+
+
+async def _active_menu_catalog_cocktail_ids(location_id: str) -> set[str]:
+    """Return only active, canonical cocktail mappings from a location's menu."""
+    rows = await db.location_catalog_items.find(
+        {"location_id": location_id, "status": "active", "item_class": "cocktail"},
+        {"_id": 0, "cocktail_id": 1},
+    ).to_list(length=None)
+    return {
+        cocktail_id
+        for row in rows
+        if isinstance((cocktail_id := row.get("cocktail_id")), str) and cocktail_id.strip()
+    }
 
 
 async def rebuild_location_drinks(location_id: str, read_model: Optional[CanonicalReadModel] = None) -> int:
@@ -879,10 +896,29 @@ async def rebuild_location_drinks(location_id: str, read_model: Optional[Canonic
         {"location_id": location_id},
         {"_id": 0, "inventory_source": 1, "secondary_liquor_availability": 1, "mixer_availability": 1},
     )
-    inventory_ids = await resolve_effective_location_inventory(location_id, read_model, settings)
+    source = (settings or {}).get("inventory_source") or {}
+    if source.get("kind") == "menu_catalog":
+        catalog_cocktail_ids = await _active_menu_catalog_cocktail_ids(location_id)
+        # The menu is the complete capability universe.  Recipe requirements for
+        # those canonical cocktails are the menu's effective ingredient evidence.
+        cocktails = [
+            cocktail for cocktail in read_model.cocktails
+            if str(cocktail.get("cocktail_id") or "") in catalog_cocktail_ids
+        ]
+        inventory_ids = {
+            ingredient_id
+            for cocktail in cocktails
+            for ingredient_id in read_model.required_ingredients_by_cocktail.get(
+                str(cocktail.get("cocktail_id") or ""), ()
+            )
+            if ingredient_id is not None
+        }
+    else:
+        cocktails = read_model.cocktails
+        inventory_ids = await resolve_effective_location_inventory(location_id, read_model, settings)
     now = _now()
     records = []
-    for cocktail in read_model.cocktails:
+    for cocktail in cocktails:
         cocktail_id = str(cocktail.get("cocktail_id") or "")
         required = list(read_model.required_ingredients_by_cocktail.get(cocktail_id, ()))
         if not cocktail_id or not required:
@@ -2137,7 +2173,7 @@ def _valid_location_inventory_source(source: Any) -> bool:
     if not isinstance(source, dict):
         return False
     kind = source.get("kind")
-    if kind == "location_inventory":
+    if kind in {"location_inventory", "menu_catalog"}:
         return True
     if kind != "user_cupboard":
         return False

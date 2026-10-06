@@ -116,6 +116,7 @@ class Database:
             {"user_id": "visitor", "active": True, "item_ids": [2]},
         ])
         self.location_inventory = Collection()
+        self.location_catalog_items = Collection()
         self.location_drinks = Collection()
         self.blocked = Collection()
         self.favorites = Collection()
@@ -232,6 +233,41 @@ def test_rebuild_endpoint_rebuilds_only_the_configured_active_location(monkeypat
     result = asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
     assert result == {"location_id": "loc-cupboard", "generated_rows": 3}
     assert len(database.location_drinks.rows) == 3
+
+
+def test_menu_catalog_is_the_only_capability_universe_and_ignores_orderable(monkeypatch):
+    database = configure(monkeypatch)
+    database.location_settings.rows[:] = [
+        {"location_id": "loc-cupboard", "inventory_source": {"kind": "menu_catalog"}},
+    ]
+    # 1001 is retired and must resolve to canonical vodka ingredient 1 while
+    # building the catalog's effective recipe evidence.
+    database.cocktail_ingredients.rows[0]["ingredient_id"] = 1001
+    database.location_catalog_items.rows[:] = [
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "vodka-drink", "orderable": False},
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "lime-drink", "orderable": True},
+        {"location_id": "loc-cupboard", "status": "inactive", "item_class": "cocktail", "cocktail_id": "stale-drink"},
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "food", "cocktail_id": "stale-drink"},
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "not-a-canonical-cocktail"},
+    ]
+
+    assert asyncio.run(server.rebuild_location_drinks("loc-cupboard")) == 2
+    rows = _rows_by_cocktail(database)
+    assert set(rows) == {"vodka-drink", "lime-drink"}
+    assert rows["vodka-drink"]["can_make"] is True
+    assert rows["vodka-drink"]["matched_ingredient_ids"] == [1]
+    assert rows["lime-drink"]["can_make"] is True
+    assert rows["lime-drink"]["matched_ingredient_ids"] == [2]
+
+
+def test_menu_catalog_is_a_valid_configured_inventory_source(monkeypatch):
+    database = configure(monkeypatch)
+    database.location_settings.rows[:] = [
+        {"location_id": "loc-cupboard", "inventory_source": {"kind": "menu_catalog"}},
+    ]
+    assert asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard")) == {
+        "location_id": "loc-cupboard", "generated_rows": 0,
+    }
 
 
 def _capability_result(category_id, available_ids=(), settings=None, signature="ingredient"):

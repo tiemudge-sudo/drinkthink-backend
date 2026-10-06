@@ -148,6 +148,36 @@ fields and reject unknown values.
 - A genuinely new drink completes Drink Admission, including its canonical recipe and `cocktail_ingredients`, before cataloging.
 - Vendor name and price belong to the location catalog; canonical drink identity and recipe remain in DrinkThink master data.
 
+### Required inbound-provenance handoff
+
+Manual ingestion remains the source-evidence stage even when an external
+reconciliation provider performs the menu matching. Before importing
+`location_catalog_items`, the handoff must include one persisted
+`inbound_items` record for every vendor menu item, with the exact
+`inbound_item_id` referenced by the catalog mapping.
+
+Each inbound record must preserve the vendor-origin evidence needed to repeat
+and audit reconciliation: location and organization identity, manual-menu
+source metadata, raw vendor item name, available description/category/section,
+price and modifiers when supplied, and the ingestion/review status. It must
+not be a placeholder containing only an ID.
+
+The controlled sequence is:
+
+```text
+source menu evidence
+  → inbound_items
+  → external or internal reconciliation/review
+  → canonical cocktail_id decision
+  → location_catalog_items
+```
+
+`location_catalog_items.inbound_item_id` must resolve to its corresponding
+inbound record before import. MongoDB does not enforce this foreign-key-like
+relationship, so the import process must validate it explicitly. A catalog
+mapping without inbound provenance is incomplete even when its
+`cocktail_id` is otherwise valid.
+
 ## 6. Canonical-reference export stage
 
 Before manual-menu reconciliation, export import-ready MongoDB Extended JSON for the vendor onboarding records and `cocktails`, `cocktail_ingredients`, `ingredients`, `ingredient_categories`, `ingredient_id_merges`, `glass_categories`, and `glasses`. Preserve identifiers and timestamps and include SHA-256 hashes in the manifest.
