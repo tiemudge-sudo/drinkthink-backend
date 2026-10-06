@@ -800,9 +800,61 @@ def _inventory_satisfies_requirements(
     return not missing and not has_unresolved_requirement, matched, missing, has_unresolved_requirement
 
 
-async def resolve_effective_location_inventory(location_id: str, read_model: CanonicalReadModel) -> set[int]:
+CAPABILITY_INGREDIENT_CATEGORIES = frozenset({
+    "primary_liquor", "secondary_liquor", "wine", "beer", "mixer", "common_items",
+})
+
+
+def _location_category_is_assumed_available(category_id: str, settings: Optional[dict]) -> bool:
+    """Apply the locked location-only capability policy; never use this for cupboards."""
+    if category_id == "common_items":
+        return True
+    settings = settings or {}
+    if category_id == "secondary_liquor":
+        return settings.get("secondary_liquor_availability") == "assumed_available"
+    if category_id == "mixer":
+        return settings.get("mixer_availability") == "assumed_available"
+    return False
+
+
+def _location_inventory_satisfies_requirements(
+    required_ids: list[Optional[int]],
+    available_ids: set[int],
+    ingredients_by_id: dict[int, dict],
+    settings: Optional[dict],
+) -> tuple[bool, list[int], list[int], bool]:
+    """Evaluate derived location capability from evidence and locked availability policy."""
+    signatures = {
+        _ingredient_signature(ingredients_by_id[item_id])
+        for item_id in available_ids if item_id in ingredients_by_id
+    }
+    matched, missing = [], []
+    has_unresolved_requirement = False
+    for ingredient_id in required_ids:
+        if ingredient_id is None:
+            has_unresolved_requirement = True
+            continue
+        ingredient = ingredients_by_id.get(ingredient_id)
+        category_id = str((ingredient or {}).get("category_id") or "").strip()
+        if category_id not in CAPABILITY_INGREDIENT_CATEGORIES:
+            has_unresolved_requirement = True
+            continue
+        if _location_category_is_assumed_available(category_id, settings):
+            # Assumption is capability policy, not physical inventory evidence.
+            continue
+        if ingredient_id in available_ids or _ingredient_signature(ingredient) in signatures:
+            matched.append(ingredient_id)
+        else:
+            missing.append(ingredient_id)
+    return not missing and not has_unresolved_requirement, matched, missing, has_unresolved_requirement
+
+
+async def resolve_effective_location_inventory(
+    location_id: str, read_model: CanonicalReadModel, settings: Optional[dict] = None
+) -> set[int]:
     """Resolve configured inventory without ever consulting the visiting user."""
-    settings = await db.location_settings.find_one({"location_id": location_id}, {"_id": 0, "inventory_source": 1})
+    if settings is None:
+        settings = await db.location_settings.find_one({"location_id": location_id}, {"_id": 0, "inventory_source": 1})
     source = (settings or {}).get("inventory_source") or {}
     if source.get("kind") == "user_cupboard":
         owner_id = source.get("user_id")
@@ -823,7 +875,11 @@ async def rebuild_location_drinks(location_id: str, read_model: Optional[Canonic
     """Replaceable derived capability cache; inventory remains authoritative elsewhere."""
     if read_model is None:
         read_model, _ = await _canonical_read_model_cache.get(RequestTiming())
-    inventory_ids = await resolve_effective_location_inventory(location_id, read_model)
+    settings = await db.location_settings.find_one(
+        {"location_id": location_id},
+        {"_id": 0, "inventory_source": 1, "secondary_liquor_availability": 1, "mixer_availability": 1},
+    )
+    inventory_ids = await resolve_effective_location_inventory(location_id, read_model, settings)
     now = _now()
     records = []
     for cocktail in read_model.cocktails:
@@ -832,8 +888,8 @@ async def rebuild_location_drinks(location_id: str, read_model: Optional[Canonic
         if not cocktail_id or not required:
             can_make, matched, missing, has_unresolved_requirement = False, [], [], True
         else:
-            can_make, matched, missing, has_unresolved_requirement = _inventory_satisfies_requirements(
-                required, inventory_ids, read_model.ingredients_by_id
+            can_make, matched, missing, has_unresolved_requirement = _location_inventory_satisfies_requirements(
+                required, inventory_ids, read_model.ingredients_by_id, settings
             )
         records.append({
             "location_id": location_id,
@@ -843,7 +899,7 @@ async def rebuild_location_drinks(location_id: str, read_model: Optional[Canonic
             "missing_ingredient_ids": missing,
             "has_unresolved_requirement": has_unresolved_requirement,
             "computed_at": now,
-            "source_version": "effective_inventory_v1",
+            "source_version": "effective_inventory_v2",
         })
     await db.location_drinks.delete_many({"location_id": location_id})
     if records:

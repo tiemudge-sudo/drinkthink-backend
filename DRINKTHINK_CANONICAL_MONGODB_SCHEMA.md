@@ -163,7 +163,9 @@ geospatial `location`/GeoJSON may be added when `/nearby` is implemented
 ### `location_settings`
 
 Location-owned behavior; organization defaults may be resolved by
-service logic.
+service logic. `organization_id` may be denormalized on this document,
+but every capability policy belongs to its `location_id`, never to the
+organization, location inventory, or ingredient master data.
 
 Fields include: - `location_id` unique - ingest/catalog/inventory
 settings - DrinkThink availability settings - ordering/payment
@@ -172,6 +174,34 @@ false - `drink_auto_admit_min_confidence` default 0.95 -
 `drink_require_all_ingredients_resolved` default true -
 `drink_allow_admit_without_instructions` default true - pricing
 references/settings - `updated_at`
+
+#### Capability availability settings
+
+- `secondary_liquor_availability`: `explicit | assumed_available`;
+  when absent, runtime behavior is `explicit`.
+- `mixer_availability`: `explicit | assumed_available`; when absent,
+  runtime behavior is `explicit`.
+
+The absent-field behavior is the locked backward-compatible runtime
+fallback for existing or unmigrated location records. It does not require
+a document backfill.
+
+| Canonical ingredient `category_id` | Capability treatment |
+|---|---|
+| `primary_liquor` | explicit availability required |
+| `secondary_liquor` | `secondary_liquor_availability` |
+| `wine` | explicit availability required |
+| `beer` | explicit availability required |
+| `mixer` | `mixer_availability` |
+| `common_items` | assumed available |
+
+**Inventory Evidence rule:** an assumed-available category changes only
+capability interpretation. It never creates synthetic `location_inventory`
+records or represents evidence that the location physically stocks an
+ingredient.
+
+Any future location-settings write API or model must enum-validate these
+two fields and reject unknown values.
 
 ### `location_inventory`
 

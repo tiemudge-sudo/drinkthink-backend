@@ -86,8 +86,8 @@ class Database:
     def __init__(self):
         scores = {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5}
         self.ingredients = Collection([
-            {"ingredient_id": 1, "status": "active", "primary_category": "spirit", "primary_ingredient": "vodka"},
-            {"ingredient_id": 2, "status": "active", "primary_category": "mixer", "primary_ingredient": "lime"},
+            {"ingredient_id": 1, "status": "active", "category_id": "primary_liquor", "primary_category": "spirit", "primary_ingredient": "vodka"},
+            {"ingredient_id": 2, "status": "active", "category_id": "mixer", "primary_category": "mixer", "primary_ingredient": "lime"},
         ])
         self.ingredient_id_merges = Collection([
             {"from_id": 1001, "resolved_to_id": 1, "status": "active"},
@@ -152,6 +152,8 @@ def test_rebuild_uses_host_not_visitor_and_preserves_recipe_semantics(monkeypatc
     assert rows["lime-drink"]["missing_ingredient_ids"] == [2]
     assert rows["stale-drink"]["can_make"] is False
     assert rows["stale-drink"]["has_unresolved_requirement"] is True
+    assert rows["vodka-drink"]["matched_ingredient_ids"] == [1]
+    assert rows["vodka-drink"]["source_version"] == "effective_inventory_v2"
     assert "orderable" not in rows["vodka-drink"]
     assert "pos_connection_id" not in rows["vodka-drink"]
 
@@ -230,4 +232,74 @@ def test_rebuild_endpoint_rebuilds_only_the_configured_active_location(monkeypat
     result = asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
     assert result == {"location_id": "loc-cupboard", "generated_rows": 3}
     assert len(database.location_drinks.rows) == 3
+
+
+def _capability_result(category_id, available_ids=(), settings=None, signature="ingredient"):
+    ingredients = {
+        1: {
+            "ingredient_id": 1,
+            "category_id": category_id,
+            "primary_category": "category",
+            "primary_ingredient": signature,
+        },
+    }
+    return server._location_inventory_satisfies_requirements([1], set(available_ids), ingredients, settings)
+
+
+@pytest.mark.parametrize("category_id", ["primary_liquor", "wine", "beer"])
+def test_primary_wine_and_beer_require_explicit_inventory_evidence(category_id):
+    can_make, matched, missing, unresolved = _capability_result(category_id)
+    assert (can_make, matched, missing, unresolved) == (False, [], [1], False)
+
+
+def test_secondary_liquor_policy_defaults_to_explicit_and_can_assume_availability():
+    assert _capability_result("secondary_liquor") == (False, [], [1], False)
+    assert _capability_result("secondary_liquor", settings={"secondary_liquor_availability": "explicit"}) == (False, [], [1], False)
+    assert _capability_result("secondary_liquor", settings={"secondary_liquor_availability": "assumed_available"}) == (True, [], [], False)
+
+
+def test_mixer_policy_defaults_to_explicit_and_can_assume_availability():
+    assert _capability_result("mixer") == (False, [], [1], False)
+    assert _capability_result("mixer", settings={"mixer_availability": "explicit"}) == (False, [], [1], False)
+    assert _capability_result("mixer", settings={"mixer_availability": "assumed_available"}) == (True, [], [], False)
+
+
+def test_common_items_are_assumed_available_without_creating_a_match():
+    assert _capability_result("common_items") == (True, [], [], False)
+
+
+def test_location_capability_accepts_exact_and_canonical_substitution_evidence():
+    assert _capability_result("primary_liquor", available_ids=[1]) == (True, [1], [], False)
+    ingredients = {
+        1: {"ingredient_id": 1, "category_id": "primary_liquor", "primary_category": "spirit", "primary_ingredient": "vodka"},
+        2: {"ingredient_id": 2, "category_id": "primary_liquor", "primary_category": "spirit", "primary_ingredient": "vodka"},
+    }
+    assert server._location_inventory_satisfies_requirements([1], {2}, ingredients, {}) == (True, [1], [], False)
+
+
+def test_ties_house_style_cupboard_inventory_uses_location_policy_not_consumer_cupboard(monkeypatch):
+    database = configure(monkeypatch)
+    database.location_settings.rows[0]["mixer_availability"] = "assumed_available"
+    database.user_cupboard.rows[:] = [
+        {"user_id": "host", "active": True, "item_ids": [1001]},
+        {"user_id": "visitor", "active": True, "item_ids": [1]},
+    ]
+
+    asyncio.run(server.rebuild_location_drinks("loc-cupboard"))
+    location_rows = _rows_by_cocktail(database)
+    assert location_rows["vodka-drink"]["can_make"] is True
+    assert location_rows["lime-drink"]["can_make"] is True
+    assert location_rows["lime-drink"]["matched_ingredient_ids"] == []
+
+    cupboard_response = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer visitor",
+    ))
+    assert [item.drink.id for item in cupboard_response.results] == ["vodka-drink"]
+
+    checked_in_response = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        location_id="loc-cupboard", authorization="Bearer visitor",
+    ))
+    assert {item.drink.id for item in checked_in_response.results} == {"vodka-drink", "lime-drink"}
 
