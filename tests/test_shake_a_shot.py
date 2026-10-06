@@ -46,6 +46,7 @@ class FakeDb:
             {"ingredient_id": 1, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
             {"ingredient_id": 2, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
+        self.ingredient_id_merges = Collection([])
         self.location_drinks = Collection([
             {"location_id": "loc-one", "cocktail_id": "shot-rum", "can_make": True},
         ])

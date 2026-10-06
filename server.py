@@ -23,6 +23,13 @@ import httpx
 import jwt
 from cryptography.fernet import Fernet, InvalidToken
 
+from ingredient_resolution import (
+    IngredientResolutionError,
+    parse_ingredient_id,
+    resolve_ingredient_id_map,
+    resolve_ingredient_ids,
+)
+
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -561,6 +568,35 @@ def _ingredient_signature(ingredient: dict) -> tuple[str, str]:
     )
 
 
+async def _resolved_historical_ids(values) -> list[int]:
+    """Resolve persisted IDs without turning one stale record into a 500."""
+    return await resolve_ingredient_ids(db, values or [], strict=False)
+
+
+async def _resolved_id_map(values) -> dict[int, int]:
+    """Resolve persisted references in two bounded queries."""
+    return await resolve_ingredient_id_map(db, values or [], strict=False)
+
+
+async def _canonical_recipe_requirements(cocktail_ids: list[str]) -> dict[str, list[Optional[int]]]:
+    """Load and resolve recipe IDs; unresolved persisted values fail capability checks."""
+    rows = await db.cocktail_ingredients.find(
+        {"cocktail_id": {"$in": cocktail_ids}, "required": True},
+        {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
+    ).to_list(length=None)
+    id_map = await _resolved_id_map(row.get("ingredient_id") for row in rows)
+    requirements: dict[str, list[Optional[int]]] = {}
+    for row in rows:
+        try:
+            source_id = parse_ingredient_id(row.get("ingredient_id"))
+        except IngredientResolutionError:
+            canonical_id = None
+        else:
+            canonical_id = id_map.get(source_id)
+        requirements.setdefault(row["cocktail_id"], []).append(canonical_id)
+    return requirements
+
+
 @api_router.get("/drinks/match", response_model=MatchResponse)
 async def match_drink(
     strong: int, fancy: int, comfort: int, party: int, thirsty: int,
@@ -617,6 +653,11 @@ async def match_drink(
 
     ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
     ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
+    main_ingredient_map = await _resolved_id_map(
+        ingredient_id
+        for cocktail in canonical_docs
+        for ingredient_id in cocktail.get("main_ingredient_ids") or []
+    )
 
     # What I Want: canonical main ingredient filter.
     if alcohol_filters:
@@ -626,8 +667,8 @@ async def match_drink(
         for c in canonical_docs:
             ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
             if not ok and spirit_filters:
-                for iid in _int_ids(c.get("main_ingredient_ids")):
-                    ing = ingredients_by_id.get(iid) or {}
+                for source_id in _int_ids(c.get("main_ingredient_ids")):
+                    ing = ingredients_by_id.get(main_ingredient_map.get(source_id)) or {}
                     if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
                         ok = True
                         break
@@ -659,24 +700,21 @@ async def match_drink(
     elif me:
         cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
         if cupboard and cupboard.get("active"):
-            saved_ids = _int_ids(cupboard.get("item_ids"))
+            saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids")))
             saved_signatures = {
                 _ingredient_signature(ingredients_by_id[iid])
                 for iid in saved_ids if iid in ingredients_by_id
             }
             cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
-            requirements: dict[str, list[int]] = {}
-            async for row in db.cocktail_ingredients.find(
-                {"cocktail_id": {"$in": cocktail_ids}, "required": True},
-                {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
-            ):
-                requirements.setdefault(row["cocktail_id"], []).append(int(row["ingredient_id"]))
+            requirements = await _canonical_recipe_requirements(cocktail_ids)
 
             def cupboard_satisfies(cid: str) -> bool:
                 reqs = requirements.get(cid)
                 if not reqs:  # No structured recipe => cannot claim "can make".
                     return False
                 for iid in reqs:
+                    if iid is None:
+                        return False
                     if iid in saved_ids:
                         continue
                     ing = ingredients_by_id.get(iid)
@@ -760,6 +798,11 @@ async def shake_a_shot(
 
     ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
     ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
+    main_ingredient_map = await _resolved_id_map(
+        ingredient_id
+        for cocktail in canonical_docs
+        for ingredient_id in cocktail.get("main_ingredient_ids") or []
+    )
 
     if alcohol_filters:
         spirit_filters = alcohol_filters - {"non_alcoholic"}
@@ -769,7 +812,7 @@ async def shake_a_shot(
             matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
             if not matches and spirit_filters:
                 matches = any(
-                    str((ingredients_by_id.get(ingredient_id) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
+                    str((ingredients_by_id.get(main_ingredient_map.get(ingredient_id)) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
                     for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
                 )
             if matches:
@@ -789,24 +832,21 @@ async def shake_a_shot(
     elif me and use_cupboard:
         cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
         if cupboard and cupboard.get("active"):
-            saved_ids = _int_ids(cupboard.get("item_ids"))
+            saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids")))
             saved_signatures = {
                 _ingredient_signature(ingredients_by_id[ingredient_id])
                 for ingredient_id in saved_ids if ingredient_id in ingredients_by_id
             }
             cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
-            requirements: dict[str, list[int]] = {}
-            async for row in db.cocktail_ingredients.find(
-                {"cocktail_id": {"$in": cocktail_ids}, "required": True},
-                {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
-            ):
-                requirements.setdefault(row["cocktail_id"], []).append(int(row["ingredient_id"]))
+            requirements = await _canonical_recipe_requirements(cocktail_ids)
 
             def cupboard_satisfies(cocktail_id: str) -> bool:
                 required_ids = requirements.get(cocktail_id)
                 if not required_ids:
                     return False
                 for ingredient_id in required_ids:
+                    if ingredient_id is None:
+                        return False
                     if ingredient_id in saved_ids:
                         continue
                     ingredient = ingredients_by_id.get(ingredient_id)
@@ -1534,8 +1574,8 @@ class CupboardRequest(BaseModel):
         normalized = []
         for value in values:
             try:
-                normalized.append(str(int(value)))
-            except (TypeError, ValueError):
+                normalized.append(str(parse_ingredient_id(value)))
+            except IngredientResolutionError:
                 raise ValueError(f"cupboard item_id must be a canonical integer ingredient ID: {value}")
         return normalized
 
@@ -1544,34 +1584,18 @@ class CupboardRequest(BaseModel):
 async def get_cupboard(user: User = Depends(current_user)):
     doc = await db.user_cupboard.find_one({"user_id": user.user_id}, {"_id": 0})
     raw_ids = (doc or {}).get("item_ids", [])
-    candidate_ids = _int_ids(raw_ids)
-    valid_ids = {
-        row["ingredient_id"]
-        async for row in db.ingredients.find(
-            {"ingredient_id": {"$in": list(candidate_ids)}, "status": "active"},
-            {"_id": 0, "ingredient_id": 1},
-        )
-    } if candidate_ids else set()
-    # The mobile UI uses string IDs in Set<string>, but Mongo remains canonical:
-    # user_cupboard.item_ids are integer ingredient_id values on write.  Stale
-    # pre-cutover semantic IDs are not guessed/remapped and are not returned.
-    return {"item_ids": [str(i) for i in sorted(valid_ids)], "active": (doc or {}).get("active", False)}
+    canonical_ids = await _resolved_historical_ids(raw_ids)
+    # Reads do not mutate historical records. They present an active canonical
+    # view until the controlled migration rewrites the stored values.
+    return {"item_ids": [str(i) for i in canonical_ids], "active": (doc or {}).get("active", False)}
 
 
 @api_router.post("/me/cupboard")
 async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user)):
-    ids = _int_ids(body.item_ids)
-    existing = {
-        row["ingredient_id"]
-        async for row in db.ingredients.find(
-            {"ingredient_id": {"$in": list(ids)}, "status": "active"},
-            {"_id": 0, "ingredient_id": 1},
-        )
-    }
-    missing = sorted(ids - existing)
-    if missing:
-        raise HTTPException(status_code=400, detail=f"unknown canonical ingredient IDs: {missing}")
-    canonical_ids = sorted(ids)
+    try:
+        canonical_ids = await resolve_ingredient_ids(db, body.item_ids, strict=True)
+    except IngredientResolutionError as error:
+        raise HTTPException(status_code=400, detail=str(error))
     await db.user_cupboard.update_one(
         {"user_id": user.user_id},
         {"$set": {"item_ids": canonical_ids, "active": body.active}},
