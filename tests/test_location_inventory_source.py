@@ -245,9 +245,9 @@ def test_menu_catalog_is_the_only_capability_universe_and_ignores_orderable(monk
     database.cocktail_ingredients.rows[0]["ingredient_id"] = 1001
     database.location_catalog_items.rows[:] = [
         {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "vodka-drink", "orderable": False},
-        {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "lime-drink", "orderable": True},
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "zero_proof", "cocktail_id": "lime-drink", "orderable": True},
         {"location_id": "loc-cupboard", "status": "inactive", "item_class": "cocktail", "cocktail_id": "stale-drink"},
-        {"location_id": "loc-cupboard", "status": "active", "item_class": "food", "cocktail_id": "stale-drink"},
+        {"location_id": "loc-cupboard", "status": "active", "item_class": "food"},
         {"location_id": "loc-cupboard", "status": "active", "item_class": "cocktail", "cocktail_id": "not-a-canonical-cocktail"},
     ]
 

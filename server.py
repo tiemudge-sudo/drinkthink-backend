@@ -878,7 +878,7 @@ async def resolve_effective_location_inventory(
 async def _active_menu_catalog_cocktail_ids(location_id: str) -> set[str]:
     """Return only active, canonical cocktail mappings from a location's menu."""
     rows = await db.location_catalog_items.find(
-        {"location_id": location_id, "status": "active", "item_class": "cocktail"},
+        {"location_id": location_id, "status": "active"},
         {"_id": 0, "cocktail_id": 1},
     ).to_list(length=None)
     return {
