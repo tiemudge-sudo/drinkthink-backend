@@ -291,6 +291,10 @@ class CanonicalReadModel:
     active_ingredient_ids: frozenset[int]
     glasses_by_id: dict[str, dict]
     active_merge_map: dict[int, int]
+    # Required recipe ingredients are canonicalized when the bounded source
+    # snapshot refreshes. ``None`` preserves the existing meaning of a stale
+    # or invalid historical relationship: that cocktail is not cupboard-ready.
+    required_ingredients_by_cocktail: dict[str, tuple[Optional[int], ...]]
 
 
 class RequestTiming:
@@ -373,12 +377,48 @@ class CanonicalReadModelCache:
                     # Invalid source data is handled by the existing resolver on
                     # request input; it must not make a successful snapshot lie.
                     continue
+            active_cocktail_ids = [
+                str(row["cocktail_id"])
+                for row in cocktails
+                if row.get("cocktail_id")
+            ]
+            recipe_rows = await load(
+                "recipe_requirements",
+                db.cocktail_ingredients.find(
+                    {"cocktail_id": {"$in": active_cocktail_ids}, "required": True},
+                    {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
+                ),
+            )
+            with timing.phase("recipe_ingredient_normalization"):
+                recipe_id_map = await resolve_ingredient_id_map(
+                    db,
+                    (row.get("ingredient_id") for row in recipe_rows),
+                    strict=False,
+                    active_merge_map=merge_map,
+                    active_ingredient_ids=frozenset(ingredients_by_id),
+                )
+                required_ingredients: dict[str, list[Optional[int]]] = {}
+                for row in recipe_rows:
+                    cocktail_id = row.get("cocktail_id")
+                    if not cocktail_id:
+                        continue
+                    try:
+                        source_id = parse_ingredient_id(row.get("ingredient_id"))
+                    except IngredientResolutionError:
+                        canonical_id = None
+                    else:
+                        canonical_id = recipe_id_map.get(source_id)
+                    required_ingredients.setdefault(str(cocktail_id), []).append(canonical_id)
             snapshot = CanonicalReadModel(
                 cocktails=tuple(cocktails),
                 ingredients_by_id=ingredients_by_id,
                 active_ingredient_ids=frozenset(ingredients_by_id),
                 glasses_by_id={str(row["glass_id"]): row for row in glasses if row.get("glass_id")},
                 active_merge_map=merge_map,
+                required_ingredients_by_cocktail={
+                    cocktail_id: tuple(ingredient_ids)
+                    for cocktail_id, ingredient_ids in required_ingredients.items()
+                },
             )
             self._snapshot = snapshot
             self._source_db_id = id(db)
@@ -715,6 +755,12 @@ async def _canonical_recipe_requirements(
     cocktail_ids: list[str], read_model: Optional[CanonicalReadModel] = None
 ) -> dict[str, list[Optional[int]]]:
     """Load and resolve recipe IDs; unresolved persisted values fail capability checks."""
+    if read_model is not None:
+        return {
+            cocktail_id: list(read_model.required_ingredients_by_cocktail[cocktail_id])
+            for cocktail_id in cocktail_ids
+            if cocktail_id in read_model.required_ingredients_by_cocktail
+        }
     rows = await db.cocktail_ingredients.find(
         {"cocktail_id": {"$in": cocktail_ids}, "required": True},
         {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
@@ -759,10 +805,11 @@ async def match_drink(
     timing = RequestTiming()
     me: Optional[User] = None
     if authorization:
-        try:
-            me = await current_user(authorization)
-        except HTTPException:
-            me = None
+        with timing.phase("authentication"):
+            try:
+                me = await current_user(authorization)
+            except HTTPException:
+                me = None
 
     slider_vals = {"strong": strong, "fancy": fancy, "comfort": comfort,
                    "party": party, "thirsty": thirsty}
@@ -831,8 +878,8 @@ async def match_drink(
             ]
 
     # Checked-in location replaces home cupboard constraint.
-    with timing.phase("constraints"):
-        if location_id:
+    if location_id:
+        with timing.phase("location_constraints"):
             can_make_ids = {
                 row["cocktail_id"]
                 async for row in db.location_drinks.find(
@@ -840,31 +887,35 @@ async def match_drink(
                 )
             }
             canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in can_make_ids]
-        elif me:
+    elif me:
+        with timing.phase("cupboard_lookup"):
             cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
-            if cupboard and cupboard.get("active"):
+        if cupboard and cupboard.get("active"):
+            with timing.phase("ingredient_normalization"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-                saved_signatures = {
-                    _ingredient_signature(ingredients_by_id[iid])
-                    for iid in saved_ids if iid in ingredients_by_id
-                }
-                cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+            saved_signatures = {
+                _ingredient_signature(ingredients_by_id[iid])
+                for iid in saved_ids if iid in ingredients_by_id
+            }
+            cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+            with timing.phase("recipe_requirement_acquisition"):
                 requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
-                def cupboard_satisfies(cid: str) -> bool:
-                    reqs = requirements.get(cid)
-                    if not reqs:  # No structured recipe => cannot claim "can make".
+            def cupboard_satisfies(cid: str) -> bool:
+                reqs = requirements.get(cid)
+                if not reqs:  # No structured recipe => cannot claim "can make".
+                    return False
+                for iid in reqs:
+                    if iid is None:
                         return False
-                    for iid in reqs:
-                        if iid is None:
-                            return False
-                        if iid in saved_ids:
-                            continue
-                        ing = ingredients_by_id.get(iid)
-                        if not ing or _ingredient_signature(ing) not in saved_signatures:
-                            return False
-                    return True
+                    if iid in saved_ids:
+                        continue
+                    ing = ingredients_by_id.get(iid)
+                    if not ing or _ingredient_signature(ing) not in saved_signatures:
+                        return False
+                return True
 
+            with timing.phase("cupboard_matching"):
                 canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
     with timing.phase("response_shaping"):
@@ -873,7 +924,7 @@ async def match_drink(
     blocked_ids: set[str] = set()
     favorite_ids: set[str] = set()
     if me:
-        with timing.phase("user_constraints"):
+        with timing.phase("blocked_favorites"):
             blocked_ids = {b["drink_id"] async for b in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
             favorite_ids = {f["drink_id"] async for f in db.favorites.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
     if blocked_ids:

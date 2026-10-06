@@ -14,10 +14,14 @@ import server
 
 
 class Cursor:
-    def __init__(self, rows):
+    def __init__(self, rows, collection=None):
         self.rows = rows
+        self.collection = collection
 
     async def to_list(self, length=None):
+        if self.collection and self.collection.fail_next_to_list:
+            self.collection.fail_next_to_list = False
+            raise RuntimeError("simulated collection read failure")
         return copy.deepcopy(self.rows if length is None else self.rows[:length])
 
     def __aiter__(self):
@@ -42,6 +46,7 @@ class Collection:
     def __init__(self, rows=()):
         self.rows = list(copy.deepcopy(rows))
         self.find_calls = 0
+        self.fail_next_to_list = False
 
     @staticmethod
     def _matches(row, query):
@@ -60,7 +65,7 @@ class Collection:
 
     def find(self, query, _projection=None):
         self.find_calls += 1
-        return Cursor([row for row in self.rows if self._matches(row, query)])
+        return Cursor([row for row in self.rows if self._matches(row, query)], self)
 
     async def find_one(self, query, _projection=None):
         return next((copy.deepcopy(row) for row in self.rows if self._matches(row, query)), None)
@@ -224,3 +229,98 @@ def test_expired_canonical_snapshot_refreshes_from_the_database(monkeypatch):
 
     assert "fresh-after-expiry" in {item.drink.id for item in refreshed.results}
     assert database.cocktails.find_calls == 2
+
+
+def test_inactive_cupboard_preserves_the_normal_result_order(monkeypatch):
+    database = configure(monkeypatch)
+    baseline = match()
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": False, "item_ids": [1261]}]
+    inactive = match()
+    assert [(item.drink.id, item.score) for item in inactive.results] == [
+        (item.drink.id, item.score) for item in baseline.results
+    ]
+
+
+def test_active_cupboard_reuses_cached_recipe_requirements_without_a_second_read(monkeypatch):
+    database = configure(monkeypatch)
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
+    cold_response = Response()
+    cold = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer test", response=cold_response,
+    ))
+    warm_response = Response()
+    warm = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer test", response=warm_response,
+    ))
+
+    assert [(item.drink.id, item.score) for item in warm.results] == [
+        (item.drink.id, item.score) for item in cold.results
+    ]
+    assert database.cocktail_ingredients.find_calls == 1
+    timing = warm_response.headers["server-timing"]
+    assert "cupboard_lookup" in timing
+    assert "recipe_requirement_acquisition" in timing
+    assert "cupboard_matching" in timing
+    assert "blocked_favorites" in timing
+
+
+def test_cache_refresh_rebuilds_recipe_requirements(monkeypatch):
+    database = configure(monkeypatch)
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
+    first = match()
+    assert {item.drink.id for item in first.results} == {"canonical-cupboard", "retired-recipe"}
+
+    database.cocktail_ingredients.rows[:] = [
+        {"cocktail_id": "canonical-cupboard", "ingredient_id": 1647, "required": True},
+        {"cocktail_id": "retired-recipe", "ingredient_id": 1647, "required": True},
+    ]
+    server._canonical_read_model_cache._expires_at = 0
+    refreshed = match()
+
+    assert refreshed.results == []
+    assert database.cocktail_ingredients.find_calls == 2
+
+
+def test_invalid_cached_relationship_remains_ineligible(monkeypatch):
+    database = configure(monkeypatch)
+    database.cocktail_ingredients.rows[:] = [
+        {"cocktail_id": "canonical-cupboard", "ingredient_id": 1261, "required": True},
+        {"cocktail_id": "canonical-cupboard", "ingredient_id": "not-an-id", "required": True},
+        {"cocktail_id": "retired-recipe", "ingredient_id": 1269, "required": True},
+    ]
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
+    result = match()
+    assert {item.drink.id for item in result.results} == {"retired-recipe"}
+
+
+def test_checked_in_location_still_replaces_active_cupboard(monkeypatch):
+    database = configure(monkeypatch)
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
+    database.location_drinks.rows[:] = [
+        {"location_id": "loc-one", "cocktail_id": "retired-recipe", "can_make": True},
+    ]
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        location_id="loc-one", authorization="Bearer test",
+    ))
+    assert {item.drink.id for item in result.results} == {"retired-recipe"}
+
+
+def test_failed_cache_refresh_keeps_the_previous_complete_snapshot(monkeypatch):
+    database = configure(monkeypatch)
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
+    first = match()
+    snapshot_before_failure = server._canonical_read_model_cache._snapshot
+    database.cocktail_ingredients.fail_next_to_list = True
+    server._canonical_read_model_cache._expires_at = 0
+
+    with pytest.raises(RuntimeError, match="simulated collection read failure"):
+        match()
+
+    assert server._canonical_read_model_cache._snapshot is snapshot_before_failure
+    recovered = match()
+    assert [(item.drink.id, item.score) for item in recovered.results] == [
+        (item.drink.id, item.score) for item in first.results
+    ]
