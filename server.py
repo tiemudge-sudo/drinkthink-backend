@@ -14,9 +14,11 @@ import hashlib
 import hmac
 import secrets
 import re
+import math
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator, model_validator
 from typing import Any, List, Optional, Literal
 
 import httpx
@@ -29,6 +31,7 @@ from ingredient_resolution import (
     resolve_ingredient_id_map,
     resolve_ingredient_ids,
 )
+from location_geocoding import GeocodingError, geocode_canonical_address
 
 
 ROOT_DIR = Path(__file__).parent
@@ -1602,6 +1605,181 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
         upsert=True,
     )
     return {"ok": True, "item_ids": [str(i) for i in canonical_ids], "active": body.active}
+
+
+LOCATION_PROVISIONING_API_KEY_ENV = "DRINKTHINK_LOCATION_PROVISIONING_API_KEY"
+CANONICAL_LOCATION_STATUSES = {"active", "inactive"}
+
+
+def _provisioning_authorized(authorization: Optional[str] = Header(None)) -> None:
+    """Require the dedicated machine credential for location onboarding.
+
+    Consumer sessions and the read-only AI token deliberately cannot provision
+    locations. Railway provides the secret at runtime only.
+    """
+    expected = os.environ.get(LOCATION_PROVISIONING_API_KEY_ENV)
+    if not expected:
+        raise HTTPException(status_code=503, detail="Location provisioning is not configured")
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    supplied = authorization.split(" ", 1)[1].strip()
+    if not supplied or not secrets.compare_digest(supplied, expected):
+        raise HTTPException(status_code=403, detail="Invalid provisioning credential")
+
+
+class CanonicalLocationAddress(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    line1: str = Field(min_length=1, max_length=200)
+    line2: Optional[str] = Field(default=None, max_length=200)
+    city: str = Field(min_length=1, max_length=100)
+    state: str = Field(min_length=2, max_length=100)
+    postal_code: str = Field(min_length=1, max_length=20)
+    country: str = Field(min_length=2, max_length=2, pattern=r"^[A-Za-z]{2}$")
+
+    @field_validator("line1", "city", "state", "postal_code", "country", mode="before")
+    @classmethod
+    def non_blank_text(cls, value: Any) -> str:
+        value = str(value or "").strip()
+        if not value:
+            raise ValueError("address fields must not be blank")
+        return value.upper() if value in {"us", "US"} else value
+
+    @field_validator("line2", mode="before")
+    @classmethod
+    def normalized_line2(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        value = str(value).strip()
+        return value or None
+
+
+class LocationProvisioningRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    location_id: str = Field(min_length=5, max_length=160, pattern=r"^loc_[a-z0-9_]+$")
+    organization_id: str = Field(min_length=5, max_length=160, pattern=r"^org_[a-z0-9_]+$")
+    name: str = Field(min_length=1, max_length=160)
+    address: CanonicalLocationAddress
+    timezone: str = Field(min_length=1, max_length=100)
+    status: str
+
+    @field_validator("name", "timezone", "status", mode="before")
+    @classmethod
+    def normalized_required_text(cls, value: Any) -> str:
+        value = str(value or "").strip()
+        if not value:
+            raise ValueError("value must not be blank")
+        return value
+
+    @field_validator("status")
+    @classmethod
+    def canonical_status(cls, value: str) -> str:
+        if value not in CANONICAL_LOCATION_STATUSES:
+            raise ValueError(f"status must be one of: {', '.join(sorted(CANONICAL_LOCATION_STATUSES))}")
+        return value
+
+    @field_validator("timezone")
+    @classmethod
+    def canonical_timezone(cls, value: str) -> str:
+        try:
+            ZoneInfo(value)
+        except ZoneInfoNotFoundError as error:
+            raise ValueError("timezone must be a valid IANA timezone") from error
+        return value
+
+
+def _canonical_location_address(address: CanonicalLocationAddress) -> dict[str, Any]:
+    """Produce the exact persisted address shape, including a null line2."""
+    return address.model_dump()
+
+
+def _valid_canonical_geo(geo: Any) -> bool:
+    if not isinstance(geo, dict) or geo.get("type") != "Point":
+        return False
+    coordinates = geo.get("coordinates")
+    if not isinstance(coordinates, list) or len(coordinates) != 2:
+        return False
+    longitude, latitude = coordinates
+    return (
+        isinstance(longitude, (int, float)) and not isinstance(longitude, bool)
+        and isinstance(latitude, (int, float)) and not isinstance(latitude, bool)
+        and math.isfinite(longitude) and math.isfinite(latitude)
+        and -180 <= longitude <= 180 and -90 <= latitude <= 90
+    )
+
+
+def _same_canonical_address(stored: Any, requested: dict[str, Any]) -> bool:
+    if not isinstance(stored, dict):
+        return False
+    return {key: stored.get(key) for key in requested} == requested
+
+
+async def _provision_canonical_location(body: LocationProvisioningRequest) -> dict[str, Any]:
+    """Create or safely update one canonical location without consumer side effects."""
+    organization = await db.organizations.find_one({"organization_id": body.organization_id}, {"_id": 0, "organization_id": 1})
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization does not exist")
+
+    address = _canonical_location_address(body.address)
+    existing = await db.locations.find_one({"location_id": body.location_id}, {"_id": 0})
+    if existing and existing.get("organization_id") != body.organization_id:
+        raise HTTPException(status_code=409, detail="location_id is already assigned to another organization")
+
+    same_address = bool(existing and _same_canonical_address(existing.get("address"), address))
+    reuse_geo = bool(existing and same_address and _valid_canonical_geo(existing.get("geo")))
+    geocoded = False
+    geo = existing.get("geo") if reuse_geo else None
+    if not reuse_geo:
+        api_key = os.environ.get("GEOCODIO_API_KEY")
+        if not api_key:
+            raise HTTPException(status_code=503, detail="Location geocoding is not configured")
+        try:
+            geo = await geocode_canonical_address(address, api_key)
+        except GeocodingError as error:
+            # No write has occurred yet, so a failed address change leaves the
+            # prior canonical address and coordinate intact.
+            raise HTTPException(status_code=502, detail=f"Location geocoding failed: {error}")
+        geocoded = True
+
+    now = _now()
+    update = {
+        "$setOnInsert": {
+            "location_id": body.location_id,
+            "created_at": now,
+            "pos_connection_id": None,
+        },
+        "$set": {
+            "organization_id": body.organization_id,
+            "name": body.name,
+            "address": address,
+            "geo": geo,
+            "timezone": body.timezone,
+            "status": body.status,
+            "updated_at": now,
+        },
+    }
+    await db.locations.update_one({"location_id": body.location_id}, update, upsert=True)
+    saved = await db.locations.find_one({"location_id": body.location_id}, {"_id": 0})
+    if not saved or not _valid_canonical_geo(saved.get("geo")):
+        raise HTTPException(status_code=500, detail="Location provisioning did not persist canonical GeoJSON")
+    return {
+        "location_id": saved["location_id"],
+        "organization_id": saved["organization_id"],
+        "name": saved.get("name") or "",
+        "address": saved.get("address") or {},
+        "timezone": saved.get("timezone") or "",
+        "status": saved.get("status") or "",
+        "geo": saved["geo"],
+        "created": existing is None,
+        "geocoded": geocoded,
+    }
+
+
+@api_router.post("/admin/locations", dependencies=[Depends(_provisioning_authorized)])
+async def provision_location(body: LocationProvisioningRequest):
+    """Provision one organization-owned canonical location for automation."""
+    return await _provision_canonical_location(body)
 
 
 CHECK_IN_CONFIG_ID = "location_check_in"
