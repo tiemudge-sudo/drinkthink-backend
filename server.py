@@ -778,6 +778,91 @@ async def _canonical_recipe_requirements(
     return requirements
 
 
+def _inventory_satisfies_requirements(
+    required_ids: list[Optional[int]], available_ids: set[int], ingredients_by_id: dict[int, dict]
+) -> tuple[bool, list[int], list[int], bool]:
+    """Use the same exact-or-primary-ingredient semantics as My Cupboard."""
+    signatures = {
+        _ingredient_signature(ingredients_by_id[item_id])
+        for item_id in available_ids if item_id in ingredients_by_id
+    }
+    matched, missing = [], []
+    has_unresolved_requirement = False
+    for ingredient_id in required_ids:
+        if ingredient_id is None:
+            has_unresolved_requirement = True
+        elif ingredient_id in available_ids or (
+            ingredient_id in ingredients_by_id and _ingredient_signature(ingredients_by_id[ingredient_id]) in signatures
+        ):
+            matched.append(ingredient_id)
+        else:
+            missing.append(ingredient_id)
+    return not missing and not has_unresolved_requirement, matched, missing, has_unresolved_requirement
+
+
+async def resolve_effective_location_inventory(location_id: str, read_model: CanonicalReadModel) -> set[int]:
+    """Resolve configured inventory without ever consulting the visiting user."""
+    settings = await db.location_settings.find_one({"location_id": location_id}, {"_id": 0, "inventory_source": 1})
+    source = (settings or {}).get("inventory_source") or {}
+    if source.get("kind") == "user_cupboard":
+        owner_id = source.get("user_id")
+        if not isinstance(owner_id, str) or not owner_id:
+            return set()
+        cupboard = await db.user_cupboard.find_one({"user_id": owner_id}, {"_id": 0, "active": 1, "item_ids": 1})
+        if not cupboard or (source.get("require_active", False) and not cupboard.get("active")):
+            return set()
+        return set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
+    # The commercial default remains location_inventory; no Tie's-House branch.
+    if source and source.get("kind") not in {"location_inventory", None}:
+        return set()
+    rows = await db.location_inventory.find({"location_id": location_id, "in_stock": True}, {"_id": 0, "ingredient_id": 1}).to_list(length=None)
+    return set(await _resolved_historical_ids((row.get("ingredient_id") for row in rows), read_model))
+
+
+async def rebuild_location_drinks(location_id: str, read_model: Optional[CanonicalReadModel] = None) -> int:
+    """Replaceable derived capability cache; inventory remains authoritative elsewhere."""
+    if read_model is None:
+        read_model, _ = await _canonical_read_model_cache.get(RequestTiming())
+    inventory_ids = await resolve_effective_location_inventory(location_id, read_model)
+    now = _now()
+    records = []
+    for cocktail in read_model.cocktails:
+        cocktail_id = str(cocktail.get("cocktail_id") or "")
+        required = list(read_model.required_ingredients_by_cocktail.get(cocktail_id, ()))
+        if not cocktail_id or not required:
+            can_make, matched, missing, has_unresolved_requirement = False, [], [], True
+        else:
+            can_make, matched, missing, has_unresolved_requirement = _inventory_satisfies_requirements(
+                required, inventory_ids, read_model.ingredients_by_id
+            )
+        records.append({
+            "location_id": location_id,
+            "cocktail_id": cocktail_id,
+            "can_make": can_make,
+            "matched_ingredient_ids": matched,
+            "missing_ingredient_ids": missing,
+            "has_unresolved_requirement": has_unresolved_requirement,
+            "computed_at": now,
+            "source_version": "effective_inventory_v1",
+        })
+    await db.location_drinks.delete_many({"location_id": location_id})
+    if records:
+        await db.location_drinks.insert_many(records)
+    return len(records)
+
+
+async def refresh_cupboard_backed_locations(changed_user_id: str) -> None:
+    """Synchronous v1 refresh after an application-mediated host-cupboard write."""
+    settings_rows = await db.location_settings.find({"inventory_source.kind": "user_cupboard", "inventory_source.user_id": changed_user_id}, {"_id": 0, "location_id": 1}).to_list(length=None)
+    if not settings_rows:
+        return
+    read_model, _ = await _canonical_read_model_cache.get(RequestTiming())
+    for settings in settings_rows:
+        location_id = settings.get("location_id")
+        if location_id:
+            await rebuild_location_drinks(str(location_id), read_model)
+
+
 @api_router.get("/drinks/match", response_model=MatchResponse)
 async def match_drink(
     strong: int, fancy: int, comfort: int, party: int, thirsty: int,
@@ -893,10 +978,6 @@ async def match_drink(
         if cupboard and cupboard.get("active"):
             with timing.phase("ingredient_normalization"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-            saved_signatures = {
-                _ingredient_signature(ingredients_by_id[iid])
-                for iid in saved_ids if iid in ingredients_by_id
-            }
             cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
             with timing.phase("recipe_requirement_acquisition"):
                 requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
@@ -905,15 +986,7 @@ async def match_drink(
                 reqs = requirements.get(cid)
                 if not reqs:  # No structured recipe => cannot claim "can make".
                     return False
-                for iid in reqs:
-                    if iid is None:
-                        return False
-                    if iid in saved_ids:
-                        continue
-                    ing = ingredients_by_id.get(iid)
-                    if not ing or _ingredient_signature(ing) not in saved_signatures:
-                        return False
-                return True
+                return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
 
             with timing.phase("cupboard_matching"):
                 canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
@@ -1047,10 +1120,6 @@ async def shake_a_shot(
         if cupboard and cupboard.get("active"):
             with timing.phase("constraints"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-                saved_signatures = {
-                    _ingredient_signature(ingredients_by_id[ingredient_id])
-                    for ingredient_id in saved_ids if ingredient_id in ingredients_by_id
-                }
                 cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
                 requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
@@ -1058,15 +1127,7 @@ async def shake_a_shot(
                     required_ids = requirements.get(cocktail_id)
                     if not required_ids:
                         return False
-                    for ingredient_id in required_ids:
-                        if ingredient_id is None:
-                            return False
-                        if ingredient_id in saved_ids:
-                            continue
-                        ingredient = ingredients_by_id.get(ingredient_id)
-                        if not ingredient or _ingredient_signature(ingredient) not in saved_signatures:
-                            return False
-                    return True
+                    return _inventory_satisfies_requirements(required_ids, saved_ids, ingredients_by_id)[0]
 
                 canonical_docs = [
                     cocktail for cocktail in canonical_docs if cupboard_satisfies(cocktail["cocktail_id"])
@@ -1822,6 +1883,9 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
         {"$set": {"item_ids": canonical_ids, "active": body.active}},
         upsert=True,
     )
+    # This is a no-op unless this account is configured as a location's
+    # inventory source. It never uses a checking-in visitor as inventory.
+    await refresh_cupboard_backed_locations(user.user_id)
     return {"ok": True, "item_ids": [str(i) for i in canonical_ids], "active": body.active}
 
 

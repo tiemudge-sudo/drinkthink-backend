@@ -108,6 +108,8 @@ class Database:
             {"cocktail_id": "retired-recipe", "ingredient_id": 1269, "required": True},
         ])
         self.user_cupboard = Collection()
+        self.location_settings = Collection()
+        self.location_inventory = Collection()
         self.location_drinks = Collection()
         self.blocked = Collection()
         self.favorites = Collection()
