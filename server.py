@@ -1890,6 +1890,7 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
 
 
 LOCATION_PROVISIONING_API_KEY_ENV = "DRINKTHINK_LOCATION_PROVISIONING_API_KEY"
+LOCATION_INVENTORY_REBUILD_API_KEY_ENV = "DRINKTHINK_LOCATION_INVENTORY_REBUILD_API_KEY"
 CANONICAL_LOCATION_STATUSES = {"active", "inactive"}
 
 
@@ -1907,6 +1908,18 @@ def _provisioning_authorized(authorization: Optional[str] = Header(None)) -> Non
     supplied = authorization.split(" ", 1)[1].strip()
     if not supplied or not secrets.compare_digest(supplied, expected):
         raise HTTPException(status_code=403, detail="Invalid provisioning credential")
+
+
+def _location_inventory_rebuild_authorized(authorization: Optional[str] = Header(None)) -> None:
+    """Require the dedicated machine credential for rebuilding derived location drinks."""
+    expected = os.environ.get(LOCATION_INVENTORY_REBUILD_API_KEY_ENV)
+    if not expected:
+        raise HTTPException(status_code=503, detail="Location inventory rebuild is not configured")
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+    supplied = authorization.split(" ", 1)[1].strip()
+    if not supplied or not secrets.compare_digest(supplied, expected):
+        raise HTTPException(status_code=403, detail="Invalid rebuild credential")
 
 
 class CanonicalLocationAddress(BaseModel):
@@ -2062,6 +2075,51 @@ async def _provision_canonical_location(body: LocationProvisioningRequest) -> di
 async def provision_location(body: LocationProvisioningRequest):
     """Provision one organization-owned canonical location for automation."""
     return await _provision_canonical_location(body)
+
+
+def _valid_location_inventory_source(source: Any) -> bool:
+    if not isinstance(source, dict):
+        return False
+    kind = source.get("kind")
+    if kind == "location_inventory":
+        return True
+    if kind != "user_cupboard":
+        return False
+    if not isinstance(source.get("user_id"), str) or not source["user_id"].strip():
+        return False
+    return "require_active" not in source or isinstance(source["require_active"], bool)
+
+
+async def _rebuild_configured_location_drinks(location_id: str) -> dict[str, Any]:
+    """Rebuild derived capabilities only for an active, configured location."""
+    location = await db.locations.find_one(
+        {"location_id": location_id}, {"_id": 0, "location_id": 1, "status": 1}
+    )
+    if not location or location.get("status") != "active":
+        raise HTTPException(status_code=404, detail="Active location does not exist")
+
+    settings = await db.location_settings.find_one(
+        {"location_id": location_id}, {"_id": 0, "inventory_source": 1}
+    )
+    source = (settings or {}).get("inventory_source")
+    if not _valid_location_inventory_source(source):
+        raise HTTPException(status_code=409, detail="Location inventory source is not configured")
+
+    generated_rows = await rebuild_location_drinks(location_id)
+    logger.info(
+        "Location drink rebuild completed location_id=%s generated_rows=%s",
+        location_id,
+        generated_rows,
+    )
+    return {"location_id": location_id, "generated_rows": generated_rows}
+
+
+@api_router.post(
+    "/admin/locations/{location_id}/rebuild-drinks",
+    dependencies=[Depends(_location_inventory_rebuild_authorized)],
+)
+async def rebuild_configured_location_drinks(location_id: str):
+    return await _rebuild_configured_location_drinks(location_id)
 
 
 CHECK_IN_CONFIG_ID = "location_check_in"

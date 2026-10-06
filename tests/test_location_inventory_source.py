@@ -4,6 +4,9 @@ import asyncio
 import copy
 import os
 
+import pytest
+from fastapi import HTTPException
+
 
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "drinkthink_test")
@@ -102,6 +105,9 @@ class Database:
             {"cocktail_id": "lime-drink", "ingredient_id": 2, "required": True},
             {"cocktail_id": "stale-drink", "ingredient_id": "not-an-id", "required": True},
         ])
+        self.locations = Collection([
+            {"location_id": "loc-cupboard", "status": "active"},
+        ])
         self.location_settings = Collection([
             {"location_id": "loc-cupboard", "inventory_source": {"kind": "user_cupboard", "user_id": "host", "require_active": True}},
         ])
@@ -173,4 +179,55 @@ def test_host_cupboard_save_refreshes_only_configured_location(monkeypatch):
     rows = _rows_by_cocktail(database)
     assert rows["vodka-drink"]["can_make"] is False
     assert rows["lime-drink"]["can_make"] is True
+
+
+def test_rebuild_endpoint_uses_its_dedicated_bearer_credential(monkeypatch):
+    monkeypatch.setenv(server.LOCATION_INVENTORY_REBUILD_API_KEY_ENV, "expected")
+    with pytest.raises(HTTPException, match="Missing bearer") as missing:
+        server._location_inventory_rebuild_authorized(None)
+    assert missing.value.status_code == 401
+    with pytest.raises(HTTPException, match="Invalid rebuild") as invalid:
+        server._location_inventory_rebuild_authorized("Bearer wrong")
+    assert invalid.value.status_code == 403
+    assert server._location_inventory_rebuild_authorized("Bearer expected") is None
+
+    route = next(route for route in server.app.routes if route.path == "/api/admin/locations/{location_id}/rebuild-drinks")
+    assert route.methods == {"POST"}
+    assert route.dependencies[0].dependency is server._location_inventory_rebuild_authorized
+
+
+def test_rebuild_endpoint_rejects_missing_or_inactive_location(monkeypatch):
+    database = configure(monkeypatch)
+    with pytest.raises(HTTPException, match="Active location does not exist") as missing:
+        asyncio.run(server._rebuild_configured_location_drinks("loc-missing"))
+    assert missing.value.status_code == 404
+
+    database.locations.rows[0]["status"] = "inactive"
+    with pytest.raises(HTTPException, match="Active location does not exist") as inactive:
+        asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
+    assert inactive.value.status_code == 404
+    assert database.location_drinks.rows == []
+
+
+def test_rebuild_endpoint_rejects_missing_or_invalid_inventory_configuration(monkeypatch):
+    database = configure(monkeypatch)
+    database.location_settings.rows[:] = []
+    with pytest.raises(HTTPException, match="inventory source is not configured") as missing:
+        asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
+    assert missing.value.status_code == 409
+
+    database.location_settings.rows[:] = [
+        {"location_id": "loc-cupboard", "inventory_source": {"kind": "user_cupboard"}},
+    ]
+    with pytest.raises(HTTPException, match="inventory source is not configured") as invalid:
+        asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
+    assert invalid.value.status_code == 409
+    assert database.location_drinks.rows == []
+
+
+def test_rebuild_endpoint_rebuilds_only_the_configured_active_location(monkeypatch):
+    database = configure(monkeypatch)
+    result = asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard"))
+    assert result == {"location_id": "loc-cupboard", "generated_rows": 3}
+    assert len(database.location_drinks.rows) == 3
 
