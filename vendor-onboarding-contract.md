@@ -1,8 +1,8 @@
 # DrinkThink — Vendor onboarding contract
 
-**Contract status:** Locked through the canonical-reference export stage  
-**Recorded:** October 6, 2026  
-**Database:** `DrinkThinkv0`  
+**Contract status:** Locked through the canonical-reference export stage
+**Recorded:** October 6, 2026
+**Database:** `DrinkThinkv0`
 **Scope:** Reusable contract for each newly onboarded vendor location
 
 This checkpoint records the approved onboarding path. Menu ingestion, catalog activation, and consumer location discovery are not complete at this stage.

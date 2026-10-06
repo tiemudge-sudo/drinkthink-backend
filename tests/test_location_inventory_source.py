@@ -268,8 +268,6 @@ def test_menu_catalog_is_a_valid_configured_inventory_source(monkeypatch):
     assert asyncio.run(server._rebuild_configured_location_drinks("loc-cupboard")) == {
         "location_id": "loc-cupboard", "generated_rows": 0,
     }
-
-
 def _capability_result(category_id, available_ids=(), settings=None, signature="ingredient"):
     ingredients = {
         1: {
