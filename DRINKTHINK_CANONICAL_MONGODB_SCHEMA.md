@@ -175,6 +175,23 @@ false - `drink_auto_admit_min_confidence` default 0.95 -
 `drink_allow_admit_without_instructions` default true - pricing
 references/settings - `updated_at`
 
+#### Inventory source
+
+`inventory_source` identifies the authoritative evidence used to derive a
+location's effective ingredient availability:
+
+- `location_inventory`: active `location_inventory` ingredient evidence.
+- `user_cupboard`: the explicitly configured host cupboard; this is a
+  location configuration, never a visiting user's cupboard.
+- `menu_catalog`: the active, canonically reconciled location catalog. Its
+  ingredient evidence is derived from mapped canonical cocktail recipes, not
+  free-text menu tokens, POS data, or synthetic inventory rows.
+
+For a `menu_only` location, the consumer-eligible cocktail universe remains
+the active location catalog. A menu-catalog ingredient set must not expand
+availability to cocktails absent from that catalog. `menu_catalog` cannot be
+rebuilt until reviewed canonical catalog mappings exist.
+
 #### Capability availability settings
 
 - `secondary_liquor_availability`: `explicit | assumed_available`;

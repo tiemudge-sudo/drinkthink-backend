@@ -89,10 +89,19 @@ The same endpoint is the remediation path for an existing location with missing 
 dt_availability = menu_only
 catalog_mode = manual
 inventory_mode = off
+inventory_source.kind = menu_catalog
 pos_connection_id = null
 ```
 
 The vendor menu is the authoritative location catalog, not a new cocktail master.
+
+`menu_catalog` means effective ingredient evidence is derived only from the
+active, canonically reconciled catalog drinks and their
+`cocktail_ingredients` recipes. It does not use menu free text as ingredient
+identity, create `location_inventory` rows, or use a fake POS connection.
+For a menu-only location, capability results must remain limited to the active
+catalog; deriving a menu ingredient set cannot surface other master cocktails.
+Do not rebuild `location_drinks` until the reviewed catalog mappings exist.
 
 ```text
 Vendor menu → manual catalog ingest → inbound_items → canonical cocktail matching
