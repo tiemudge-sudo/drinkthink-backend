@@ -15,6 +15,16 @@ class Cursor:
     async def to_list(self, length=None):
         return list(self.rows if length is None else self.rows[:length])
 
+    def __aiter__(self):
+        self._iterator = iter(self.rows)
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self._iterator)
+        except StopIteration as error:
+            raise StopAsyncIteration from error
+
 
 class Collection:
     def __init__(self, rows):
@@ -69,16 +79,16 @@ def configure(monkeypatch):
 
 def test_only_canonical_shot_candidates_are_returned_and_repeat_is_avoided(monkeypatch):
     configure(monkeypatch)
-    selected = asyncio.run(server.shake_a_shot(previous_drink_id="shot-vodka"))
+    selected = asyncio.run(server.shake_a_shot(previous_drink_id="shot-vodka", authorization=None))
     assert selected.drink.id == "shot-rum"
 
 
 def test_main_ingredient_and_location_constraints_apply_without_slider_inputs(monkeypatch):
     configure(monkeypatch)
-    vodka = asyncio.run(server.shake_a_shot(alcohols="vodka"))
+    vodka = asyncio.run(server.shake_a_shot(alcohols="vodka", authorization=None))
     assert vodka.drink.id == "shot-vodka"
 
-    location = asyncio.run(server.shake_a_shot(location_id="loc-one"))
+    location = asyncio.run(server.shake_a_shot(location_id="loc-one", authorization=None))
     assert location.drink.id == "shot-rum"
     # The endpoint intentionally has no Drink Style or slider inputs.
     assert "glasses" not in server.shake_a_shot.__annotations__
@@ -108,11 +118,11 @@ def test_cupboard_and_blocked_drinks_apply_for_an_authenticated_request(monkeypa
 
 def test_only_eligible_shot_can_repeat(monkeypatch):
     configure(monkeypatch)
-    selected = asyncio.run(server.shake_a_shot(location_id="loc-one", previous_drink_id="shot-rum"))
+    selected = asyncio.run(server.shake_a_shot(location_id="loc-one", previous_drink_id="shot-rum", authorization=None))
     assert selected.drink.id == "shot-rum"
 
 
 def test_zero_eligible_shots_returns_an_empty_response(monkeypatch):
     configure(monkeypatch)
-    selected = asyncio.run(server.shake_a_shot(location_id="no-eligible-shots"))
+    selected = asyncio.run(server.shake_a_shot(location_id="no-eligible-shots", authorization=None))
     assert selected.drink is None
