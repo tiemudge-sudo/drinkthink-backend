@@ -5,7 +5,7 @@ import copy
 import os
 
 import pytest
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "drinkthink_test")
@@ -41,6 +41,7 @@ class UpdateResult:
 class Collection:
     def __init__(self, rows=()):
         self.rows = list(copy.deepcopy(rows))
+        self.find_calls = 0
 
     @staticmethod
     def _matches(row, query):
@@ -58,6 +59,7 @@ class Collection:
         return True
 
     def find(self, query, _projection=None):
+        self.find_calls += 1
         return Cursor([row for row in self.rows if self._matches(row, query)])
 
     async def find_one(self, query, _projection=None):
@@ -88,6 +90,9 @@ class Database:
             {"ingredient_id": 1261, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
             {"ingredient_id": 1647, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
+        self.glasses = Collection([
+            {"glass_id": "rocks", "display_name": "Rocks", "filter_families": ["rocks"], "status": "active"},
+        ])
         scores = {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5}
         self.cocktails = Collection([
             {"cocktail_id": "canonical-cupboard", "name": "Canonical", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1261], "scores": scores},
@@ -110,7 +115,7 @@ async def _glasses():
 def configure(monkeypatch):
     database = Database()
     monkeypatch.setattr(server, "db", database)
-    monkeypatch.setattr(server, "_canonical_glasses_by_id", _glasses)
+    server._canonical_read_model_cache.clear()
 
     async def current_user(_authorization):
         return server.User(user_id="user-1", email="user@example.test", name="User", picture="", created_at="now")
@@ -178,3 +183,44 @@ def test_main_ingredient_retired_and_canonical_ids_are_equivalent(monkeypatch):
         strong=5, fancy=5, comfort=5, party=5, thirsty=5, alcohols="vodka", limit=50, authorization=None
     ))
     assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+
+
+def test_match_reuses_only_canonical_read_model_and_preserves_order(monkeypatch):
+    """A warm cache must not change recommendation results or re-read catalog sources."""
+    database = configure(monkeypatch)
+    cold_response = Response()
+    cold = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50, response=cold_response
+    ))
+    warm_response = Response()
+    warm = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50, response=warm_response
+    ))
+
+    assert [(item.drink.id, item.score) for item in warm.results] == [
+        (item.drink.id, item.score) for item in cold.results
+    ]
+    assert database.cocktails.find_calls == 1
+    assert database.ingredients.find_calls == 1
+    assert database.glasses.find_calls == 1
+    assert database.ingredient_id_merges.find_calls == 1
+    assert 'cache;desc="refresh"' in cold_response.headers["server-timing"]
+    assert 'cache;desc="hit"' in warm_response.headers["server-timing"]
+
+
+def test_expired_canonical_snapshot_refreshes_from_the_database(monkeypatch):
+    database = configure(monkeypatch)
+    asyncio.run(server.match_drink(strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50))
+    database.cocktails.rows.append({
+        "cocktail_id": "fresh-after-expiry", "name": "Fresh", "status": "active",
+        "glass_id": "rocks", "main_ingredient_ids": [1261],
+        "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+    server._canonical_read_model_cache._expires_at = 0
+
+    refreshed = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50
+    ))
+
+    assert "fresh-after-expiry" in {item.drink.id for item in refreshed.results}
+    assert database.cocktails.find_calls == 2

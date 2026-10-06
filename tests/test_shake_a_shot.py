@@ -29,8 +29,10 @@ class Cursor:
 class Collection:
     def __init__(self, rows):
         self.rows = rows
+        self.find_calls = 0
 
     def find(self, query, _projection=None):
+        self.find_calls += 1
         def matches(row):
             for key, expected in query.items():
                 if isinstance(expected, dict) and "$in" in expected:
@@ -56,6 +58,10 @@ class FakeDb:
             {"ingredient_id": 1, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
             {"ingredient_id": 2, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
+        self.glasses = Collection([
+            {"glass_id": "shot", "filter_families": ["shot"], "display_name": "Shot", "status": "active"},
+            {"glass_id": "rocks", "filter_families": ["rocks"], "display_name": "Rocks", "status": "active"},
+        ])
         self.ingredient_id_merges = Collection([])
         self.location_drinks = Collection([
             {"location_id": "loc-one", "cocktail_id": "shot-rum", "can_make": True},
@@ -74,7 +80,7 @@ async def _glasses():
 
 def configure(monkeypatch):
     monkeypatch.setattr(server, "db", FakeDb())
-    monkeypatch.setattr(server, "_canonical_glasses_by_id", _glasses)
+    server._canonical_read_model_cache.clear()
 
 
 def test_only_canonical_shot_candidates_are_returned_and_repeat_is_avoided(monkeypatch):
@@ -126,3 +132,18 @@ def test_zero_eligible_shots_returns_an_empty_response(monkeypatch):
     configure(monkeypatch)
     selected = asyncio.run(server.shake_a_shot(location_id="no-eligible-shots", authorization=None))
     assert selected.drink is None
+
+
+def test_shake_reuses_the_canonical_read_model(monkeypatch):
+    configure(monkeypatch)
+    database = server.db
+    monkeypatch.setattr(server.secrets, "choice", lambda candidates: candidates[0])
+
+    cold = asyncio.run(server.shake_a_shot(authorization=None))
+    warm = asyncio.run(server.shake_a_shot(authorization=None))
+
+    assert warm.drink.id == cold.drink.id == "shot-vodka"
+    assert database.cocktails.find_calls == 1
+    assert database.ingredients.find_calls == 1
+    assert database.glasses.find_calls == 1
+    assert database.ingredient_id_merges.find_calls == 1

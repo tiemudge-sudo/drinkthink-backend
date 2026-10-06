@@ -9,12 +9,16 @@ import os
 import json
 import uuid
 import logging
+import asyncio
 import base64
 import hashlib
 import hmac
 import secrets
 import re
 import math
+import time
+from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -269,6 +273,120 @@ async def _canonical_glasses_by_id() -> dict[str, dict]:
     """Return canonical glass metadata keyed by glass_id for response shaping."""
     glass_docs = await db.glasses.find({"status": "active"}, {"_id": 0}).to_list(length=None)
     return {str(g["glass_id"]): g for g in glass_docs if g.get("glass_id")}
+
+
+def _canonical_read_model_ttl_seconds() -> float:
+    """Return a bounded, Railway-configurable TTL without failing startup."""
+    try:
+        return max(1.0, min(float(os.environ.get("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", "60")), 3600.0))
+    except ValueError:
+        return 60.0
+
+
+@dataclass(frozen=True)
+class CanonicalReadModel:
+    """Immutable canonical source data used by recommendation and Shake paths."""
+    cocktails: tuple[dict, ...]
+    ingredients_by_id: dict[int, dict]
+    active_ingredient_ids: frozenset[int]
+    glasses_by_id: dict[str, dict]
+    active_merge_map: dict[int, int]
+
+
+class RequestTiming:
+    """Request-local, non-sensitive duration collector for Server-Timing."""
+    def __init__(self):
+        self.started = time.perf_counter()
+        self.phases: dict[str, float] = {}
+
+    @contextmanager
+    def phase(self, name: str):
+        started = time.perf_counter()
+        try:
+            yield
+        finally:
+            self.phases[name] = self.phases.get(name, 0.0) + (time.perf_counter() - started) * 1000
+
+    def add(self, name: str, duration_ms: float) -> None:
+        self.phases[name] = self.phases.get(name, 0.0) + duration_ms
+
+    def set_response_header(self, response: Optional[Response], cache_state: str) -> None:
+        if response is None:
+            return
+        total_ms = (time.perf_counter() - self.started) * 1000
+        entries = [f"cache;desc=\"{cache_state}\";dur=0"]
+        entries.extend(f"{name};dur={duration:.1f}" for name, duration in self.phases.items())
+        entries.append(f"total;dur={total_ms:.1f}")
+        response.headers["Server-Timing"] = ", ".join(entries)
+
+
+class CanonicalReadModelCache:
+    """One bounded snapshot per process; no user or request result data is cached."""
+    def __init__(self):
+        self._snapshot: Optional[CanonicalReadModel] = None
+        self._expires_at = 0.0
+        self._source_db_id: Optional[int] = None
+        self._lock = asyncio.Lock()
+
+    def clear(self) -> None:
+        self._snapshot = None
+        self._expires_at = 0.0
+        self._source_db_id = None
+
+    async def get(self, timing: RequestTiming) -> tuple[CanonicalReadModel, str]:
+        now = time.monotonic()
+        if self._snapshot and self._source_db_id == id(db) and now < self._expires_at:
+            return self._snapshot, "hit"
+
+        async with self._lock:
+            now = time.monotonic()
+            if self._snapshot and self._source_db_id == id(db) and now < self._expires_at:
+                return self._snapshot, "hit_after_wait"
+
+            async def load(name: str, cursor) -> list[dict]:
+                started = time.perf_counter()
+                try:
+                    return await cursor.to_list(length=None)
+                finally:
+                    timing.add(name, (time.perf_counter() - started) * 1000)
+
+            # These independent reads are deliberately concurrent. A snapshot is
+            # assigned only after every canonical source loaded successfully.
+            cocktails, ingredients, glasses, merges = await asyncio.gather(
+                load("cocktails", db.cocktails.find({"status": "active"}, {"_id": 0})),
+                load("ingredients", db.ingredients.find({"status": "active"}, {"_id": 0})),
+                load("glasses", db.glasses.find({"status": "active"}, {"_id": 0})),
+                load("ingredient_merges", db.ingredient_id_merges.find(
+                    {"status": "active"}, {"_id": 0, "from_id": 1, "resolved_to_id": 1}
+                )),
+            )
+            ingredients_by_id = {
+                int(row["ingredient_id"]): row
+                for row in ingredients
+                if isinstance(row.get("ingredient_id"), int)
+            }
+            merge_map: dict[int, int] = {}
+            for row in merges:
+                try:
+                    merge_map[parse_ingredient_id(row.get("from_id"))] = parse_ingredient_id(row.get("resolved_to_id"))
+                except IngredientResolutionError:
+                    # Invalid source data is handled by the existing resolver on
+                    # request input; it must not make a successful snapshot lie.
+                    continue
+            snapshot = CanonicalReadModel(
+                cocktails=tuple(cocktails),
+                ingredients_by_id=ingredients_by_id,
+                active_ingredient_ids=frozenset(ingredients_by_id),
+                glasses_by_id={str(row["glass_id"]): row for row in glasses if row.get("glass_id")},
+                active_merge_map=merge_map,
+            )
+            self._snapshot = snapshot
+            self._source_db_id = id(db)
+            self._expires_at = time.monotonic() + _canonical_read_model_ttl_seconds()
+            return snapshot, "refresh"
+
+
+_canonical_read_model_cache = CanonicalReadModelCache()
 
 
 class MatchItem(BaseModel):
@@ -571,23 +689,37 @@ def _ingredient_signature(ingredient: dict) -> tuple[str, str]:
     )
 
 
-async def _resolved_historical_ids(values) -> list[int]:
+async def _resolved_historical_ids(values, read_model: Optional[CanonicalReadModel] = None) -> list[int]:
     """Resolve persisted IDs without turning one stale record into a 500."""
-    return await resolve_ingredient_ids(db, values or [], strict=False)
+    return await resolve_ingredient_ids(
+        db,
+        values or [],
+        strict=False,
+        active_merge_map=read_model.active_merge_map if read_model else None,
+        active_ingredient_ids=read_model.active_ingredient_ids if read_model else None,
+    )
 
 
-async def _resolved_id_map(values) -> dict[int, int]:
+async def _resolved_id_map(values, read_model: Optional[CanonicalReadModel] = None) -> dict[int, int]:
     """Resolve persisted references in two bounded queries."""
-    return await resolve_ingredient_id_map(db, values or [], strict=False)
+    return await resolve_ingredient_id_map(
+        db,
+        values or [],
+        strict=False,
+        active_merge_map=read_model.active_merge_map if read_model else None,
+        active_ingredient_ids=read_model.active_ingredient_ids if read_model else None,
+    )
 
 
-async def _canonical_recipe_requirements(cocktail_ids: list[str]) -> dict[str, list[Optional[int]]]:
+async def _canonical_recipe_requirements(
+    cocktail_ids: list[str], read_model: Optional[CanonicalReadModel] = None
+) -> dict[str, list[Optional[int]]]:
     """Load and resolve recipe IDs; unresolved persisted values fail capability checks."""
     rows = await db.cocktail_ingredients.find(
         {"cocktail_id": {"$in": cocktail_ids}, "required": True},
         {"_id": 0, "cocktail_id": 1, "ingredient_id": 1},
     ).to_list(length=None)
-    id_map = await _resolved_id_map(row.get("ingredient_id") for row in rows)
+    id_map = await _resolved_id_map((row.get("ingredient_id") for row in rows), read_model)
     requirements: dict[str, list[Optional[int]]] = {}
     for row in rows:
         try:
@@ -609,6 +741,7 @@ async def match_drink(
     glasses: Optional[str] = None,
     location_id: Optional[str] = None,
     authorization: Optional[str] = Header(None),
+    response: Response = None,
 ):
     """Return top canonical cocktails after What-I-Want, location/cupboard and user filters.
 
@@ -623,6 +756,7 @@ async def match_drink(
     if limit < 1 or limit > 50:
         raise HTTPException(status_code=400, detail="limit must be 1..50")
 
+    timing = RequestTiming()
     me: Optional[User] = None
     if authorization:
         try:
@@ -650,90 +784,98 @@ async def match_drink(
     user_sum = sum(dim_vals.values())
     user_ratios = {d: dim_vals[d] / user_sum for d in DIMS}
 
-    canonical_docs = await db.cocktails.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    read_model, cache_state = await _canonical_read_model_cache.get(timing)
+    canonical_docs = list(read_model.cocktails)
     if not canonical_docs:
         raise HTTPException(status_code=404, detail="No drinks in database")
 
-    ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
-    ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
-    main_ingredient_map = await _resolved_id_map(
-        ingredient_id
-        for cocktail in canonical_docs
-        for ingredient_id in cocktail.get("main_ingredient_ids") or []
-    )
+    ingredients_by_id = read_model.ingredients_by_id
+    with timing.phase("ingredient_resolution"):
+        main_ingredient_map = await _resolved_id_map(
+            (
+                ingredient_id
+                for cocktail in canonical_docs
+                for ingredient_id in cocktail.get("main_ingredient_ids") or []
+            ),
+            read_model,
+        )
 
     # What I Want: canonical main ingredient filter.
-    if alcohol_filters:
-        spirit_filters = alcohol_filters - {"non_alcoholic"}
-        want_nonalc = "non_alcoholic" in alcohol_filters
-        kept = []
-        for c in canonical_docs:
-            ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
-            if not ok and spirit_filters:
-                for source_id in _int_ids(c.get("main_ingredient_ids")):
-                    ing = ingredients_by_id.get(main_ingredient_map.get(source_id)) or {}
-                    if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
-                        ok = True
-                        break
-            if ok:
-                kept.append(c)
-        canonical_docs = kept
+    with timing.phase("filtering"):
+        if alcohol_filters:
+            spirit_filters = alcohol_filters - {"non_alcoholic"}
+            want_nonalc = "non_alcoholic" in alcohol_filters
+            kept = []
+            for c in canonical_docs:
+                ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
+                if not ok and spirit_filters:
+                    for source_id in _int_ids(c.get("main_ingredient_ids")):
+                        ing = ingredients_by_id.get(main_ingredient_map.get(source_id)) or {}
+                        if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
+                            ok = True
+                            break
+                if ok:
+                    kept.append(c)
+            canonical_docs = kept
 
-    # Resolve canonical glass metadata once. It remains the sole source for
-    # Drink Style filter-family membership; card icons use glass_category_id.
-    glasses_by_id = await _canonical_glasses_by_id()
+        # Drink Style filter-family membership is glass-owned. Card icon
+        # identity remains the cocktail's glass_category_id.
+        glasses_by_id = read_model.glasses_by_id
 
-    # What I Want: OR within Drink Style, based solely on canonical
-    # glasses.filter_families.  No legacy-name fallback or taxonomy is allowed.
-    if glass_filters:
-        canonical_docs = [
-            c for c in canonical_docs
-            if glass_filters.intersection(set((glasses_by_id.get(str(c.get("glass_id"))) or {}).get("filter_families") or []))
-        ]
+        # What I Want: OR within Drink Style, based solely on canonical
+        # glasses.filter_families. No legacy-name fallback or taxonomy is allowed.
+        if glass_filters:
+            canonical_docs = [
+                c for c in canonical_docs
+                if glass_filters.intersection(set((glasses_by_id.get(str(c.get("glass_id"))) or {}).get("filter_families") or []))
+            ]
 
     # Checked-in location replaces home cupboard constraint.
-    if location_id:
-        can_make_ids = {
-            row["cocktail_id"]
-            async for row in db.location_drinks.find(
-                {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
-            )
-        }
-        canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in can_make_ids]
-    elif me:
-        cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
-        if cupboard and cupboard.get("active"):
-            saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids")))
-            saved_signatures = {
-                _ingredient_signature(ingredients_by_id[iid])
-                for iid in saved_ids if iid in ingredients_by_id
+    with timing.phase("constraints"):
+        if location_id:
+            can_make_ids = {
+                row["cocktail_id"]
+                async for row in db.location_drinks.find(
+                    {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
+                )
             }
-            cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
-            requirements = await _canonical_recipe_requirements(cocktail_ids)
+            canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in can_make_ids]
+        elif me:
+            cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
+            if cupboard and cupboard.get("active"):
+                saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
+                saved_signatures = {
+                    _ingredient_signature(ingredients_by_id[iid])
+                    for iid in saved_ids if iid in ingredients_by_id
+                }
+                cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+                requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
-            def cupboard_satisfies(cid: str) -> bool:
-                reqs = requirements.get(cid)
-                if not reqs:  # No structured recipe => cannot claim "can make".
-                    return False
-                for iid in reqs:
-                    if iid is None:
+                def cupboard_satisfies(cid: str) -> bool:
+                    reqs = requirements.get(cid)
+                    if not reqs:  # No structured recipe => cannot claim "can make".
                         return False
-                    if iid in saved_ids:
-                        continue
-                    ing = ingredients_by_id.get(iid)
-                    if not ing or _ingredient_signature(ing) not in saved_signatures:
-                        return False
-                return True
+                    for iid in reqs:
+                        if iid is None:
+                            return False
+                        if iid in saved_ids:
+                            continue
+                        ing = ingredients_by_id.get(iid)
+                        if not ing or _ingredient_signature(ing) not in saved_signatures:
+                            return False
+                    return True
 
-            canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
+                canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
-    docs = [_canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id")))) for d in canonical_docs]
+    with timing.phase("response_shaping"):
+        docs = [_canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id")))) for d in canonical_docs]
 
     blocked_ids: set[str] = set()
     favorite_ids: set[str] = set()
     if me:
-        blocked_ids = {b["drink_id"] async for b in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
-        favorite_ids = {f["drink_id"] async for f in db.favorites.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
+        with timing.phase("user_constraints"):
+            blocked_ids = {b["drink_id"] async for b in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
+            favorite_ids = {f["drink_id"] async for f in db.favorites.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})}
     if blocked_ids:
         docs = [d for d in docs if d["id"] not in blocked_ids]
 
@@ -746,8 +888,11 @@ async def match_drink(
             diff += abs(total - user_sum) / user_sum
         return diff
 
-    scored_all = sorted(((d, score_of(d)) for d in docs), key=lambda x: x[1])
-    top = scored_all[:limit]
+    with timing.phase("scoring"):
+        scored_all = [(d, score_of(d)) for d in docs]
+    with timing.phase("sorting_selection"):
+        scored_all.sort(key=lambda x: x[1])
+        top = scored_all[:limit]
     pin_slot = 4
     if favorite_ids and len(top) > pin_slot:
         top5_ids = {d["id"] for d, _ in top[:5]}
@@ -756,8 +901,11 @@ async def match_drink(
             if best_fav_pair:
                 top = (top[:pin_slot] + [best_fav_pair] + top[pin_slot:])[:limit]
 
-    results = [MatchItem(drink=Drink(**d), score=float(score), is_favorite=d["id"] in favorite_ids) for d, score in top]
-    return MatchResponse(results=results, scoring=scoring, query=slider_vals, query_mapped=dim_vals)
+    with timing.phase("serialization"):
+        results = [MatchItem(drink=Drink(**d), score=float(score), is_favorite=d["id"] in favorite_ids) for d, score in top]
+        result = MatchResponse(results=results, scoring=scoring, query=slider_vals, query_mapped=dim_vals)
+    timing.set_response_header(response, cache_state)
+    return result
 
 
 @api_router.get("/drinks/shake-shot", response_model=ShakeShotResponse)
@@ -767,6 +915,7 @@ async def shake_a_shot(
     location_id: Optional[str] = None,
     previous_drink_id: Optional[str] = None,
     authorization: Optional[str] = Header(None),
+    response: Response = None,
 ):
     """Select a random canonical Shot without using preference-slider scoring.
 
@@ -775,6 +924,7 @@ async def shake_a_shot(
     requested main-ingredient/cupboard constraints, the authenticated user's
     blocked list, and canonical location availability.
     """
+    timing = RequestTiming()
     me: Optional[User] = None
     if authorization:
         try:
@@ -787,94 +937,111 @@ async def shake_a_shot(
     if unknown:
         raise HTTPException(status_code=400, detail=f"unknown alcohol filters: {sorted(unknown)}")
 
-    canonical_docs = await db.cocktails.find({"status": "active"}, {"_id": 0}).to_list(length=None)
+    read_model, cache_state = await _canonical_read_model_cache.get(timing)
+    canonical_docs = [dict(cocktail) for cocktail in read_model.cocktails]
     if not canonical_docs:
+        timing.set_response_header(response, cache_state)
         return ShakeShotResponse()
 
     # Shot membership comes only from the locked canonical glasses record,
     # never from legacy glass names or cocktail recipe/category text.
-    glasses_by_id = await _canonical_glasses_by_id()
-    canonical_docs = [
-        cocktail for cocktail in canonical_docs
-        if "shot" in set((glasses_by_id.get(str(cocktail.get("glass_id"))) or {}).get("filter_families") or [])
-    ]
+    glasses_by_id = read_model.glasses_by_id
+    ingredients_by_id = read_model.ingredients_by_id
+    with timing.phase("filtering"):
+        canonical_docs = [
+            cocktail for cocktail in canonical_docs
+            if "shot" in set((glasses_by_id.get(str(cocktail.get("glass_id"))) or {}).get("filter_families") or [])
+        ]
 
-    ingredient_docs = await db.ingredients.find({"status": "active"}, {"_id": 0}).to_list(length=None)
-    ingredients_by_id = {int(i["ingredient_id"]): i for i in ingredient_docs if isinstance(i.get("ingredient_id"), int)}
-    main_ingredient_map = await _resolved_id_map(
-        ingredient_id
-        for cocktail in canonical_docs
-        for ingredient_id in cocktail.get("main_ingredient_ids") or []
-    )
+    with timing.phase("ingredient_resolution"):
+        main_ingredient_map = await _resolved_id_map(
+            (
+                ingredient_id
+                for cocktail in canonical_docs
+                for ingredient_id in cocktail.get("main_ingredient_ids") or []
+            ),
+            read_model,
+        )
 
     if alcohol_filters:
         spirit_filters = alcohol_filters - {"non_alcoholic"}
         wants_non_alcoholic = "non_alcoholic" in alcohol_filters
-        filtered_docs = []
-        for cocktail in canonical_docs:
-            matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
-            if not matches and spirit_filters:
-                matches = any(
-                    str((ingredients_by_id.get(main_ingredient_map.get(ingredient_id)) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
-                    for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
-                )
-            if matches:
-                filtered_docs.append(cocktail)
-        canonical_docs = filtered_docs
+        with timing.phase("filtering"):
+            filtered_docs = []
+            for cocktail in canonical_docs:
+                matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
+                if not matches and spirit_filters:
+                    matches = any(
+                        str((ingredients_by_id.get(main_ingredient_map.get(ingredient_id)) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
+                        for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
+                    )
+                if matches:
+                    filtered_docs.append(cocktail)
+            canonical_docs = filtered_docs
 
     # Checked-in location is authoritative and replaces the home-cupboard
     # constraint, exactly as normal match results do.
     if location_id:
-        can_make_ids = {
-            row["cocktail_id"]
-            async for row in db.location_drinks.find(
-                {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
-            )
-        }
-        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail.get("cocktail_id") in can_make_ids]
-    elif me and use_cupboard:
-        cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
-        if cupboard and cupboard.get("active"):
-            saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids")))
-            saved_signatures = {
-                _ingredient_signature(ingredients_by_id[ingredient_id])
-                for ingredient_id in saved_ids if ingredient_id in ingredients_by_id
+        with timing.phase("constraints"):
+            can_make_ids = {
+                row["cocktail_id"]
+                async for row in db.location_drinks.find(
+                    {"location_id": location_id, "can_make": True}, {"_id": 0, "cocktail_id": 1}
+                )
             }
-            cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
-            requirements = await _canonical_recipe_requirements(cocktail_ids)
+            canonical_docs = [cocktail for cocktail in canonical_docs if cocktail.get("cocktail_id") in can_make_ids]
+    elif me and use_cupboard:
+        with timing.phase("constraints"):
+            cupboard = await db.user_cupboard.find_one({"user_id": me.user_id}, {"_id": 0})
+        if cupboard and cupboard.get("active"):
+            with timing.phase("constraints"):
+                saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
+                saved_signatures = {
+                    _ingredient_signature(ingredients_by_id[ingredient_id])
+                    for ingredient_id in saved_ids if ingredient_id in ingredients_by_id
+                }
+                cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
+                requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
-            def cupboard_satisfies(cocktail_id: str) -> bool:
-                required_ids = requirements.get(cocktail_id)
-                if not required_ids:
-                    return False
-                for ingredient_id in required_ids:
-                    if ingredient_id is None:
+                def cupboard_satisfies(cocktail_id: str) -> bool:
+                    required_ids = requirements.get(cocktail_id)
+                    if not required_ids:
                         return False
-                    if ingredient_id in saved_ids:
-                        continue
-                    ingredient = ingredients_by_id.get(ingredient_id)
-                    if not ingredient or _ingredient_signature(ingredient) not in saved_signatures:
-                        return False
-                return True
+                    for ingredient_id in required_ids:
+                        if ingredient_id is None:
+                            return False
+                        if ingredient_id in saved_ids:
+                            continue
+                        ingredient = ingredients_by_id.get(ingredient_id)
+                        if not ingredient or _ingredient_signature(ingredient) not in saved_signatures:
+                            return False
+                    return True
 
-            canonical_docs = [
-                cocktail for cocktail in canonical_docs if cupboard_satisfies(cocktail["cocktail_id"])
-            ]
+                canonical_docs = [
+                    cocktail for cocktail in canonical_docs if cupboard_satisfies(cocktail["cocktail_id"])
+                ]
 
     if me:
-        blocked_ids = {
-            row["drink_id"] async for row in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})
-        }
-        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] not in blocked_ids]
+        with timing.phase("constraints"):
+            blocked_ids = {
+                row["drink_id"] async for row in db.blocked.find({"user_id": me.user_id}, {"_id": 0, "drink_id": 1})
+            }
+            canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] not in blocked_ids]
 
     # Never immediately repeat if another eligible Shot exists.
     if previous_drink_id and len(canonical_docs) > 1:
-        canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] != previous_drink_id]
+        with timing.phase("filtering"):
+            canonical_docs = [cocktail for cocktail in canonical_docs if cocktail["cocktail_id"] != previous_drink_id]
 
     if not canonical_docs:
+        timing.set_response_header(response, cache_state)
         return ShakeShotResponse()
-    selected = secrets.choice(canonical_docs)
-    return ShakeShotResponse(drink=Drink(**_canonical_to_drink(selected, glasses_by_id.get(str(selected.get("glass_id"))))))
+    with timing.phase("sorting_selection"):
+        selected = secrets.choice(canonical_docs)
+    with timing.phase("serialization"):
+        result = ShakeShotResponse(drink=Drink(**_canonical_to_drink(selected, glasses_by_id.get(str(selected.get("glass_id"))))))
+    timing.set_response_header(response, cache_state)
+    return result
 
 
 class DrinkSearchResult(BaseModel):
