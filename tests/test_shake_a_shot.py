@@ -67,8 +67,8 @@ class FakeDb:
 
 async def _glasses():
     return {
-        "shot": {"glass_id": "shot", "filter_families": ["shot"], "display_name": "Shot", "icon_key": "shot"},
-        "rocks": {"glass_id": "rocks", "filter_families": ["rocks"], "display_name": "Rocks", "icon_key": "rocks"},
+        "shot": {"glass_id": "shot", "filter_families": ["shot"], "display_name": "Shot"},
+        "rocks": {"glass_id": "rocks", "filter_families": ["rocks"], "display_name": "Rocks"},
     }
 
 

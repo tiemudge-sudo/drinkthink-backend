@@ -227,7 +227,7 @@ class Drink(BaseModel):
     category: str = ""
     alcohol: str = ""
     glass: str = ""
-    icon_key: str = ""
+    glass_category_id: str = ""
     ingredients: str = ""
     instructions: str = ""
     shopping: str = ""
@@ -247,10 +247,10 @@ def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
         "name": doc.get("name") or "",
         "category": doc.get("category") or "",
         "alcohol": doc.get("alcohol_class") or "",
-        # Glass identity and its icon are resolved by the canonical glasses
-        # record.  A selected consumer filter must never choose this icon.
+        # Drink Style filtering remains glass-owned. Card icon identity is
+        # instead the cocktail's canonical glass category.
         "glass": (glass or {}).get("display_name") or (glass or {}).get("name") or doc.get("glass_id") or "",
-        "icon_key": (glass or {}).get("icon_key") or "",
+        "glass_category_id": doc.get("glass_category_id") or "",
         "ingredients": doc.get("human_ingredients") or "",
         "instructions": doc.get("instructions") or "",
         "shopping": doc.get("shopping_tokens") or "",
@@ -676,8 +676,8 @@ async def match_drink(
                 kept.append(c)
         canonical_docs = kept
 
-    # Resolve canonical glass metadata once.  This is the sole source for both
-    # consumer-filter membership and returned card icon_key.
+    # Resolve canonical glass metadata once. It remains the sole source for
+    # Drink Style filter-family membership; card icons use glass_category_id.
     glasses_by_id = await _canonical_glasses_by_id()
 
     # What I Want: OR within Drink Style, based solely on canonical
@@ -878,7 +878,7 @@ class DrinkSearchResult(BaseModel):
     id: str
     name: str
     glass: str = ""
-    icon_key: str = ""
+    glass_category_id: str = ""
     ingredients: str = ""
     is_favorite: bool = False
 
@@ -909,7 +909,7 @@ async def search_drinks(q: str, limit: int = 20, authorization: Optional[str] = 
             id=d["cocktail_id"],
             name=d.get("name") or "",
             glass=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("display_name") or d.get("glass_id") or "",
-            icon_key=(glasses_by_id.get(str(d.get("glass_id"))) or {}).get("icon_key") or "",
+            glass_category_id=d.get("glass_category_id") or "",
             ingredients=d.get("human_ingredients") or "",
             is_favorite=d["cocktail_id"] in favorite_ids,
         )

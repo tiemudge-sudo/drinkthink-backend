@@ -104,7 +104,7 @@ class Database:
 
 
 async def _glasses():
-    return {"rocks": {"glass_id": "rocks", "display_name": "Rocks", "icon_key": "rocks", "filter_families": ["rocks"]}}
+    return {"rocks": {"glass_id": "rocks", "display_name": "Rocks", "filter_families": ["rocks"]}}
 
 
 def configure(monkeypatch):
