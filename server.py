@@ -278,9 +278,9 @@ async def _canonical_glasses_by_id() -> dict[str, dict]:
 def _canonical_read_model_ttl_seconds() -> float:
     """Return a bounded, Railway-configurable TTL without failing startup."""
     try:
-        return max(1.0, min(float(os.environ.get("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", "60")), 3600.0))
+        return max(1.0, min(float(os.environ.get("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", "86400")), 86400.0))
     except ValueError:
-        return 60.0
+        return 86400.0
 
 
 @dataclass(frozen=True)

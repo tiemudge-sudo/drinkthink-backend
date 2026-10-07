@@ -13,6 +13,28 @@ os.environ.setdefault("DB_NAME", "drinkthink_test")
 import server
 
 
+def test_canonical_read_model_ttl_defaults_to_24_hours_and_honors_bounded_override(monkeypatch):
+    monkeypatch.delenv("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", raising=False)
+    assert server._canonical_read_model_ttl_seconds() == 86400.0
+
+    monkeypatch.setenv("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", "120")
+    assert server._canonical_read_model_ttl_seconds() == 120.0
+
+
+@pytest.mark.parametrize(
+    ("configured_value", "expected"),
+    [
+        ("0", 1.0),
+        ("-1", 1.0),
+        ("999999", 86400.0),
+        ("not-a-number", 86400.0),
+    ],
+)
+def test_canonical_read_model_ttl_rejects_unsafe_values(monkeypatch, configured_value, expected):
+    monkeypatch.setenv("CANONICAL_READ_MODEL_CACHE_TTL_SECONDS", configured_value)
+    assert server._canonical_read_model_ttl_seconds() == expected
+
+
 class Cursor:
     def __init__(self, rows, collection=None):
         self.rows = rows
