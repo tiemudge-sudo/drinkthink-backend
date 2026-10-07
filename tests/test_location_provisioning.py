@@ -219,3 +219,72 @@ def test_invalid_geocode_does_not_create_a_location(monkeypatch):
     with pytest.raises(HTTPException, match="Location geocoding failed"):
         provision(request())
     assert not database.locations.rows
+
+
+def test_public_location_resolver_returns_only_the_share_contract_without_auth(monkeypatch):
+    database, _calls = configure(monkeypatch, [{
+        "location_id": "loc_ties_house",
+        "name": "Tie’s House",
+        "organization_id": "org_ties_house",
+        "share_slug": "house-of-tie",
+        "share_enabled": True,
+        "status": "active",
+        "geo": {"type": "Point", "coordinates": [-82.501076, 27.932127]},
+        "inventory_source": {"kind": "user_cupboard"},
+    }])
+
+    result = asyncio.run(server.public_location_by_share_slug("house-of-tie"))
+
+    assert result == {
+        "share_slug": "house-of-tie",
+        "display_name": "Tie’s House",
+        "latitude": 27.932127,
+        "longitude": -82.501076,
+    }
+    route = next(route for route in server.app.routes if route.path == "/api/public/locations/{share_slug}")
+    assert route.methods == {"GET"}
+    assert route.dependencies == []
+    assert database.locations.rows[0]["geo"]["coordinates"] == [-82.501076, 27.932127]
+
+
+@pytest.mark.parametrize("location, slug", [
+    ({}, "unknown"),
+    ({"share_enabled": False}, "house-of-tie"),
+    ({"status": "inactive"}, "house-of-tie"),
+    ({"geo": None}, "house-of-tie"),
+    ({"geo": {"type": "Point", "coordinates": [-82.501076, 127]}}, "house-of-tie"),
+])
+def test_public_location_resolver_hides_every_non_resolvable_location(monkeypatch, location, slug):
+    canonical = {
+        "location_id": "loc_ties_house",
+        "name": "Tie’s House",
+        "share_slug": "house-of-tie",
+        "share_enabled": True,
+        "status": "active",
+        "geo": {"type": "Point", "coordinates": [-82.501076, 27.932127]},
+    }
+    canonical.update(location)
+    locations = [] if not location else [canonical]
+    configure(monkeypatch, locations)
+
+    with pytest.raises(HTTPException, match="Location not found") as failure:
+        asyncio.run(server.public_location_by_share_slug(slug))
+    assert failure.value.status_code == 404
+
+
+def test_public_location_resolver_rejects_malformed_slugs_without_querying(monkeypatch):
+    database, _calls = configure(monkeypatch)
+    with pytest.raises(HTTPException, match="Location not found") as failure:
+        asyncio.run(server.public_location_by_share_slug("House Of Tie"))
+    assert failure.value.status_code == 404
+    assert database.locations.rows == []
+
+
+def test_location_provisioning_validates_and_persists_explicit_share_slug(monkeypatch):
+    database, _calls = configure(monkeypatch)
+    provision(request(share_slug="forbici-south-tampa"))
+    assert database.locations.rows[0]["share_slug"] == "forbici-south-tampa"
+
+    for invalid_slug in ("Forbici", "forbici south", "forbici_south"):
+        with pytest.raises(ValidationError):
+            request(share_slug=invalid_slug)

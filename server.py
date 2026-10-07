@@ -2050,6 +2050,7 @@ class LocationProvisioningRequest(BaseModel):
     address: CanonicalLocationAddress
     timezone: str = Field(min_length=1, max_length=100)
     status: str
+    share_slug: Optional[str] = Field(default=None, max_length=80)
 
     @field_validator("name", "timezone", "status", mode="before")
     @classmethod
@@ -2075,6 +2076,15 @@ class LocationProvisioningRequest(BaseModel):
             raise ValueError("timezone must be a valid IANA timezone") from error
         return value
 
+    @field_validator("share_slug")
+    @classmethod
+    def canonical_share_slug(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        if not isinstance(value, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value):
+            raise ValueError("share_slug must be lowercase, URL-safe, and contain no spaces")
+        return value
+
 
 def _canonical_location_address(address: CanonicalLocationAddress) -> dict[str, Any]:
     """Produce the exact persisted address shape, including a null line2."""
@@ -2094,6 +2104,10 @@ def _valid_canonical_geo(geo: Any) -> bool:
         and math.isfinite(longitude) and math.isfinite(latitude)
         and -180 <= longitude <= 180 and -90 <= latitude <= 90
     )
+
+
+def _valid_share_slug(value: Any) -> bool:
+    return isinstance(value, str) and bool(re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value))
 
 
 def _same_canonical_address(stored: Any, requested: dict[str, Any]) -> bool:
@@ -2146,6 +2160,11 @@ async def _provision_canonical_location(body: LocationProvisioningRequest) -> di
             "updated_at": now,
         },
     }
+    # Public sharing is opt-in. An omitted share_slug preserves an existing
+    # configuration rather than changing public-link behavior during ordinary
+    # location updates.
+    if "share_slug" in body.model_fields_set:
+        update["$set"]["share_slug"] = body.share_slug
     await db.locations.update_one({"location_id": body.location_id}, update, upsert=True)
     saved = await db.locations.find_one({"location_id": body.location_id}, {"_id": 0})
     if not saved or not _valid_canonical_geo(saved.get("geo")):
@@ -2167,6 +2186,33 @@ async def _provision_canonical_location(body: LocationProvisioningRequest) -> di
 async def provision_location(body: LocationProvisioningRequest):
     """Provision one organization-owned canonical location for automation."""
     return await _provision_canonical_location(body)
+
+
+async def _public_location_by_share_slug(share_slug: str) -> dict[str, Any]:
+    """Resolve an explicitly share-enabled canonical location for public use."""
+    if not _valid_share_slug(share_slug):
+        raise HTTPException(status_code=404, detail="Location not found")
+    location = await db.locations.find_one(
+        {"share_slug": share_slug, "share_enabled": True, "status": "active"},
+        {"_id": 0, "share_slug": 1, "display_name": 1, "name": 1, "geo": 1},
+    )
+    if not location or not _valid_canonical_geo(location.get("geo")):
+        raise HTTPException(status_code=404, detail="Location not found")
+    display_name = location.get("display_name") or location.get("name")
+    if not isinstance(display_name, str) or not display_name.strip():
+        raise HTTPException(status_code=404, detail="Location not found")
+    longitude, latitude = location["geo"]["coordinates"]
+    return {
+        "share_slug": location["share_slug"],
+        "display_name": display_name,
+        "latitude": latitude,
+        "longitude": longitude,
+    }
+
+
+@api_router.get("/public/locations/{share_slug}")
+async def public_location_by_share_slug(share_slug: str):
+    return await _public_location_by_share_slug(share_slug)
 
 
 def _valid_location_inventory_source(source: Any) -> bool:
