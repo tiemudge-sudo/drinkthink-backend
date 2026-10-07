@@ -288,3 +288,37 @@ def test_location_provisioning_validates_and_persists_explicit_share_slug(monkey
     for invalid_slug in ("Forbici", "forbici south", "forbici_south"):
         with pytest.raises(ValidationError):
             request(share_slug=invalid_slug)
+
+
+@pytest.mark.parametrize(
+    ("share_enabled", "share_slug", "expected_share_slug"),
+    [
+        (True, "house-of-tie", "house-of-tie"),
+        (False, "house-of-tie", None),
+        (True, None, None),
+        (True, "House Of Tie", None),
+    ],
+)
+def test_checkin_location_shape_exposes_only_an_enabled_valid_canonical_share_slug(
+    share_enabled, share_slug, expected_share_slug
+):
+    shaped = server._location_api_shape({
+        "location_id": "loc_ties_house",
+        "name": "Tie’s House",
+        "address": ADDRESS,
+        "distance_meters": 60.96,
+        "geo": {"type": "Point", "coordinates": [-82.501076, 27.932127]},
+        "share_enabled": share_enabled,
+        "share_slug": share_slug,
+    })
+
+    assert shaped == {
+        "location_id": "loc_ties_house",
+        "name": "Tie’s House",
+        "address": ADDRESS,
+        "display_address": "100 Main Street, Tampa, FL 33601, US",
+        "distance_meters": 60.96,
+        "distance_feet": 200.0,
+        "coordinates": {"latitude": 27.932127, "longitude": -82.501076},
+        "share_slug": expected_share_slug,
+    }

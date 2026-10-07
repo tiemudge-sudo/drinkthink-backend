@@ -2315,6 +2315,7 @@ def _location_api_shape(doc: Optional[dict]) -> Optional[dict]:
     longitude = coordinates[0] if len(coordinates) >= 2 else None
     latitude = coordinates[1] if len(coordinates) >= 2 else None
     distance_meters = float(doc.get("distance_meters") or 0)
+    share_slug = doc.get("share_slug") if doc.get("share_enabled") is True and _valid_share_slug(doc.get("share_slug")) else None
     return {
         "location_id": doc.get("location_id"),
         "name": doc.get("name") or "DrinkThink location",
@@ -2323,6 +2324,7 @@ def _location_api_shape(doc: Optional[dict]) -> Optional[dict]:
         "distance_meters": round(distance_meters, 2),
         "distance_feet": round(distance_meters / FEET_TO_METERS, 2),
         "coordinates": {"latitude": latitude, "longitude": longitude},
+        "share_slug": share_slug,
     }
 
 
