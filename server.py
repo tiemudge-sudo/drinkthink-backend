@@ -1306,13 +1306,20 @@ async def get_drink(drink_id: str):
 
 
 # ================================================================
-#                     AUTH — Emergent Google OAuth
+#                 AUTH — Google OAuth and Sign in with Apple
 # ================================================================
 
 EMERGENT_SESSION_DATA_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 SESSION_TTL_DAYS = 7
 PREMIUM_PRODUCT_ID = "app.drinkthink.premium"
 PREMIUM_PLATFORMS = {"ios", "android"}
+APPLE_IDENTITY_TOKEN_ISSUER = "https://appleid.apple.com"
+APPLE_IDENTITY_TOKEN_JWKS_URL = "https://appleid.apple.com/auth/keys"
+APPLE_IDENTITY_TOKEN_JWKS_TTL_SECONDS = 6 * 60 * 60
+APPLE_AUTH_AUDIENCE_ENV = "APPLE_AUTH_AUDIENCE"
+APPLE_AUTH_AUDIENCE_DEFAULT = "com.drinkthink.mobile"
+_apple_jwks_cache: dict[str, Any] = {"keys": [], "expires_at": 0.0}
+_apple_jwks_lock = asyncio.Lock()
 
 
 def _premium_config(name: str) -> str:
@@ -1418,6 +1425,21 @@ class SessionRequest(BaseModel):
     session_id: str
 
 
+class AppleAuthenticationRequest(BaseModel):
+    """Native Sign in with Apple evidence from an iOS authorization request."""
+
+    identity_token: str = Field(min_length=1, max_length=12000)
+    full_name: Optional[str] = Field(default=None, max_length=200)
+
+    @field_validator("full_name", mode="before")
+    @classmethod
+    def normalized_full_name(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        value = str(value).strip()
+        return value or None
+
+
 class SessionResponse(BaseModel):
     session_token: str
     user: User
@@ -1507,6 +1529,87 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _apple_auth_audience() -> str:
+    """Return the fixed native iOS audience without exposing configuration."""
+    return os.environ.get(APPLE_AUTH_AUDIENCE_ENV, APPLE_AUTH_AUDIENCE_DEFAULT).strip() or APPLE_AUTH_AUDIENCE_DEFAULT
+
+
+async def _apple_jwks(force_refresh: bool = False) -> list[dict[str, Any]]:
+    """Load Apple's public signing keys with a bounded process-local cache."""
+    now = time.monotonic()
+    if not force_refresh and _apple_jwks_cache["keys"] and now < _apple_jwks_cache["expires_at"]:
+        return _apple_jwks_cache["keys"]
+
+    async with _apple_jwks_lock:
+        now = time.monotonic()
+        if not force_refresh and _apple_jwks_cache["keys"] and now < _apple_jwks_cache["expires_at"]:
+            return _apple_jwks_cache["keys"]
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client_http:
+                response = await client_http.get(APPLE_IDENTITY_TOKEN_JWKS_URL)
+            response.raise_for_status()
+            keys = response.json().get("keys")
+        except (httpx.HTTPError, ValueError, AttributeError):
+            raise HTTPException(status_code=503, detail="Apple sign in is temporarily unavailable")
+        if not isinstance(keys, list) or not keys:
+            raise HTTPException(status_code=503, detail="Apple sign in is temporarily unavailable")
+        _apple_jwks_cache["keys"] = keys
+        _apple_jwks_cache["expires_at"] = now + APPLE_IDENTITY_TOKEN_JWKS_TTL_SECONDS
+        return keys
+
+
+async def _apple_public_key_for_kid(kid: str):
+    """Resolve an Apple signing key, refreshing once for a key rotation."""
+    for force_refresh in (False, True):
+        keys = await _apple_jwks(force_refresh=force_refresh)
+        key = next((candidate for candidate in keys if candidate.get("kid") == kid), None)
+        if key:
+            try:
+                return jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+            except (TypeError, ValueError, jwt.PyJWTError):
+                break
+    raise HTTPException(status_code=401, detail="Invalid Apple identity token")
+
+
+async def _verify_apple_identity_token(identity_token: str) -> dict[str, Any]:
+    """Verify a native Apple ID token against Apple's JWKS and app audience."""
+    try:
+        header = jwt.get_unverified_header(identity_token)
+        if header.get("alg") != "RS256" or not isinstance(header.get("kid"), str):
+            raise jwt.InvalidTokenError("Unsupported Apple token header")
+        public_key = await _apple_public_key_for_kid(header["kid"])
+        claims = jwt.decode(
+            identity_token,
+            public_key,
+            algorithms=["RS256"],
+            audience=_apple_auth_audience(),
+            issuer=APPLE_IDENTITY_TOKEN_ISSUER,
+            options={"require": ["exp", "iat", "sub"]},
+        )
+    except HTTPException:
+        raise
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid Apple identity token")
+
+    subject = claims.get("sub")
+    if not isinstance(subject, str) or not subject.strip():
+        raise HTTPException(status_code=401, detail="Invalid Apple identity token")
+    return claims
+
+
+async def _create_local_session(user_id: str) -> str:
+    """Issue the same opaque, server-stored session type used by all providers."""
+    session_token = secrets.token_urlsafe(32)
+    now = _now()
+    await db.user_sessions.insert_one({
+        "session_token": session_token,
+        "user_id": user_id,
+        "created_at": now,
+        "expires_at": now + timedelta(days=SESSION_TTL_DAYS),
+    })
+    return session_token
+
+
 @api_router.post("/auth/session", response_model=SessionResponse)
 async def auth_session(body: SessionRequest):
     """Exchange a one-time session_id from Emergent's OAuth callback for a
@@ -1566,6 +1669,50 @@ async def auth_session(body: SessionRequest):
         "expires_at": _now() + timedelta(days=SESSION_TTL_DAYS),
     })
 
+    return SessionResponse(session_token=session_token, user=User(**user_doc))
+
+
+@api_router.post("/auth/apple", response_model=SessionResponse)
+async def auth_apple(body: AppleAuthenticationRequest):
+    """Exchange a verified native Apple identity token for a DrinkThink session."""
+    claims = await _verify_apple_identity_token(body.identity_token)
+    subject = str(claims["sub"])
+    existing = await db.users.find_one(
+        {"auth_provider": "apple", "auth_subject": subject}, {"_id": 0}
+    )
+
+    if existing:
+        user_doc = existing
+    else:
+        email = str(claims.get("email") or "").strip().lower()
+        email_verified = claims.get("email_verified")
+        if not email or email_verified not in (True, "true", "True"):
+            raise HTTPException(status_code=401, detail="Apple did not provide a verified email address")
+        # Avoid silently merging two independently authenticated accounts. An
+        # existing account continues to be accessed through its original method.
+        if await db.users.find_one({"email": email}, {"_id": 1}):
+            raise HTTPException(status_code=409, detail="An account already exists for this email")
+        user_doc = {
+            "user_id": f"user_{uuid.uuid4().hex[:12]}",
+            "email": email,
+            "name": body.full_name or "",
+            "picture": "",
+            "auth_provider": "apple",
+            "auth_subject": subject,
+            "created_at": _now().isoformat(),
+        }
+        try:
+            await db.users.insert_one(user_doc.copy())
+        except DuplicateKeyError:
+            # A concurrent first sign-in may have created this exact identity.
+            existing = await db.users.find_one(
+                {"auth_provider": "apple", "auth_subject": subject}, {"_id": 0}
+            )
+            if not existing:
+                raise HTTPException(status_code=409, detail="Unable to create the Apple account")
+            user_doc = existing
+
+    session_token = await _create_local_session(user_doc["user_id"])
     return SessionResponse(session_token=session_token, user=User(**user_doc))
 
 
@@ -2627,6 +2774,14 @@ async def ensure_canonical_indexes():
 async def seed_auth_indexes():
     await db.users.create_index("email", unique=True)
     await db.users.create_index("user_id", unique=True)
+    await db.users.create_index(
+        [("auth_provider", 1), ("auth_subject", 1)],
+        unique=True,
+        partialFilterExpression={
+            "auth_provider": {"$type": "string"},
+            "auth_subject": {"$type": "string"},
+        },
+    )
     await db.user_sessions.create_index("session_token", unique=True)
     await db.user_sessions.create_index("user_id")
     # TTL: MongoDB auto-deletes sessions once expires_at is in the past.

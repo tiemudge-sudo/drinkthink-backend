@@ -16,10 +16,13 @@ connection string.
 ## Optional application configuration
 
 - `CANONICAL_READ_MODEL_CACHE_TTL_SECONDS`: bounded canonical read-model cache
-  lifetime. The application defaults to 60 seconds and clamps values to a safe
+  lifetime. The application defaults to 86,400 seconds and clamps values to a safe
   range.
 - `CORS_ORIGINS`: comma-separated additional allowed origins. The DrinkThink
   web origins are built in.
+- `APPLE_AUTH_AUDIENCE`: optional native Sign in with Apple identity-token
+  audience. It defaults to `com.drinkthink.mobile`; if configured, it must
+  exactly match the production iOS bundle identifier.
 
 ## Premium verification
 
@@ -38,6 +41,12 @@ the following before enabling store purchases:
 `APPLE_APP_STORE_ENVIRONMENT` is optional and defaults to `Production`. Set it
 explicitly only in non-production environments that intentionally verify Apple
 sandbox transactions.
+
+Native Sign in with Apple does not require an Apple private key in Railway. The
+service verifies Apple identity-token signatures against Apple's published
+signing keys. Before an iOS build, enable the Sign In with Apple capability for
+the `com.drinkthink.mobile` App ID in the Apple Developer portal and let EAS
+refresh the associated provisioning profile.
 
 ## Controlled operational credentials
 
@@ -79,8 +88,11 @@ one document while changing the other.
 5. Verify the Premium credential names above are present before enabling
    purchases; run a safe invalid-evidence verification test rather than a live
    purchase during configuration validation.
-6. Verify protected admin, provisioning, and rebuild credentials are present
+6. Verify Sign In with Apple is enabled for `com.drinkthink.mobile` in the
+   Apple Developer portal. If `APPLE_AUTH_AUDIENCE` is set, confirm it has the
+   same value without logging it alongside other credentials.
+7. Verify protected admin, provisioning, and rebuild credentials are present
    without logging their values.
-7. Verify CORS origins include only intended production clients.
-8. Confirm no deployment artifact contains `.env` files or credential values.
-9. Run the current backend test suite and a post-deploy health/API smoke test.
+8. Verify CORS origins include only intended production clients.
+9. Confirm no deployment artifact contains `.env` files or credential values.
+10. Run the current backend test suite and a post-deploy health/API smoke test.

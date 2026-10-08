@@ -133,6 +133,69 @@ Top-level organizational/UI categories.
 Fields: - `category_id` string, unique - `name` - `display_order` -
 `status`
 
+### Cupboard navigation cleanup phase 1
+
+**Status: LOCKED architecture; not yet implemented or migrated.**
+
+Phase 1 deliberately has two different kinds of data change:
+
+1. **Direct taxonomy correction.** When an ingredient has one correct
+   cupboard placement but is currently under the wrong subsection, update its
+   existing canonical taxonomy fields. For example, move an ingredient from
+   `Wine / wine` to `Wine / Red Wine` by correcting its Wine grouping metadata
+   (`primary_ingredient`, `subcategory`, and `ingredient_type` as applicable).
+   This is not a link and does not create a second navigation placement.
+2. **Additive multi-category navigation link.** Use
+   `ingredient_category_links` only when the same canonical ingredient should
+   intentionally appear in more than one navigation path, such as a wine
+   aperitif browsable under both Wine / Other Wine and Secondary Liquor /
+   Aperitif.
+
+An ingredient has one canonical identity and one capability-policy
+classification. It may, however, need to appear in more than one cupboard
+navigation path. Examples include a wine aperitif that is browsable under both
+Wine / Other Wine and Secondary Liquor / Aperitif.
+
+Do not duplicate the ingredient record or create a second ingredient ID to
+provide that display placement. Recipes, cupboards, inventory, and capability
+continue to reference exactly one canonical `ingredient_id`.
+
+`ingredients.category_id` remains the single category used for capability
+interpretation. It is not a multi-value UI-navigation field. A product's
+capability classification must be explicitly chosen; a navigation placement
+does not create extra inventory evidence or change availability policy.
+
+#### `ingredient_category_links` (planned new collection)
+
+Additive canonical navigation links for an existing ingredient.
+
+Fields:
+
+- `ingredient_id` integer, required → `ingredients.ingredient_id`
+- `category_id` string, required → `ingredient_categories.category_id`
+- `subsection_id` string, required, stable lowercase identifier such as
+  `other_wine` or `aperitif`
+- `subsection_name` string, required display label such as `Other Wine` or
+  `Aperitif`
+- `status` --- `active | inactive`
+- `created_at`, `updated_at`
+
+Indexes:
+
+- unique (`ingredient_id`, `category_id`, `subsection_id`)
+- (`category_id`, `subsection_id`, `status`)
+
+The cupboard tree reader will render active links and join the linked canonical
+ingredient. During the transition, ingredients without active links retain
+their existing single-path navigation derived from `ingredients.category_id`
+and its current grouping metadata. If an ingredient is reached through more
+than one navigation path, a user's cupboard still stores it once by
+`ingredient_id`.
+
+This collection and its reader/migration are intentionally deferred until the
+phase-1 implementation is approved. No existing ingredient, recipe, cupboard,
+or capability record is changed merely by locking this contract.
+
 ### `glasses`
 
 Canonical drink-style/glass vocabulary.
