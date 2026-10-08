@@ -1359,14 +1359,43 @@ async def _verify_apple_purchase(transaction_jws: str) -> tuple[str, str, str, b
     private_key = _premium_config("APPLE_APP_STORE_PRIVATE_KEY").replace("\\n", "\n")
     now = int(_now().timestamp())
     token = jwt.encode({"iss": _premium_config("APPLE_APP_STORE_ISSUER_ID"), "iat": now, "exp": now + 300, "aud": "appstoreconnect-v1", "bid": _premium_config("APPLE_BUNDLE_ID")}, private_key, algorithm="ES256", headers={"kid": _premium_config("APPLE_APP_STORE_KEY_ID")})
-    environment = os.environ.get("APPLE_APP_STORE_ENVIRONMENT", "Production").lower()
+    configured_environment = os.environ.get("APPLE_APP_STORE_ENVIRONMENT", "Production").lower()
+    # Keep the existing endpoint-selection behavior while ensuring diagnostics
+    # only report the two meaningful StoreKit environments.
+    environment = "sandbox" if configured_environment == "sandbox" else "production"
     base = "https://api.storekit-sandbox.apple.com" if environment == "sandbox" else "https://api.storekit.itunes.apple.com"
     try:
         async with httpx.AsyncClient(timeout=15.0) as client_http:
             response = await client_http.get(f"{base}/inApps/v1/transactions/{transaction_id}", headers={"Authorization": f"Bearer {token}"})
-    except httpx.HTTPError:
+    except httpx.HTTPError as error:
+        # Do not log the exception message: HTTP client messages can contain
+        # request URLs, and Apple transaction identifiers are part of that URL.
+        logger.warning(
+            "premium_apple_verification stage=apple_transaction_lookup environment=%s outcome=network_error exception_class=%s",
+            environment,
+            type(error).__name__,
+        )
         raise HTTPException(status_code=502, detail="Apple verification is temporarily unavailable")
+    logger.info(
+        "premium_apple_verification stage=apple_transaction_lookup environment=%s outcome=upstream_response upstream_status=%s",
+        environment,
+        response.status_code,
+    )
     if response.status_code != 200:
+        apple_error_code = None
+        try:
+            upstream_error = response.json()
+            if isinstance(upstream_error, dict) and isinstance(upstream_error.get("errorCode"), (str, int)):
+                apple_error_code = str(upstream_error["errorCode"])
+        except (TypeError, ValueError):
+            # The response body is intentionally not logged or returned.
+            pass
+        logger.warning(
+            "premium_apple_verification stage=apple_transaction_lookup environment=%s outcome=upstream_non_success upstream_status=%s apple_error_code=%s",
+            environment,
+            response.status_code,
+            apple_error_code,
+        )
         raise HTTPException(status_code=400, detail="Apple transaction could not be verified")
     server_payload = _decode_jws_payload(str(response.json().get("signedTransactionInfo") or ""))
     if server_payload.get("bundleId") != _premium_config("APPLE_BUNDLE_ID") or server_payload.get("productId") != PREMIUM_PRODUCT_ID:
@@ -2745,6 +2774,12 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 logger = logging.getLogger(__name__)
+
+# httpx/httpcore include full outbound URLs in their request logs. Apple
+# transaction identifiers are part of the App Store Server API URL path, so
+# keep those client libraries quiet at the application log level.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 @app.on_event("startup")

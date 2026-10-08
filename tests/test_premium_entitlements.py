@@ -1,9 +1,13 @@
 """Unit tests for Premium store verification. All Apple/Google calls are mocked."""
 import asyncio
+import base64
 import copy
+import json
+import logging
 import os
 import pytest
 from fastapi import HTTPException
+import httpx
 
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "drinkthink_test")
@@ -29,6 +33,50 @@ class Db:
 def user(name="account_a"): return server.User(user_id=name, email=f"{name}@example.test", name=name, picture="", created_at="now")
 def request(platform="ios", **evidence): return server.PremiumVerificationRequest(platform=platform, product_id=server.PREMIUM_PRODUCT_ID, **evidence)
 def run(coro): return asyncio.run(coro)
+
+
+def apple_jws(payload: dict) -> str:
+    encoded = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    return f"header.{encoded}.signature"
+
+
+class AppleResponse:
+    def __init__(self, status_code: int, body: dict):
+        self.status_code = status_code
+        self._body = body
+
+    def json(self):
+        return self._body
+
+
+class AppleClient:
+    result = None
+
+    def __init__(self, **_kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_args):
+        return False
+
+    async def get(self, *_args, **_kwargs):
+        if isinstance(self.result, Exception):
+            raise self.result
+        return self.result
+
+
+def configure_apple_lookup(monkeypatch, result):
+    """Use a fake HTTP transport without permitting sensitive URL logging."""
+    monkeypatch.setenv("APPLE_APP_STORE_PRIVATE_KEY", "PRIVATE_KEY_MUST_NEVER_BE_LOGGED")
+    monkeypatch.setenv("APPLE_APP_STORE_ISSUER_ID", "issuer-secret")
+    monkeypatch.setenv("APPLE_APP_STORE_KEY_ID", "key-secret")
+    monkeypatch.setenv("APPLE_BUNDLE_ID", "com.drinkthink.mobile")
+    monkeypatch.setenv("APPLE_APP_STORE_ENVIRONMENT", "Sandbox")
+    monkeypatch.setattr(server.jwt, "encode", lambda *_args, **_kwargs: "server-auth-token")
+    AppleClient.result = result
+    monkeypatch.setattr(server.httpx, "AsyncClient", AppleClient)
 
 @pytest.fixture
 def state(monkeypatch):
@@ -94,3 +142,64 @@ def test_missing_configuration_fails_safely(monkeypatch):
 
 def test_verification_request_has_no_user_id_field():
     assert "user_id" not in server.PremiumVerificationRequest.model_fields
+
+
+@pytest.mark.parametrize("error_type", [httpx.ReadTimeout, httpx.ConnectError])
+def test_apple_lookup_network_errors_are_502_with_redacted_diagnostics(monkeypatch, caplog, error_type):
+    configure_apple_lookup(monkeypatch, error_type("https://apple.invalid/transaction-secret-123"))
+    evidence = apple_jws({"transactionId": "transaction-secret-123"})
+
+    with caplog.at_level(logging.INFO, logger=server.logger.name):
+        with pytest.raises(HTTPException) as error:
+            run(server._verify_apple_purchase(evidence))
+
+    assert error.value.status_code == 502
+    diagnostic = "\n".join(record.getMessage() for record in caplog.records)
+    assert "stage=apple_transaction_lookup" in diagnostic
+    assert "environment=sandbox" in diagnostic
+    assert f"exception_class={error_type.__name__}" in diagnostic
+    for sensitive_value in ("transaction-secret-123", evidence, "PRIVATE_KEY_MUST_NEVER_BE_LOGGED", "issuer-secret", "key-secret"):
+        assert sensitive_value not in diagnostic
+
+
+def test_apple_lookup_non_success_preserves_400_with_safe_diagnostics(monkeypatch, caplog):
+    configure_apple_lookup(monkeypatch, AppleResponse(404, {"errorCode": 4040010, "detail": "transaction-secret-123"}))
+    evidence = apple_jws({"transactionId": "transaction-secret-123"})
+
+    with caplog.at_level(logging.INFO, logger=server.logger.name):
+        with pytest.raises(HTTPException) as error:
+            run(server._verify_apple_purchase(evidence))
+
+    assert error.value.status_code == 400
+    diagnostic = "\n".join(record.getMessage() for record in caplog.records)
+    assert "outcome=upstream_non_success" in diagnostic
+    assert "upstream_status=404" in diagnostic
+    assert "apple_error_code=4040010" in diagnostic
+    assert "transaction-secret-123" not in diagnostic
+    assert evidence not in diagnostic
+
+
+def test_apple_lookup_success_retains_behavior_and_safe_diagnostics(monkeypatch, caplog):
+    transaction_id = "transaction-secret-123"
+    signed_transaction = apple_jws({
+        "bundleId": "com.drinkthink.mobile",
+        "productId": server.PREMIUM_PRODUCT_ID,
+        "originalTransactionId": "original-secret-456",
+    })
+    configure_apple_lookup(monkeypatch, AppleResponse(200, {"signedTransactionInfo": signed_transaction}))
+    evidence = apple_jws({"transactionId": transaction_id})
+
+    with caplog.at_level(logging.INFO, logger=server.logger.name):
+        result = run(server._verify_apple_purchase(evidence))
+
+    assert result == ("original-secret-456", transaction_id, "active", False, None)
+    diagnostic = "\n".join(record.getMessage() for record in caplog.records)
+    assert "outcome=upstream_response" in diagnostic
+    assert "upstream_status=200" in diagnostic
+    for sensitive_value in (transaction_id, "original-secret-456", evidence, signed_transaction, "PRIVATE_KEY_MUST_NEVER_BE_LOGGED"):
+        assert sensitive_value not in diagnostic
+
+
+def test_http_client_loggers_do_not_emit_sensitive_request_urls():
+    assert logging.getLogger("httpx").getEffectiveLevel() >= logging.WARNING
+    assert logging.getLogger("httpcore").getEffectiveLevel() >= logging.WARNING
