@@ -2656,12 +2656,12 @@
             "name": "cabernet sauvignon red wine"
           },
           {
-            "id": "wine__chablis-white-wine",
-            "name": "chablis white wine"
+            "id": "wine__chablis",
+            "name": "chablis"
           },
           {
-            "id": "wine__chardonnay-white-wine",
-            "name": "chardonnay white wine"
+            "id": "wine__chardonnay",
+            "name": "chardonnay"
           },
           {
             "id": "wine__chinese-wine",
@@ -2680,8 +2680,8 @@
             "name": "dry sparkling wine"
           },
           {
-            "id": "wine__dry-white-wine",
-            "name": "dry white wine"
+            "id": "wine__dry",
+            "name": "dry"
           },
           {
             "id": "wine__ginger-wine",
@@ -2768,20 +2768,16 @@
             "name": "thunderbird wine"
           },
           {
-            "id": "wine__white-wine",
-            "name": "white wine"
-          },
-          {
-            "id": "wine__wine",
-            "name": "wine"
+            "id": "wine__any-white-wine",
+            "name": "any white wine"
           },
           {
             "id": "wine__wine-cooler",
             "name": "wine cooler"
           },
           {
-            "id": "wine__zinfandel-white-wine",
-            "name": "zinfandel white wine"
+            "id": "wine__zinfandel",
+            "name": "zinfandel"
           }
         ]
       }
@@ -4456,10 +4452,6 @@
           {
             "id": "other-not-categorized__newcastle-brown-ale-lager",
             "name": "newcastle brown ale lager"
-          },
-          {
-            "id": "other-not-categorized__offley-rich-tawny-port",
-            "name": "offley rich tawny port"
           },
           {
             "id": "other-not-categorized__old-orchard-pomagranate-cherry",

@@ -1,13 +1,13 @@
 ID,All ingredients,Primary Ingredient,subCategory,Primary Category
 1001,burgundy wine,wine,red wine,Wine
 1002,cabernet sauvignon red wine,wine,red wine,Wine
-1003,chablis white wine,wine,white wine,Wine
-1004,chardonnay white wine,wine,white wine,Wine
+1003,chablis,wine,white wine,Wine
+1004,chardonnay,wine,white wine,Wine
 1005,chinese wine,wine,other wine,Wine
 1006,danish cherry wine,wine,other wine,Wine
 1007,dry red wine,wine,red wine,Wine
 1008,dry sparkling wine,wine,sparkling wine,Wine
-1009,dry white wine,wine,white wine,Wine
+1009,dry,wine,white wine,Wine
 1010,ginger wine,wine,other wine,Wine
 1011,ice wine,wine,other wine,Wine
 1012,lillet blanc,Other Cordial,,Secondary liquor
@@ -29,10 +29,9 @@ ID,All ingredients,Primary Ingredient,subCategory,Primary Category
 1028,sparkling burgundy wine,wine,sparkling wine,Wine
 1029,strawberry wine,wine,other wine,Wine
 1030,thunderbird wine,wine,other wine,Wine
-1031,white wine,wine,white wine,Wine
-1032,wine,wine,,Wine
+1031,any white wine,wine,white wine,Wine
 1033,wine cooler,wine,other wine,Wine
-1034,zinfandel white wine,wine,white wine,Wine
+1034,zinfandel,wine,white wine,Wine
 1035,american whiskey,whiskey,,Primary liquor
 1036,blended whiskey,whiskey,,Primary liquor
 1037,bourbon whiskey,whiskey,,Primary liquor
@@ -1053,7 +1052,6 @@ ID,All ingredients,Primary Ingredient,subCategory,Primary Category
 2077,newcastle brown ale lager,other - not categorized,,common items
 2078,nutmeg,common items,,common items
 2079,nuts,common items,,common items
-2080,offley rich tawny port,port,,Wine
 2081,okra,common items,,common items
 2082,old orchard pomagranate cherry,other - not categorized,,common items
 2083,olive,other - not categorized,,common items
