@@ -290,6 +290,9 @@ class CanonicalReadModel:
     ingredients_by_id: dict[int, dict]
     active_ingredient_ids: frozenset[int]
     glasses_by_id: dict[str, dict]
+    # Glass variants share a category. Drink Style membership is one canonical
+    # family set per category, derived from the authoritative glasses records.
+    filter_families_by_glass_category: dict[str, frozenset[str]]
     active_merge_map: dict[int, int]
     # Required recipe ingredients are canonicalized when the bounded source
     # snapshot refreshes. ``None`` preserves the existing meaning of a stale
@@ -414,6 +417,7 @@ class CanonicalReadModelCache:
                 ingredients_by_id=ingredients_by_id,
                 active_ingredient_ids=frozenset(ingredients_by_id),
                 glasses_by_id={str(row["glass_id"]): row for row in glasses if row.get("glass_id")},
+                filter_families_by_glass_category=_canonical_filter_families_by_glass_category(glasses),
                 active_merge_map=merge_map,
                 required_ingredients_by_cocktail={
                     cocktail_id: tuple(ingredient_ids)
@@ -698,14 +702,14 @@ async def drinks_count():
     return {"count": await db.cocktails.count_documents({"status": "active"})}
 
 
-MAIN_INGREDIENT_PRIMARY = {
+WHAT_I_WANT_PRIMARY_LIQUORS = {
     "vodka": "vodka",
     "gin": "gin",
     "rum": "rum",
     "whiskey": "whiskey",
     "tequila": "tequila",
 }
-ALLOWED_ALCOHOL_FILTERS = set(MAIN_INGREDIENT_PRIMARY) | {"non_alcoholic"}
+ALLOWED_ALCOHOL_FILTERS = set(WHAT_I_WANT_PRIMARY_LIQUORS) | {"non_alcoholic"}
 
 # Consumer Drink Style values.  Their membership is owned by
 # glasses.filter_families, never by a frontend or backend lookup table.
@@ -776,6 +780,49 @@ async def _canonical_recipe_requirements(
             canonical_id = id_map.get(source_id)
         requirements.setdefault(row["cocktail_id"], []).append(canonical_id)
     return requirements
+
+
+def _recipe_primary_liquors(cocktail_id: str, read_model: "CanonicalReadModel") -> set[str]:
+    """Return canonical primary-liquor classifications from required recipe rows.
+
+    This is the What I Want source of truth.  The relationship is maintained
+    in ``cocktail_ingredients`` and was already canonicalized when the bounded
+    read model loaded; ``cocktails.main_ingredient_ids`` is intentionally not
+    consulted here.
+    """
+    return {
+        primary
+        for ingredient_id in read_model.required_ingredients_by_cocktail.get(cocktail_id, ())
+        if ingredient_id is not None
+        for ingredient in [read_model.ingredients_by_id.get(ingredient_id) or {}]
+        if ingredient.get("category_id") == "primary_liquor"
+        for primary in [str(ingredient.get("primary_ingredient") or "").strip().lower()]
+        if primary
+    }
+
+
+def _canonical_filter_families_by_glass_category(glasses: list[dict]) -> dict[str, frozenset[str]]:
+    """Build the Drink Style lookup from active canonical glass metadata.
+
+    Specific ``glass_id`` variants are intentionally allowed to omit the
+    repeated family data.  Every populated family set for one category must
+    agree, otherwise the canonical read model fails rather than guessing.
+    """
+    by_category: dict[str, frozenset[str]] = {}
+    for glass in glasses:
+        category_id = str(glass.get("glass_category_id") or "").strip()
+        families = frozenset(
+            str(family).strip().lower()
+            for family in glass.get("filter_families") or []
+            if str(family).strip().lower() in ALLOWED_GLASS_FILTERS
+        )
+        if not category_id or not families:
+            continue
+        existing = by_category.get(category_id)
+        if existing is not None and existing != families:
+            raise RuntimeError(f"conflicting Drink Style families for glass category {category_id}")
+        by_category[category_id] = families
+    return by_category
 
 
 def _inventory_satisfies_requirements(
@@ -969,10 +1016,10 @@ async def match_drink(
     """Return top canonical cocktails after What-I-Want, location/cupboard and user filters.
 
     `alcohols` and `glasses` retain the existing mobile API names for backward
-    compatibility. Main-ingredient matching is canonical: the cocktail's
-    `main_ingredient_ids` resolve to canonical ingredients and their
-    `primary_ingredient` classification. Cupboard matching uses structured
-    `cocktail_ingredients` and canonical ingredient identity/substitution.
+    compatibility. What-I-Want matching uses required structured recipe
+    ingredients, their canonical identity/substitution, and their active
+    ``primary_liquor`` classification. Cupboard matching uses the same
+    canonical recipe relationships.
     """
     if scoring not in ("differential", "alternate"):
         raise HTTPException(status_code=400, detail="scoring must be 'differential' or 'alternate'")
@@ -1014,17 +1061,8 @@ async def match_drink(
         raise HTTPException(status_code=404, detail="No drinks in database")
 
     ingredients_by_id = read_model.ingredients_by_id
-    with timing.phase("ingredient_resolution"):
-        main_ingredient_map = await _resolved_id_map(
-            (
-                ingredient_id
-                for cocktail in canonical_docs
-                for ingredient_id in cocktail.get("main_ingredient_ids") or []
-            ),
-            read_model,
-        )
 
-    # What I Want: canonical main ingredient filter.
+    # What I Want: canonical primary-liquor recipe filter.
     with timing.phase("filtering"):
         if alcohol_filters:
             spirit_filters = alcohol_filters - {"non_alcoholic"}
@@ -1033,25 +1071,27 @@ async def match_drink(
             for c in canonical_docs:
                 ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
                 if not ok and spirit_filters:
-                    for source_id in _int_ids(c.get("main_ingredient_ids")):
-                        ing = ingredients_by_id.get(main_ingredient_map.get(source_id)) or {}
-                        if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
-                            ok = True
-                            break
+                    ok = bool(_recipe_primary_liquors(str(c.get("cocktail_id") or ""), read_model) & spirit_filters)
                 if ok:
                     kept.append(c)
             canonical_docs = kept
 
-        # Drink Style filter-family membership is glass-owned. Card icon
-        # identity remains the cocktail's glass_category_id.
+        # Drink Style family membership is derived from canonical glass
+        # metadata by the cocktail's category, so all specific glass variants
+        # in one category filter identically. Card icon identity uses the same
+        # cocktail glass_category_id.
         glasses_by_id = read_model.glasses_by_id
 
-        # What I Want: OR within Drink Style, based solely on canonical
-        # glasses.filter_families. No legacy-name fallback or taxonomy is allowed.
+        # OR within Drink Style, based solely on canonical category family
+        # metadata. No legacy-name fallback or taxonomy is allowed.
         if glass_filters:
             canonical_docs = [
                 c for c in canonical_docs
-                if glass_filters.intersection(set((glasses_by_id.get(str(c.get("glass_id"))) or {}).get("filter_families") or []))
+                if glass_filters.intersection(
+                    read_model.filter_families_by_glass_category.get(
+                        str(c.get("glass_category_id") or ""), frozenset()
+                    )
+                )
             ]
 
     # Checked-in location replaces home cupboard constraint.
@@ -1159,25 +1199,17 @@ async def shake_a_shot(
         timing.set_response_header(response, cache_state)
         return ShakeShotResponse()
 
-    # Shot membership comes only from the locked canonical glasses record,
-    # never from legacy glass names or cocktail recipe/category text.
+    # Shot membership comes only from the locked canonical glass-category
+    # family map, never from legacy glass names or cocktail recipe text.
     glasses_by_id = read_model.glasses_by_id
     ingredients_by_id = read_model.ingredients_by_id
     with timing.phase("filtering"):
         canonical_docs = [
             cocktail for cocktail in canonical_docs
-            if "shot" in set((glasses_by_id.get(str(cocktail.get("glass_id"))) or {}).get("filter_families") or [])
+            if "shot" in read_model.filter_families_by_glass_category.get(
+                str(cocktail.get("glass_category_id") or ""), frozenset()
+            )
         ]
-
-    with timing.phase("ingredient_resolution"):
-        main_ingredient_map = await _resolved_id_map(
-            (
-                ingredient_id
-                for cocktail in canonical_docs
-                for ingredient_id in cocktail.get("main_ingredient_ids") or []
-            ),
-            read_model,
-        )
 
     if alcohol_filters:
         spirit_filters = alcohol_filters - {"non_alcoholic"}
@@ -1187,10 +1219,7 @@ async def shake_a_shot(
             for cocktail in canonical_docs:
                 matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
                 if not matches and spirit_filters:
-                    matches = any(
-                        str((ingredients_by_id.get(main_ingredient_map.get(ingredient_id)) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
-                        for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
-                    )
+                    matches = bool(_recipe_primary_liquors(str(cocktail.get("cocktail_id") or ""), read_model) & spirit_filters)
                 if matches:
                     filtered_docs.append(cocktail)
             canonical_docs = filtered_docs
@@ -2108,7 +2137,17 @@ async def get_ingredients_tree():
                 "name": display_names[pkey],
                 # IDs are serialized as strings so the current React Native
                 # selection model remains unchanged; save/match normalize to int.
-                "items": [{"id": str(r["ingredient_id"]), "name": r.get("name") or str(r["ingredient_id"])} for r in items],
+                "items": [
+                    {
+                        "id": str(r["ingredient_id"]),
+                        "name": r.get("name") or str(r["ingredient_id"]),
+                        # Preserve the canonical value when it is populated.
+                        # Blank, missing, and null values deliberately remain
+                        # absent rather than becoming an invented subcategory.
+                        "subcategory": str(r.get("subcategory") or "").strip() or None,
+                    }
+                    for r in items
+                ],
             })
         result.append({"id": category["category_id"], "name": category.get("name") or category["category_id"], "primaries": primaries})
     return result

@@ -50,24 +50,29 @@ class Collection:
 class FakeDb:
     def __init__(self):
         self.cocktails = Collection([
-            {"cocktail_id": "shot-vodka", "status": "active", "glass_id": "shot", "main_ingredient_ids": [1], "scores": {}},
-            {"cocktail_id": "shot-rum", "status": "active", "glass_id": "shot", "main_ingredient_ids": [2], "scores": {}},
-            {"cocktail_id": "rocks-vodka", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1], "scores": {}},
+            {"cocktail_id": "shot-vodka", "status": "active", "glass_id": "shot", "glass_category_id": "gcat_shot_glass", "main_ingredient_ids": [1], "scores": {}},
+            {"cocktail_id": "shot-rum", "status": "active", "glass_id": "shot-variant", "glass_category_id": "gcat_shot_glass", "main_ingredient_ids": [2], "scores": {}},
+            {"cocktail_id": "rocks-vodka", "status": "active", "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [1], "scores": {}},
         ])
         self.ingredients = Collection([
-            {"ingredient_id": 1, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
-            {"ingredient_id": 2, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
+            {"ingredient_id": 1, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "vodka", "primary_category": "spirit"},
+            {"ingredient_id": 2, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
         self.glasses = Collection([
-            {"glass_id": "shot", "filter_families": ["shot"], "display_name": "Shot", "status": "active"},
-            {"glass_id": "rocks", "filter_families": ["rocks"], "display_name": "Rocks", "status": "active"},
+            {"glass_id": "shot", "glass_category_id": "gcat_shot_glass", "filter_families": ["shot"], "display_name": "Shot", "status": "active"},
+            {"glass_id": "shot-variant", "glass_category_id": "gcat_shot_glass", "display_name": "Shot variant", "status": "active"},
+            {"glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "filter_families": ["rocks"], "display_name": "Rocks", "status": "active"},
         ])
         self.ingredient_id_merges = Collection([])
         self.location_drinks = Collection([
             {"location_id": "loc-one", "cocktail_id": "shot-rum", "can_make": True},
         ])
         self.user_cupboard = Collection([])
-        self.cocktail_ingredients = Collection([])
+        self.cocktail_ingredients = Collection([
+            {"cocktail_id": "shot-vodka", "ingredient_id": 1, "required": True},
+            {"cocktail_id": "shot-rum", "ingredient_id": 2, "required": True},
+            {"cocktail_id": "rocks-vodka", "ingredient_id": 1, "required": True},
+        ])
         self.blocked = Collection([])
 
 

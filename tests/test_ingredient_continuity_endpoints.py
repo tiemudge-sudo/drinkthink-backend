@@ -114,16 +114,16 @@ class Database:
             {"from_id": 2403, "to_id": 1647, "resolved_to_id": 1647, "status": "active"},
         ])
         self.ingredients = Collection([
-            {"ingredient_id": 1261, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
-            {"ingredient_id": 1647, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
+            {"ingredient_id": 1261, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "vodka", "primary_category": "spirit"},
+            {"ingredient_id": 1647, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
         self.glasses = Collection([
-            {"glass_id": "rocks", "display_name": "Rocks", "filter_families": ["rocks"], "status": "active"},
+            {"glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "display_name": "Rocks", "filter_families": ["rocks"], "status": "active"},
         ])
         scores = {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5}
         self.cocktails = Collection([
-            {"cocktail_id": "canonical-cupboard", "name": "Canonical", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1261], "scores": scores},
-            {"cocktail_id": "retired-recipe", "name": "Retired recipe", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1269], "scores": scores},
+            {"cocktail_id": "canonical-cupboard", "name": "Canonical", "status": "active", "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [1261], "scores": scores},
+            {"cocktail_id": "retired-recipe", "name": "Retired recipe", "status": "active", "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [1269], "scores": scores},
         ])
         self.cocktail_ingredients = Collection([
             {"cocktail_id": "canonical-cupboard", "ingredient_id": 1261, "required": True},
@@ -206,12 +206,53 @@ def test_match_accepts_canonical_and_historical_cupboard_or_recipe_ids(monkeypat
     assert {result.drink.id for result in match().results} == {"canonical-cupboard", "retired-recipe"}
 
 
-def test_main_ingredient_retired_and_canonical_ids_are_equivalent(monkeypatch):
-    configure(monkeypatch)
+def test_what_i_want_uses_required_recipe_ingredients_not_legacy_main_ingredient_ids(monkeypatch):
+    database = configure(monkeypatch)
+    # The maintained canonical relationship is cocktail_ingredients.  A
+    # missing legacy main_ingredient_ids value must not hide either drink.
+    for cocktail in database.cocktails.rows:
+        cocktail["main_ingredient_ids"] = []
     result = asyncio.run(server.match_drink(
         strong=5, fancy=5, comfort=5, party=5, thirsty=5, alcohols="vodka", limit=50, authorization=None
     ))
     assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+
+
+def test_what_i_want_matches_each_required_primary_liquor_in_a_multi_spirit_recipe(monkeypatch):
+    database = configure(monkeypatch)
+    database.cocktails.rows.append({
+        "cocktail_id": "multi-spirit", "name": "Multi spirit", "status": "active", "glass_id": "rocks",
+        "glass_category_id": "gcat_rocks_glass",
+        "main_ingredient_ids": [], "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+    database.cocktail_ingredients.rows.extend([
+        {"cocktail_id": "multi-spirit", "ingredient_id": 1261, "required": True},
+        {"cocktail_id": "multi-spirit", "ingredient_id": 1647, "required": True},
+    ])
+
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, alcohols="rum", limit=50, authorization=None
+    ))
+
+    assert {item.drink.id for item in result.results} == {"multi-spirit"}
+
+
+def test_drink_style_uses_glass_category_when_specific_variant_has_no_families(monkeypatch):
+    database = configure(monkeypatch)
+    database.glasses.rows.append({
+        "glass_id": "legacy-rocks-variant", "glass_category_id": "gcat_rocks_glass", "status": "active",
+    })
+    database.cocktails.rows.append({
+        "cocktail_id": "category-style-variant", "name": "Category style", "status": "active",
+        "glass_id": "legacy-rocks-variant", "glass_category_id": "gcat_rocks_glass",
+        "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, glasses="rocks", limit=50, authorization=None
+    ))
+
+    assert "category-style-variant" in {item.drink.id for item in result.results}
 
 
 def test_match_reuses_only_canonical_read_model_and_preserves_order(monkeypatch):
