@@ -97,6 +97,8 @@ class Collection:
             if self._matches(row, query):
                 before = copy.deepcopy(row)
                 row.update(copy.deepcopy(update.get("$set", {})))
+                for key in update.get("$unset", {}):
+                    row.pop(key, None)
                 return UpdateResult(1, int(row != before))
         if upsert:
             created = {key: value for key, value in query.items() if not isinstance(value, dict)}
@@ -329,6 +331,56 @@ def test_active_cupboard_reuses_cached_recipe_requirements_without_a_second_read
     assert "recipe_requirement_acquisition" in timing
     assert "cupboard_matching" in timing
     assert "blocked_favorites" in timing
+
+
+def test_cupboard_save_persists_versioned_eligibility_and_match_uses_it(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1266"])
+
+    eligibility = database.user_cupboard.rows[0]["personal_cupboard_eligibility"]
+    assert eligibility["algorithm_version"] == server.PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION
+    assert eligibility["eligible_cocktail_ids"] == ["canonical-cupboard", "retired-recipe"]
+    assert eligibility["canonical_revision"]
+    assert eligibility["cupboard_fingerprint"]
+
+    def live_matching_must_not_run(*_args, **_kwargs):
+        raise AssertionError("matching should use the valid persisted eligibility result")
+
+    monkeypatch.setattr(server, "_inventory_satisfies_requirements", live_matching_must_not_run)
+    response = Response()
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer test", response=response,
+    ))
+    assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+    assert "cupboard_eligibility_cache" in response.headers["server-timing"]
+
+
+def test_stale_persisted_eligibility_falls_back_to_existing_live_matching(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1261"])
+    database.user_cupboard.rows[0]["personal_cupboard_eligibility"]["algorithm_version"] = "stale"
+
+    original = server._inventory_satisfies_requirements
+    calls = 0
+
+    def counted_live_matching(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(server, "_inventory_satisfies_requirements", counted_live_matching)
+    result = match()
+    assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+    assert calls == 2
+
+
+def test_inactive_cupboard_does_not_retain_persisted_eligibility(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1261"])
+    user = server.User(user_id="user-1", email="user@example.test", name="User", picture="", created_at="now")
+    asyncio.run(server.save_cupboard(server.CupboardRequest(item_ids=["1261"], active=False), user))
+    assert "personal_cupboard_eligibility" not in database.user_cupboard.rows[0]
 
 
 def test_cache_refresh_rebuilds_recipe_requirements(monkeypatch):

@@ -283,6 +283,39 @@ def _canonical_read_model_ttl_seconds() -> float:
         return 86400.0
 
 
+PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION = "personal_cupboard_requirements_v1"
+
+
+def _personal_cupboard_eligibility_revision(
+    ingredients_by_id: dict[int, dict], required_ingredients_by_cocktail: dict[str, tuple[Optional[int], ...]]
+) -> str:
+    """Fingerprint the canonical inputs used by personal-cupboard eligibility.
+
+    This is deliberately data-derived rather than a deployment identifier: a
+    record produced by another process is used only when it was calculated
+    against the same canonical ingredient substitutions and recipe
+    requirements as the current read model.
+    """
+    payload = {
+        "ingredients": [
+            (ingredient_id, _ingredient_signature(ingredient))
+            for ingredient_id, ingredient in sorted(ingredients_by_id.items())
+        ],
+        "requirements": [
+            (cocktail_id, list(required_ids))
+            for cocktail_id, required_ids in sorted(required_ingredients_by_cocktail.items())
+        ],
+    }
+    encoded = json.dumps(payload, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _personal_cupboard_fingerprint(ingredient_ids: set[int]) -> str:
+    """Fingerprint normalized cupboard contents independent of input ordering."""
+    encoded = ",".join(str(ingredient_id) for ingredient_id in sorted(ingredient_ids))
+    return hashlib.sha256(encoded.encode("ascii")).hexdigest()
+
+
 @dataclass(frozen=True)
 class CanonicalReadModel:
     """Immutable canonical source data used by recommendation and Shake paths."""
@@ -298,6 +331,7 @@ class CanonicalReadModel:
     # snapshot refreshes. ``None`` preserves the existing meaning of a stale
     # or invalid historical relationship: that cocktail is not cupboard-ready.
     required_ingredients_by_cocktail: dict[str, tuple[Optional[int], ...]]
+    personal_cupboard_eligibility_revision: str
 
 
 class RequestTiming:
@@ -412,6 +446,10 @@ class CanonicalReadModelCache:
                     else:
                         canonical_id = recipe_id_map.get(source_id)
                     required_ingredients.setdefault(str(cocktail_id), []).append(canonical_id)
+            frozen_requirements = {
+                cocktail_id: tuple(ingredient_ids)
+                for cocktail_id, ingredient_ids in required_ingredients.items()
+            }
             snapshot = CanonicalReadModel(
                 cocktails=tuple(cocktails),
                 ingredients_by_id=ingredients_by_id,
@@ -419,10 +457,10 @@ class CanonicalReadModelCache:
                 glasses_by_id={str(row["glass_id"]): row for row in glasses if row.get("glass_id")},
                 filter_families_by_glass_category=_canonical_filter_families_by_glass_category(glasses),
                 active_merge_map=merge_map,
-                required_ingredients_by_cocktail={
-                    cocktail_id: tuple(ingredient_ids)
-                    for cocktail_id, ingredient_ids in required_ingredients.items()
-                },
+                required_ingredients_by_cocktail=frozen_requirements,
+                personal_cupboard_eligibility_revision=_personal_cupboard_eligibility_revision(
+                    ingredients_by_id, frozen_requirements
+                ),
             )
             self._snapshot = snapshot
             self._source_db_id = id(db)
@@ -833,6 +871,18 @@ def _inventory_satisfies_requirements(
         _ingredient_signature(ingredients_by_id[item_id])
         for item_id in available_ids if item_id in ingredients_by_id
     }
+    return _inventory_satisfies_requirements_with_signatures(
+        required_ids, available_ids, ingredients_by_id, signatures
+    )
+
+
+def _inventory_satisfies_requirements_with_signatures(
+    required_ids: tuple[Optional[int], ...] | list[Optional[int]],
+    available_ids: set[int],
+    ingredients_by_id: dict[int, dict],
+    signatures: set[tuple[str, str]],
+) -> tuple[bool, list[int], list[int], bool]:
+    """Evaluate a recipe with precomputed cupboard substitution signatures."""
     matched, missing = [], []
     has_unresolved_requirement = False
     for ingredient_id in required_ids:
@@ -845,6 +895,49 @@ def _inventory_satisfies_requirements(
         else:
             missing.append(ingredient_id)
     return not missing and not has_unresolved_requirement, matched, missing, has_unresolved_requirement
+
+
+def _build_personal_cupboard_eligibility(
+    ingredient_ids: set[int], read_model: CanonicalReadModel
+) -> dict:
+    """Build a versioned derived result while preserving My Cupboard semantics.
+
+    This runs on a cupboard write, never during the recommendation request.
+    It caches only canonical eligibility; request-specific filtering and
+    scoring continue to run for every request.
+    """
+    signatures = {
+        _ingredient_signature(read_model.ingredients_by_id[item_id])
+        for item_id in ingredient_ids if item_id in read_model.ingredients_by_id
+    }
+    eligible_cocktail_ids = [
+        cocktail_id
+        for cocktail_id, required_ids in read_model.required_ingredients_by_cocktail.items()
+        if _inventory_satisfies_requirements_with_signatures(
+            required_ids, ingredient_ids, read_model.ingredients_by_id, signatures
+        )[0]
+    ]
+    return {
+        "algorithm_version": PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION,
+        "cupboard_fingerprint": _personal_cupboard_fingerprint(ingredient_ids),
+        "canonical_revision": read_model.personal_cupboard_eligibility_revision,
+        "eligible_cocktail_ids": eligible_cocktail_ids,
+        "computed_at": datetime.now(timezone.utc),
+    }
+
+
+def _personal_cupboard_eligibility_matches(
+    value: object, ingredient_ids: set[int], read_model: CanonicalReadModel
+) -> bool:
+    """Reject stale, malformed, or cross-version derived cupboard results."""
+    if not isinstance(value, dict):
+        return False
+    return (
+        value.get("algorithm_version") == PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION
+        and value.get("cupboard_fingerprint") == _personal_cupboard_fingerprint(ingredient_ids)
+        and value.get("canonical_revision") == read_model.personal_cupboard_eligibility_revision
+        and isinstance(value.get("eligible_cocktail_ids"), list)
+    )
 
 
 CAPABILITY_INGREDIENT_CATEGORIES = frozenset({
@@ -1110,18 +1203,24 @@ async def match_drink(
         if cupboard and cupboard.get("active"):
             with timing.phase("ingredient_normalization"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-            cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
-            with timing.phase("recipe_requirement_acquisition"):
-                requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
+            eligibility = cupboard.get("personal_cupboard_eligibility")
+            if _personal_cupboard_eligibility_matches(eligibility, saved_ids, read_model):
+                with timing.phase("cupboard_eligibility_cache"):
+                    eligible_ids = set(eligibility["eligible_cocktail_ids"])
+                    canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in eligible_ids]
+            else:
+                cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+                with timing.phase("recipe_requirement_acquisition"):
+                    requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
-            def cupboard_satisfies(cid: str) -> bool:
-                reqs = requirements.get(cid)
-                if not reqs:  # No structured recipe => cannot claim "can make".
-                    return False
-                return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
+                def cupboard_satisfies(cid: str) -> bool:
+                    reqs = requirements.get(cid)
+                    if not reqs:  # No structured recipe => cannot claim "can make".
+                        return False
+                    return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
 
-            with timing.phase("cupboard_matching"):
-                canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
+                with timing.phase("cupboard_matching"):
+                    canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
     with timing.phase("response_shaping"):
         docs = [_canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id")))) for d in canonical_docs]
@@ -2185,9 +2284,20 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
         canonical_ids = await resolve_ingredient_ids(db, body.item_ids, strict=True)
     except IngredientResolutionError as error:
         raise HTTPException(status_code=400, detail=str(error))
+    eligibility = None
+    if body.active:
+        read_model, _ = await _canonical_read_model_cache.get(RequestTiming())
+        eligibility = _build_personal_cupboard_eligibility(set(canonical_ids), read_model)
+    update = {"$set": {"item_ids": canonical_ids, "active": body.active}}
+    if eligibility is not None:
+        update["$set"]["personal_cupboard_eligibility"] = eligibility
+    else:
+        # An inactive cupboard is intentionally never eligible; remove an old
+        # derived result rather than retaining an ambiguous dormant snapshot.
+        update["$unset"] = {"personal_cupboard_eligibility": ""}
     await db.user_cupboard.update_one(
         {"user_id": user.user_id},
-        {"$set": {"item_ids": canonical_ids, "active": body.active}},
+        update,
         upsert=True,
     )
     # This is a no-op unless this account is configured as a location's
