@@ -825,26 +825,14 @@ def _canonical_filter_families_by_glass_category(glasses: list[dict]) -> dict[st
     return by_category
 
 
-def _available_ingredient_signatures(
-    available_ids: set[int], ingredients_by_id: dict[int, dict]
-) -> set[tuple[str, str]]:
-    """Build exact substitution signatures once for one inventory snapshot."""
-    return {
+def _inventory_satisfies_requirements(
+    required_ids: list[Optional[int]], available_ids: set[int], ingredients_by_id: dict[int, dict]
+) -> tuple[bool, list[int], list[int], bool]:
+    """Use the same exact-or-primary-ingredient semantics as My Cupboard."""
+    signatures = {
         _ingredient_signature(ingredients_by_id[item_id])
         for item_id in available_ids if item_id in ingredients_by_id
     }
-
-
-def _inventory_satisfies_requirements(
-    required_ids: list[Optional[int]],
-    available_ids: set[int],
-    ingredients_by_id: dict[int, dict],
-    available_signatures: Optional[set[tuple[str, str]]] = None,
-) -> tuple[bool, list[int], list[int], bool]:
-    """Use the same exact-or-primary-ingredient semantics as My Cupboard."""
-    signatures = available_signatures
-    if signatures is None:
-        signatures = _available_ingredient_signatures(available_ids, ingredients_by_id)
     matched, missing = [], []
     has_unresolved_requirement = False
     for ingredient_id in required_ids:
@@ -1122,8 +1110,6 @@ async def match_drink(
         if cupboard and cupboard.get("active"):
             with timing.phase("ingredient_normalization"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-            with timing.phase("cupboard_signature_preparation"):
-                available_signatures = _available_ingredient_signatures(saved_ids, ingredients_by_id)
             cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
             with timing.phase("recipe_requirement_acquisition"):
                 requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
@@ -1132,9 +1118,7 @@ async def match_drink(
                 reqs = requirements.get(cid)
                 if not reqs:  # No structured recipe => cannot claim "can make".
                     return False
-                return _inventory_satisfies_requirements(
-                    reqs, saved_ids, ingredients_by_id, available_signatures
-                )[0]
+                return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
 
             with timing.phase("cupboard_matching"):
                 canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
@@ -1257,7 +1241,6 @@ async def shake_a_shot(
         if cupboard and cupboard.get("active"):
             with timing.phase("constraints"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-                available_signatures = _available_ingredient_signatures(saved_ids, ingredients_by_id)
                 cocktail_ids = [cocktail["cocktail_id"] for cocktail in canonical_docs]
                 requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
@@ -1265,9 +1248,7 @@ async def shake_a_shot(
                     required_ids = requirements.get(cocktail_id)
                     if not required_ids:
                         return False
-                    return _inventory_satisfies_requirements(
-                        required_ids, saved_ids, ingredients_by_id, available_signatures
-                    )[0]
+                    return _inventory_satisfies_requirements(required_ids, saved_ids, ingredients_by_id)[0]
 
                 canonical_docs = [
                     cocktail for cocktail in canonical_docs if cupboard_satisfies(cocktail["cocktail_id"])
