@@ -331,6 +331,61 @@ def test_active_cupboard_reuses_cached_recipe_requirements_without_a_second_read
     assert "blocked_favorites" in timing
 
 
+def test_personal_cupboard_signatures_are_prepared_once_and_preserve_matching(monkeypatch):
+    """One request reuses an identical substitution set for every recipe."""
+    database = configure(monkeypatch)
+    database.ingredients.rows.append({
+        "ingredient_id": 1300, "status": "active", "category_id": "primary_liquor",
+        "primary_ingredient": "vodka", "primary_category": "spirit",
+    })
+    database.cocktails.rows.append({
+        "cocktail_id": "multi-ingredient", "name": "Multi ingredient", "status": "active",
+        "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [],
+        "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+    database.cocktail_ingredients.rows.extend([
+        {"cocktail_id": "multi-ingredient", "ingredient_id": 1261, "required": True},
+        {"cocktail_id": "multi-ingredient", "ingredient_id": 1647, "required": True},
+    ])
+    database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1300, 1647]}]
+
+    available_ids = {1300, 1647}
+    ingredients = {row["ingredient_id"]: row for row in database.ingredients.rows}
+    signatures = server._available_ingredient_signatures(available_ids, ingredients)
+    cases = [
+        ([1300], (True, [1300], [], False)),  # exact canonical ID
+        ([1261], (True, [1261], [], False)),  # canonical primary-ingredient substitution
+        ([1261, 1647], (True, [1261, 1647], [], False)),  # multi-ingredient recipe
+        ([None], (False, [], [], True)),  # invalid/stale requirement remains ineligible
+    ]
+    for required_ids, expected in cases:
+        assert server._inventory_satisfies_requirements(required_ids, available_ids, ingredients) == expected
+        assert server._inventory_satisfies_requirements(
+            required_ids, available_ids, ingredients, signatures
+        ) == expected
+
+    original = server._available_ingredient_signatures
+    calls = 0
+
+    def counted_signatures(ids, ingredient_map):
+        nonlocal calls
+        calls += 1
+        return original(ids, ingredient_map)
+
+    monkeypatch.setattr(server, "_available_ingredient_signatures", counted_signatures)
+    response = Response()
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer test", response=response,
+    ))
+
+    assert calls == 1
+    assert [item.drink.id for item in result.results] == [
+        "canonical-cupboard", "retired-recipe", "multi-ingredient"
+    ]
+    assert "cupboard_signature_preparation" in response.headers["server-timing"]
+
+
 def test_cache_refresh_rebuilds_recipe_requirements(monkeypatch):
     database = configure(monkeypatch)
     database.user_cupboard.rows[:] = [{"user_id": "user-1", "active": True, "item_ids": [1261]}]
