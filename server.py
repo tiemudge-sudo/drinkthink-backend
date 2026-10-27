@@ -227,6 +227,13 @@ async def ai_records(
 
 
 # ------------- Models -------------
+class IngredientSubstitution(BaseModel):
+    """An existing recipe alias paired with its canonical ingredient name."""
+
+    original: str
+    classification: str
+
+
 class Drink(BaseModel):
     # Existing mobile response shape retained; id now carries canonical cocktail_id.
     id: str
@@ -243,6 +250,12 @@ class Drink(BaseModel):
     thirsty: float
     calm: float
     celebrate: float
+
+
+class DrinkDetail(Drink):
+    """The full drink-detail response, including informational substitutions."""
+
+    substitutions: list[IngredientSubstitution] = Field(default_factory=list)
 
 
 def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
@@ -267,6 +280,104 @@ def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
         "calm": float(scores.get("comfort") or 0),
         "celebrate": float(scores.get("party") or 0),
     }
+
+
+def _recipe_display_tokens(doc: dict) -> list[str]:
+    """Return the authored ingredient labels already stored for presentation."""
+    value = doc.get("shopping_tokens") or doc.get("human_ingredients") or ""
+    if isinstance(value, (list, tuple)):
+        return [str(token).strip() for token in value if str(token).strip()]
+    if isinstance(value, str):
+        return [token.strip() for token in value.split("|") if token.strip()]
+    return []
+
+
+def _normalized_recipe_token(value: object) -> str:
+    """Compare display tokens without treating a registered-mark suffix as content."""
+    text = re.sub(r"\(\s*r\s*\)", "", str(value or ""), flags=re.IGNORECASE)
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+async def _drink_substitutions(doc: dict) -> list[dict[str, str]]:
+    """Expose existing alias-to-canonical mappings for one detail response.
+
+    A substitution is shown only when the authored shopping token is an
+    existing canonical ingredient alias and differs from that ingredient's
+    canonical ``name``. The function deliberately does not parse recipe text
+    or infer alternatives.
+    """
+    cocktail_id = doc.get("cocktail_id")
+    if not cocktail_id:
+        return []
+
+    display_tokens = _recipe_display_tokens(doc)
+    if not display_tokens:
+        return []
+
+    rows = await db.cocktail_ingredients.find(
+        {"cocktail_id": cocktail_id},
+        {"_id": 0, "ingredient_id": 1, "sequence": 1},
+    ).to_list(length=None)
+    ordered_rows: list[tuple[int, dict]] = []
+    for row in rows:
+        sequence = row.get("sequence")
+        if isinstance(sequence, int) and sequence > 0:
+            ordered_rows.append((sequence, row))
+    ordered_rows.sort(key=lambda item: item[0])
+    if not ordered_rows:
+        return []
+
+    id_map = await _resolved_id_map(row.get("ingredient_id") for _, row in ordered_rows)
+    canonical_ids = list(dict.fromkeys(id_map.values()))
+    if not canonical_ids:
+        return []
+    ingredient_rows = await db.ingredients.find(
+        {"ingredient_id": {"$in": canonical_ids}, "status": "active"},
+        {"_id": 0, "ingredient_id": 1, "name": 1, "aliases": 1},
+    ).to_list(length=None)
+    ingredients_by_id = {
+        row.get("ingredient_id"): row
+        for row in ingredient_rows
+        if isinstance(row.get("ingredient_id"), int)
+    }
+
+    substitutions: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for sequence, row in ordered_rows:
+        if sequence > len(display_tokens):
+            continue
+        try:
+            source_id = parse_ingredient_id(row.get("ingredient_id"))
+        except IngredientResolutionError:
+            continue
+        ingredient = ingredients_by_id.get(id_map.get(source_id))
+        original = display_tokens[sequence - 1]
+        classification = str((ingredient or {}).get("name") or "").strip()
+        if not ingredient or not classification:
+            continue
+
+        normalized_original = _normalized_recipe_token(original)
+        normalized_classification = _normalized_recipe_token(classification)
+        raw_aliases = ingredient.get("aliases")
+        if not isinstance(raw_aliases, (list, tuple, set)):
+            continue
+        aliases = {
+            _normalized_recipe_token(alias)
+            for alias in raw_aliases
+            if _normalized_recipe_token(alias)
+        }
+        if (
+            not normalized_original
+            or normalized_original == normalized_classification
+            or normalized_original not in aliases
+        ):
+            continue
+
+        pair = (normalized_original, normalized_classification)
+        if pair not in seen:
+            seen.add(pair)
+            substitutions.append({"original": original, "classification": classification})
+    return substitutions
 
 
 async def _canonical_glasses_by_id() -> dict[str, dict]:
@@ -1422,7 +1533,7 @@ async def search_drinks(q: str, limit: int = 20, authorization: Optional[str] = 
 # NOTE: this catch-all-by-id route must stay AFTER /drinks/search —
 # FastAPI matches routes in registration order, and {drink_id} would
 # otherwise swallow "/drinks/search" as if "search" were the id.
-@api_router.get("/drinks/{drink_id}", response_model=Drink)
+@api_router.get("/drinks/{drink_id}", response_model=DrinkDetail)
 async def get_drink(drink_id: str):
     doc = await db.cocktails.find_one(
         {"cocktail_id": drink_id, "status": "active"}, {"_id": 0}
@@ -1430,7 +1541,9 @@ async def get_drink(drink_id: str):
     if not doc:
         raise HTTPException(status_code=404, detail="Drink not found")
     glasses_by_id = await _canonical_glasses_by_id()
-    return Drink(**_canonical_to_drink(doc, glasses_by_id.get(str(doc.get("glass_id")))))
+    payload = _canonical_to_drink(doc, glasses_by_id.get(str(doc.get("glass_id"))))
+    payload["substitutions"] = await _drink_substitutions(doc)
+    return DrinkDetail(**payload)
 
 
 # ================================================================
