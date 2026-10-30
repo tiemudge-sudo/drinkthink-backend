@@ -97,6 +97,8 @@ class Collection:
             if self._matches(row, query):
                 before = copy.deepcopy(row)
                 row.update(copy.deepcopy(update.get("$set", {})))
+                for key in update.get("$unset", {}):
+                    row.pop(key, None)
                 return UpdateResult(1, int(row != before))
         if upsert:
             created = {key: value for key, value in query.items() if not isinstance(value, dict)}
@@ -114,16 +116,16 @@ class Database:
             {"from_id": 2403, "to_id": 1647, "resolved_to_id": 1647, "status": "active"},
         ])
         self.ingredients = Collection([
-            {"ingredient_id": 1261, "status": "active", "primary_ingredient": "vodka", "primary_category": "spirit"},
-            {"ingredient_id": 1647, "status": "active", "primary_ingredient": "rum", "primary_category": "spirit"},
+            {"ingredient_id": 1261, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "vodka", "primary_category": "spirit"},
+            {"ingredient_id": 1647, "status": "active", "category_id": "primary_liquor", "primary_ingredient": "rum", "primary_category": "spirit"},
         ])
         self.glasses = Collection([
-            {"glass_id": "rocks", "display_name": "Rocks", "filter_families": ["rocks"], "status": "active"},
+            {"glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "display_name": "Rocks", "filter_families": ["rocks"], "status": "active"},
         ])
         scores = {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5}
         self.cocktails = Collection([
-            {"cocktail_id": "canonical-cupboard", "name": "Canonical", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1261], "scores": scores},
-            {"cocktail_id": "retired-recipe", "name": "Retired recipe", "status": "active", "glass_id": "rocks", "main_ingredient_ids": [1269], "scores": scores},
+            {"cocktail_id": "canonical-cupboard", "name": "Canonical", "status": "active", "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [1261], "scores": scores},
+            {"cocktail_id": "retired-recipe", "name": "Retired recipe", "status": "active", "glass_id": "rocks", "glass_category_id": "gcat_rocks_glass", "main_ingredient_ids": [1269], "scores": scores},
         ])
         self.cocktail_ingredients = Collection([
             {"cocktail_id": "canonical-cupboard", "ingredient_id": 1261, "required": True},
@@ -206,12 +208,53 @@ def test_match_accepts_canonical_and_historical_cupboard_or_recipe_ids(monkeypat
     assert {result.drink.id for result in match().results} == {"canonical-cupboard", "retired-recipe"}
 
 
-def test_main_ingredient_retired_and_canonical_ids_are_equivalent(monkeypatch):
-    configure(monkeypatch)
+def test_what_i_want_uses_required_recipe_ingredients_not_legacy_main_ingredient_ids(monkeypatch):
+    database = configure(monkeypatch)
+    # The maintained canonical relationship is cocktail_ingredients.  A
+    # missing legacy main_ingredient_ids value must not hide either drink.
+    for cocktail in database.cocktails.rows:
+        cocktail["main_ingredient_ids"] = []
     result = asyncio.run(server.match_drink(
         strong=5, fancy=5, comfort=5, party=5, thirsty=5, alcohols="vodka", limit=50, authorization=None
     ))
     assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+
+
+def test_what_i_want_matches_each_required_primary_liquor_in_a_multi_spirit_recipe(monkeypatch):
+    database = configure(monkeypatch)
+    database.cocktails.rows.append({
+        "cocktail_id": "multi-spirit", "name": "Multi spirit", "status": "active", "glass_id": "rocks",
+        "glass_category_id": "gcat_rocks_glass",
+        "main_ingredient_ids": [], "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+    database.cocktail_ingredients.rows.extend([
+        {"cocktail_id": "multi-spirit", "ingredient_id": 1261, "required": True},
+        {"cocktail_id": "multi-spirit", "ingredient_id": 1647, "required": True},
+    ])
+
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, alcohols="rum", limit=50, authorization=None
+    ))
+
+    assert {item.drink.id for item in result.results} == {"multi-spirit"}
+
+
+def test_drink_style_uses_glass_category_when_specific_variant_has_no_families(monkeypatch):
+    database = configure(monkeypatch)
+    database.glasses.rows.append({
+        "glass_id": "legacy-rocks-variant", "glass_category_id": "gcat_rocks_glass", "status": "active",
+    })
+    database.cocktails.rows.append({
+        "cocktail_id": "category-style-variant", "name": "Category style", "status": "active",
+        "glass_id": "legacy-rocks-variant", "glass_category_id": "gcat_rocks_glass",
+        "scores": {"fancy": 5, "strong": 5, "thirsty": 5, "comfort": 5, "party": 5},
+    })
+
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, glasses="rocks", limit=50, authorization=None
+    ))
+
+    assert "category-style-variant" in {item.drink.id for item in result.results}
 
 
 def test_match_reuses_only_canonical_read_model_and_preserves_order(monkeypatch):
@@ -288,6 +331,56 @@ def test_active_cupboard_reuses_cached_recipe_requirements_without_a_second_read
     assert "recipe_requirement_acquisition" in timing
     assert "cupboard_matching" in timing
     assert "blocked_favorites" in timing
+
+
+def test_cupboard_save_persists_versioned_eligibility_and_match_uses_it(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1266"])
+
+    eligibility = database.user_cupboard.rows[0]["personal_cupboard_eligibility"]
+    assert eligibility["algorithm_version"] == server.PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION
+    assert eligibility["eligible_cocktail_ids"] == ["canonical-cupboard", "retired-recipe"]
+    assert eligibility["canonical_revision"]
+    assert eligibility["cupboard_fingerprint"]
+
+    def live_matching_must_not_run(*_args, **_kwargs):
+        raise AssertionError("matching should use the valid persisted eligibility result")
+
+    monkeypatch.setattr(server, "_inventory_satisfies_requirements", live_matching_must_not_run)
+    response = Response()
+    result = asyncio.run(server.match_drink(
+        strong=5, fancy=5, comfort=5, party=5, thirsty=5, limit=50,
+        authorization="Bearer test", response=response,
+    ))
+    assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+    assert "cupboard_eligibility_cache" in response.headers["server-timing"]
+
+
+def test_stale_persisted_eligibility_falls_back_to_existing_live_matching(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1261"])
+    database.user_cupboard.rows[0]["personal_cupboard_eligibility"]["algorithm_version"] = "stale"
+
+    original = server._inventory_satisfies_requirements
+    calls = 0
+
+    def counted_live_matching(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(server, "_inventory_satisfies_requirements", counted_live_matching)
+    result = match()
+    assert {item.drink.id for item in result.results} == {"canonical-cupboard", "retired-recipe"}
+    assert calls == 2
+
+
+def test_inactive_cupboard_does_not_retain_persisted_eligibility(monkeypatch):
+    database = configure(monkeypatch)
+    save(database, ["1261"])
+    user = server.User(user_id="user-1", email="user@example.test", name="User", picture="", created_at="now")
+    asyncio.run(server.save_cupboard(server.CupboardRequest(item_ids=["1261"], active=False), user))
+    assert "personal_cupboard_eligibility" not in database.user_cupboard.rows[0]
 
 
 def test_cache_refresh_rebuilds_recipe_requirements(monkeypatch):

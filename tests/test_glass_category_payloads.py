@@ -2,6 +2,8 @@
 
 import os
 
+import pytest
+
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 os.environ.setdefault("DB_NAME", "drinkthink_test")
 
@@ -35,3 +37,20 @@ def test_drink_card_category_is_independent_of_specific_glass_id():
     category = "gcat_shot_glass"
     assert server._canonical_to_drink(cocktail(category, "legacy-shot"))["glass_category_id"] == category
     assert server._canonical_to_drink(cocktail(category, "another-shot-variant"))["glass_category_id"] == category
+
+
+def test_drink_style_category_map_uses_the_shared_family_for_every_glass_variant():
+    category_map = server._canonical_filter_families_by_glass_category([
+        {"glass_id": "mug", "glass_category_id": "gcat_mug", "filter_families": ["pint", "rocks"]},
+        {"glass_id": "coffee_mug", "glass_category_id": "gcat_mug"},
+    ])
+
+    assert category_map == {"gcat_mug": frozenset({"pint", "rocks"})}
+
+
+def test_conflicting_category_family_definitions_fail_closed():
+    with pytest.raises(RuntimeError, match="conflicting Drink Style families"):
+        server._canonical_filter_families_by_glass_category([
+            {"glass_id": "mug", "glass_category_id": "gcat_mug", "filter_families": ["pint"]},
+            {"glass_id": "coffee_mug", "glass_category_id": "gcat_mug", "filter_families": ["rocks"]},
+        ])

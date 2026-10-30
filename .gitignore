@@ -15,5 +15,18 @@ env/
 .pytest_cache/
 test_reports/
 
+# JavaScript dependencies
+node_modules/
+
+# Local, one-off MongoDB maintenance utilities. Keep them available locally,
+# but do not include historical batch scripts in application commits.
+tools/apply_*.cjs
+tools/audit_*.cjs
+tools/correct_*.cjs
+tools/export_*.cjs
+tools/find_*.cjs
+tools/move_*.cjs
+tools/unmerge_*.cjs
+
 # OS
 .DS_Store

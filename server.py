@@ -227,6 +227,13 @@ async def ai_records(
 
 
 # ------------- Models -------------
+class IngredientSubstitution(BaseModel):
+    """An existing recipe alias paired with its canonical ingredient name."""
+
+    original: str
+    classification: str
+
+
 class Drink(BaseModel):
     # Existing mobile response shape retained; id now carries canonical cocktail_id.
     id: str
@@ -243,6 +250,12 @@ class Drink(BaseModel):
     thirsty: float
     calm: float
     celebrate: float
+
+
+class DrinkDetail(Drink):
+    """The full drink-detail response, including informational substitutions."""
+
+    substitutions: list[IngredientSubstitution] = Field(default_factory=list)
 
 
 def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
@@ -269,6 +282,104 @@ def _canonical_to_drink(doc: dict, glass: Optional[dict] = None) -> dict:
     }
 
 
+def _recipe_display_tokens(doc: dict) -> list[str]:
+    """Return the authored ingredient labels already stored for presentation."""
+    value = doc.get("shopping_tokens") or doc.get("human_ingredients") or ""
+    if isinstance(value, (list, tuple)):
+        return [str(token).strip() for token in value if str(token).strip()]
+    if isinstance(value, str):
+        return [token.strip() for token in value.split("|") if token.strip()]
+    return []
+
+
+def _normalized_recipe_token(value: object) -> str:
+    """Compare display tokens without treating a registered-mark suffix as content."""
+    text = re.sub(r"\(\s*r\s*\)", "", str(value or ""), flags=re.IGNORECASE)
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+async def _drink_substitutions(doc: dict) -> list[dict[str, str]]:
+    """Expose existing alias-to-canonical mappings for one detail response.
+
+    A substitution is shown only when the authored shopping token is an
+    existing canonical ingredient alias and differs from that ingredient's
+    canonical ``name``. The function deliberately does not parse recipe text
+    or infer alternatives.
+    """
+    cocktail_id = doc.get("cocktail_id")
+    if not cocktail_id:
+        return []
+
+    display_tokens = _recipe_display_tokens(doc)
+    if not display_tokens:
+        return []
+
+    rows = await db.cocktail_ingredients.find(
+        {"cocktail_id": cocktail_id},
+        {"_id": 0, "ingredient_id": 1, "sequence": 1},
+    ).to_list(length=None)
+    ordered_rows: list[tuple[int, dict]] = []
+    for row in rows:
+        sequence = row.get("sequence")
+        if isinstance(sequence, int) and sequence > 0:
+            ordered_rows.append((sequence, row))
+    ordered_rows.sort(key=lambda item: item[0])
+    if not ordered_rows:
+        return []
+
+    id_map = await _resolved_id_map(row.get("ingredient_id") for _, row in ordered_rows)
+    canonical_ids = list(dict.fromkeys(id_map.values()))
+    if not canonical_ids:
+        return []
+    ingredient_rows = await db.ingredients.find(
+        {"ingredient_id": {"$in": canonical_ids}, "status": "active"},
+        {"_id": 0, "ingredient_id": 1, "name": 1, "aliases": 1},
+    ).to_list(length=None)
+    ingredients_by_id = {
+        row.get("ingredient_id"): row
+        for row in ingredient_rows
+        if isinstance(row.get("ingredient_id"), int)
+    }
+
+    substitutions: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for sequence, row in ordered_rows:
+        if sequence > len(display_tokens):
+            continue
+        try:
+            source_id = parse_ingredient_id(row.get("ingredient_id"))
+        except IngredientResolutionError:
+            continue
+        ingredient = ingredients_by_id.get(id_map.get(source_id))
+        original = display_tokens[sequence - 1]
+        classification = str((ingredient or {}).get("name") or "").strip()
+        if not ingredient or not classification:
+            continue
+
+        normalized_original = _normalized_recipe_token(original)
+        normalized_classification = _normalized_recipe_token(classification)
+        raw_aliases = ingredient.get("aliases")
+        if not isinstance(raw_aliases, (list, tuple, set)):
+            continue
+        aliases = {
+            _normalized_recipe_token(alias)
+            for alias in raw_aliases
+            if _normalized_recipe_token(alias)
+        }
+        if (
+            not normalized_original
+            or normalized_original == normalized_classification
+            or normalized_original not in aliases
+        ):
+            continue
+
+        pair = (normalized_original, normalized_classification)
+        if pair not in seen:
+            seen.add(pair)
+            substitutions.append({"original": original, "classification": classification})
+    return substitutions
+
+
 async def _canonical_glasses_by_id() -> dict[str, dict]:
     """Return canonical glass metadata keyed by glass_id for response shaping."""
     glass_docs = await db.glasses.find({"status": "active"}, {"_id": 0}).to_list(length=None)
@@ -283,6 +394,39 @@ def _canonical_read_model_ttl_seconds() -> float:
         return 86400.0
 
 
+PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION = "personal_cupboard_requirements_v1"
+
+
+def _personal_cupboard_eligibility_revision(
+    ingredients_by_id: dict[int, dict], required_ingredients_by_cocktail: dict[str, tuple[Optional[int], ...]]
+) -> str:
+    """Fingerprint the canonical inputs used by personal-cupboard eligibility.
+
+    This is deliberately data-derived rather than a deployment identifier: a
+    record produced by another process is used only when it was calculated
+    against the same canonical ingredient substitutions and recipe
+    requirements as the current read model.
+    """
+    payload = {
+        "ingredients": [
+            (ingredient_id, _ingredient_signature(ingredient))
+            for ingredient_id, ingredient in sorted(ingredients_by_id.items())
+        ],
+        "requirements": [
+            (cocktail_id, list(required_ids))
+            for cocktail_id, required_ids in sorted(required_ingredients_by_cocktail.items())
+        ],
+    }
+    encoded = json.dumps(payload, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _personal_cupboard_fingerprint(ingredient_ids: set[int]) -> str:
+    """Fingerprint normalized cupboard contents independent of input ordering."""
+    encoded = ",".join(str(ingredient_id) for ingredient_id in sorted(ingredient_ids))
+    return hashlib.sha256(encoded.encode("ascii")).hexdigest()
+
+
 @dataclass(frozen=True)
 class CanonicalReadModel:
     """Immutable canonical source data used by recommendation and Shake paths."""
@@ -290,11 +434,15 @@ class CanonicalReadModel:
     ingredients_by_id: dict[int, dict]
     active_ingredient_ids: frozenset[int]
     glasses_by_id: dict[str, dict]
+    # Glass variants share a category. Drink Style membership is one canonical
+    # family set per category, derived from the authoritative glasses records.
+    filter_families_by_glass_category: dict[str, frozenset[str]]
     active_merge_map: dict[int, int]
     # Required recipe ingredients are canonicalized when the bounded source
     # snapshot refreshes. ``None`` preserves the existing meaning of a stale
     # or invalid historical relationship: that cocktail is not cupboard-ready.
     required_ingredients_by_cocktail: dict[str, tuple[Optional[int], ...]]
+    personal_cupboard_eligibility_revision: str
 
 
 class RequestTiming:
@@ -409,16 +557,21 @@ class CanonicalReadModelCache:
                     else:
                         canonical_id = recipe_id_map.get(source_id)
                     required_ingredients.setdefault(str(cocktail_id), []).append(canonical_id)
+            frozen_requirements = {
+                cocktail_id: tuple(ingredient_ids)
+                for cocktail_id, ingredient_ids in required_ingredients.items()
+            }
             snapshot = CanonicalReadModel(
                 cocktails=tuple(cocktails),
                 ingredients_by_id=ingredients_by_id,
                 active_ingredient_ids=frozenset(ingredients_by_id),
                 glasses_by_id={str(row["glass_id"]): row for row in glasses if row.get("glass_id")},
+                filter_families_by_glass_category=_canonical_filter_families_by_glass_category(glasses),
                 active_merge_map=merge_map,
-                required_ingredients_by_cocktail={
-                    cocktail_id: tuple(ingredient_ids)
-                    for cocktail_id, ingredient_ids in required_ingredients.items()
-                },
+                required_ingredients_by_cocktail=frozen_requirements,
+                personal_cupboard_eligibility_revision=_personal_cupboard_eligibility_revision(
+                    ingredients_by_id, frozen_requirements
+                ),
             )
             self._snapshot = snapshot
             self._source_db_id = id(db)
@@ -698,14 +851,14 @@ async def drinks_count():
     return {"count": await db.cocktails.count_documents({"status": "active"})}
 
 
-MAIN_INGREDIENT_PRIMARY = {
+WHAT_I_WANT_PRIMARY_LIQUORS = {
     "vodka": "vodka",
     "gin": "gin",
     "rum": "rum",
     "whiskey": "whiskey",
     "tequila": "tequila",
 }
-ALLOWED_ALCOHOL_FILTERS = set(MAIN_INGREDIENT_PRIMARY) | {"non_alcoholic"}
+ALLOWED_ALCOHOL_FILTERS = set(WHAT_I_WANT_PRIMARY_LIQUORS) | {"non_alcoholic"}
 
 # Consumer Drink Style values.  Their membership is owned by
 # glasses.filter_families, never by a frontend or backend lookup table.
@@ -778,6 +931,49 @@ async def _canonical_recipe_requirements(
     return requirements
 
 
+def _recipe_primary_liquors(cocktail_id: str, read_model: "CanonicalReadModel") -> set[str]:
+    """Return canonical primary-liquor classifications from required recipe rows.
+
+    This is the What I Want source of truth.  The relationship is maintained
+    in ``cocktail_ingredients`` and was already canonicalized when the bounded
+    read model loaded; ``cocktails.main_ingredient_ids`` is intentionally not
+    consulted here.
+    """
+    return {
+        primary
+        for ingredient_id in read_model.required_ingredients_by_cocktail.get(cocktail_id, ())
+        if ingredient_id is not None
+        for ingredient in [read_model.ingredients_by_id.get(ingredient_id) or {}]
+        if ingredient.get("category_id") == "primary_liquor"
+        for primary in [str(ingredient.get("primary_ingredient") or "").strip().lower()]
+        if primary
+    }
+
+
+def _canonical_filter_families_by_glass_category(glasses: list[dict]) -> dict[str, frozenset[str]]:
+    """Build the Drink Style lookup from active canonical glass metadata.
+
+    Specific ``glass_id`` variants are intentionally allowed to omit the
+    repeated family data.  Every populated family set for one category must
+    agree, otherwise the canonical read model fails rather than guessing.
+    """
+    by_category: dict[str, frozenset[str]] = {}
+    for glass in glasses:
+        category_id = str(glass.get("glass_category_id") or "").strip()
+        families = frozenset(
+            str(family).strip().lower()
+            for family in glass.get("filter_families") or []
+            if str(family).strip().lower() in ALLOWED_GLASS_FILTERS
+        )
+        if not category_id or not families:
+            continue
+        existing = by_category.get(category_id)
+        if existing is not None and existing != families:
+            raise RuntimeError(f"conflicting Drink Style families for glass category {category_id}")
+        by_category[category_id] = families
+    return by_category
+
+
 def _inventory_satisfies_requirements(
     required_ids: list[Optional[int]], available_ids: set[int], ingredients_by_id: dict[int, dict]
 ) -> tuple[bool, list[int], list[int], bool]:
@@ -786,6 +982,18 @@ def _inventory_satisfies_requirements(
         _ingredient_signature(ingredients_by_id[item_id])
         for item_id in available_ids if item_id in ingredients_by_id
     }
+    return _inventory_satisfies_requirements_with_signatures(
+        required_ids, available_ids, ingredients_by_id, signatures
+    )
+
+
+def _inventory_satisfies_requirements_with_signatures(
+    required_ids: tuple[Optional[int], ...] | list[Optional[int]],
+    available_ids: set[int],
+    ingredients_by_id: dict[int, dict],
+    signatures: set[tuple[str, str]],
+) -> tuple[bool, list[int], list[int], bool]:
+    """Evaluate a recipe with precomputed cupboard substitution signatures."""
     matched, missing = [], []
     has_unresolved_requirement = False
     for ingredient_id in required_ids:
@@ -798,6 +1006,49 @@ def _inventory_satisfies_requirements(
         else:
             missing.append(ingredient_id)
     return not missing and not has_unresolved_requirement, matched, missing, has_unresolved_requirement
+
+
+def _build_personal_cupboard_eligibility(
+    ingredient_ids: set[int], read_model: CanonicalReadModel
+) -> dict:
+    """Build a versioned derived result while preserving My Cupboard semantics.
+
+    This runs on a cupboard write, never during the recommendation request.
+    It caches only canonical eligibility; request-specific filtering and
+    scoring continue to run for every request.
+    """
+    signatures = {
+        _ingredient_signature(read_model.ingredients_by_id[item_id])
+        for item_id in ingredient_ids if item_id in read_model.ingredients_by_id
+    }
+    eligible_cocktail_ids = [
+        cocktail_id
+        for cocktail_id, required_ids in read_model.required_ingredients_by_cocktail.items()
+        if _inventory_satisfies_requirements_with_signatures(
+            required_ids, ingredient_ids, read_model.ingredients_by_id, signatures
+        )[0]
+    ]
+    return {
+        "algorithm_version": PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION,
+        "cupboard_fingerprint": _personal_cupboard_fingerprint(ingredient_ids),
+        "canonical_revision": read_model.personal_cupboard_eligibility_revision,
+        "eligible_cocktail_ids": eligible_cocktail_ids,
+        "computed_at": datetime.now(timezone.utc),
+    }
+
+
+def _personal_cupboard_eligibility_matches(
+    value: object, ingredient_ids: set[int], read_model: CanonicalReadModel
+) -> bool:
+    """Reject stale, malformed, or cross-version derived cupboard results."""
+    if not isinstance(value, dict):
+        return False
+    return (
+        value.get("algorithm_version") == PERSONAL_CUPBOARD_ELIGIBILITY_ALGORITHM_VERSION
+        and value.get("cupboard_fingerprint") == _personal_cupboard_fingerprint(ingredient_ids)
+        and value.get("canonical_revision") == read_model.personal_cupboard_eligibility_revision
+        and isinstance(value.get("eligible_cocktail_ids"), list)
+    )
 
 
 CAPABILITY_INGREDIENT_CATEGORIES = frozenset({
@@ -969,10 +1220,10 @@ async def match_drink(
     """Return top canonical cocktails after What-I-Want, location/cupboard and user filters.
 
     `alcohols` and `glasses` retain the existing mobile API names for backward
-    compatibility. Main-ingredient matching is canonical: the cocktail's
-    `main_ingredient_ids` resolve to canonical ingredients and their
-    `primary_ingredient` classification. Cupboard matching uses structured
-    `cocktail_ingredients` and canonical ingredient identity/substitution.
+    compatibility. What-I-Want matching uses required structured recipe
+    ingredients, their canonical identity/substitution, and their active
+    ``primary_liquor`` classification. Cupboard matching uses the same
+    canonical recipe relationships.
     """
     if scoring not in ("differential", "alternate"):
         raise HTTPException(status_code=400, detail="scoring must be 'differential' or 'alternate'")
@@ -1014,17 +1265,8 @@ async def match_drink(
         raise HTTPException(status_code=404, detail="No drinks in database")
 
     ingredients_by_id = read_model.ingredients_by_id
-    with timing.phase("ingredient_resolution"):
-        main_ingredient_map = await _resolved_id_map(
-            (
-                ingredient_id
-                for cocktail in canonical_docs
-                for ingredient_id in cocktail.get("main_ingredient_ids") or []
-            ),
-            read_model,
-        )
 
-    # What I Want: canonical main ingredient filter.
+    # What I Want: canonical primary-liquor recipe filter.
     with timing.phase("filtering"):
         if alcohol_filters:
             spirit_filters = alcohol_filters - {"non_alcoholic"}
@@ -1033,25 +1275,27 @@ async def match_drink(
             for c in canonical_docs:
                 ok = want_nonalc and str(c.get("alcohol_class") or "").strip().lower().startswith("non")
                 if not ok and spirit_filters:
-                    for source_id in _int_ids(c.get("main_ingredient_ids")):
-                        ing = ingredients_by_id.get(main_ingredient_map.get(source_id)) or {}
-                        if str(ing.get("primary_ingredient") or "").strip().lower() in spirit_filters:
-                            ok = True
-                            break
+                    ok = bool(_recipe_primary_liquors(str(c.get("cocktail_id") or ""), read_model) & spirit_filters)
                 if ok:
                     kept.append(c)
             canonical_docs = kept
 
-        # Drink Style filter-family membership is glass-owned. Card icon
-        # identity remains the cocktail's glass_category_id.
+        # Drink Style family membership is derived from canonical glass
+        # metadata by the cocktail's category, so all specific glass variants
+        # in one category filter identically. Card icon identity uses the same
+        # cocktail glass_category_id.
         glasses_by_id = read_model.glasses_by_id
 
-        # What I Want: OR within Drink Style, based solely on canonical
-        # glasses.filter_families. No legacy-name fallback or taxonomy is allowed.
+        # OR within Drink Style, based solely on canonical category family
+        # metadata. No legacy-name fallback or taxonomy is allowed.
         if glass_filters:
             canonical_docs = [
                 c for c in canonical_docs
-                if glass_filters.intersection(set((glasses_by_id.get(str(c.get("glass_id"))) or {}).get("filter_families") or []))
+                if glass_filters.intersection(
+                    read_model.filter_families_by_glass_category.get(
+                        str(c.get("glass_category_id") or ""), frozenset()
+                    )
+                )
             ]
 
     # Checked-in location replaces home cupboard constraint.
@@ -1070,18 +1314,24 @@ async def match_drink(
         if cupboard and cupboard.get("active"):
             with timing.phase("ingredient_normalization"):
                 saved_ids = set(await _resolved_historical_ids(cupboard.get("item_ids"), read_model))
-            cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
-            with timing.phase("recipe_requirement_acquisition"):
-                requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
+            eligibility = cupboard.get("personal_cupboard_eligibility")
+            if _personal_cupboard_eligibility_matches(eligibility, saved_ids, read_model):
+                with timing.phase("cupboard_eligibility_cache"):
+                    eligible_ids = set(eligibility["eligible_cocktail_ids"])
+                    canonical_docs = [c for c in canonical_docs if c.get("cocktail_id") in eligible_ids]
+            else:
+                cocktail_ids = [c["cocktail_id"] for c in canonical_docs]
+                with timing.phase("recipe_requirement_acquisition"):
+                    requirements = await _canonical_recipe_requirements(cocktail_ids, read_model)
 
-            def cupboard_satisfies(cid: str) -> bool:
-                reqs = requirements.get(cid)
-                if not reqs:  # No structured recipe => cannot claim "can make".
-                    return False
-                return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
+                def cupboard_satisfies(cid: str) -> bool:
+                    reqs = requirements.get(cid)
+                    if not reqs:  # No structured recipe => cannot claim "can make".
+                        return False
+                    return _inventory_satisfies_requirements(reqs, saved_ids, ingredients_by_id)[0]
 
-            with timing.phase("cupboard_matching"):
-                canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
+                with timing.phase("cupboard_matching"):
+                    canonical_docs = [c for c in canonical_docs if cupboard_satisfies(c["cocktail_id"])]
 
     with timing.phase("response_shaping"):
         docs = [_canonical_to_drink(d, glasses_by_id.get(str(d.get("glass_id")))) for d in canonical_docs]
@@ -1159,25 +1409,17 @@ async def shake_a_shot(
         timing.set_response_header(response, cache_state)
         return ShakeShotResponse()
 
-    # Shot membership comes only from the locked canonical glasses record,
-    # never from legacy glass names or cocktail recipe/category text.
+    # Shot membership comes only from the locked canonical glass-category
+    # family map, never from legacy glass names or cocktail recipe text.
     glasses_by_id = read_model.glasses_by_id
     ingredients_by_id = read_model.ingredients_by_id
     with timing.phase("filtering"):
         canonical_docs = [
             cocktail for cocktail in canonical_docs
-            if "shot" in set((glasses_by_id.get(str(cocktail.get("glass_id"))) or {}).get("filter_families") or [])
+            if "shot" in read_model.filter_families_by_glass_category.get(
+                str(cocktail.get("glass_category_id") or ""), frozenset()
+            )
         ]
-
-    with timing.phase("ingredient_resolution"):
-        main_ingredient_map = await _resolved_id_map(
-            (
-                ingredient_id
-                for cocktail in canonical_docs
-                for ingredient_id in cocktail.get("main_ingredient_ids") or []
-            ),
-            read_model,
-        )
 
     if alcohol_filters:
         spirit_filters = alcohol_filters - {"non_alcoholic"}
@@ -1187,10 +1429,7 @@ async def shake_a_shot(
             for cocktail in canonical_docs:
                 matches = wants_non_alcoholic and str(cocktail.get("alcohol_class") or "").strip().lower().startswith("non")
                 if not matches and spirit_filters:
-                    matches = any(
-                        str((ingredients_by_id.get(main_ingredient_map.get(ingredient_id)) or {}).get("primary_ingredient") or "").strip().lower() in spirit_filters
-                        for ingredient_id in _int_ids(cocktail.get("main_ingredient_ids"))
-                    )
+                    matches = bool(_recipe_primary_liquors(str(cocktail.get("cocktail_id") or ""), read_model) & spirit_filters)
                 if matches:
                     filtered_docs.append(cocktail)
             canonical_docs = filtered_docs
@@ -1294,7 +1533,7 @@ async def search_drinks(q: str, limit: int = 20, authorization: Optional[str] = 
 # NOTE: this catch-all-by-id route must stay AFTER /drinks/search —
 # FastAPI matches routes in registration order, and {drink_id} would
 # otherwise swallow "/drinks/search" as if "search" were the id.
-@api_router.get("/drinks/{drink_id}", response_model=Drink)
+@api_router.get("/drinks/{drink_id}", response_model=DrinkDetail)
 async def get_drink(drink_id: str):
     doc = await db.cocktails.find_one(
         {"cocktail_id": drink_id, "status": "active"}, {"_id": 0}
@@ -1302,7 +1541,9 @@ async def get_drink(drink_id: str):
     if not doc:
         raise HTTPException(status_code=404, detail="Drink not found")
     glasses_by_id = await _canonical_glasses_by_id()
-    return Drink(**_canonical_to_drink(doc, glasses_by_id.get(str(doc.get("glass_id")))))
+    payload = _canonical_to_drink(doc, glasses_by_id.get(str(doc.get("glass_id"))))
+    payload["substitutions"] = await _drink_substitutions(doc)
+    return DrinkDetail(**payload)
 
 
 # ================================================================
@@ -2108,7 +2349,17 @@ async def get_ingredients_tree():
                 "name": display_names[pkey],
                 # IDs are serialized as strings so the current React Native
                 # selection model remains unchanged; save/match normalize to int.
-                "items": [{"id": str(r["ingredient_id"]), "name": r.get("name") or str(r["ingredient_id"])} for r in items],
+                "items": [
+                    {
+                        "id": str(r["ingredient_id"]),
+                        "name": r.get("name") or str(r["ingredient_id"]),
+                        # Preserve the canonical value when it is populated.
+                        # Blank, missing, and null values deliberately remain
+                        # absent rather than becoming an invented subcategory.
+                        "subcategory": str(r.get("subcategory") or "").strip() or None,
+                    }
+                    for r in items
+                ],
             })
         result.append({"id": category["category_id"], "name": category.get("name") or category["category_id"], "primaries": primaries})
     return result
@@ -2146,9 +2397,20 @@ async def save_cupboard(body: CupboardRequest, user: User = Depends(current_user
         canonical_ids = await resolve_ingredient_ids(db, body.item_ids, strict=True)
     except IngredientResolutionError as error:
         raise HTTPException(status_code=400, detail=str(error))
+    eligibility = None
+    if body.active:
+        read_model, _ = await _canonical_read_model_cache.get(RequestTiming())
+        eligibility = _build_personal_cupboard_eligibility(set(canonical_ids), read_model)
+    update = {"$set": {"item_ids": canonical_ids, "active": body.active}}
+    if eligibility is not None:
+        update["$set"]["personal_cupboard_eligibility"] = eligibility
+    else:
+        # An inactive cupboard is intentionally never eligible; remove an old
+        # derived result rather than retaining an ambiguous dormant snapshot.
+        update["$unset"] = {"personal_cupboard_eligibility": ""}
     await db.user_cupboard.update_one(
         {"user_id": user.user_id},
-        {"$set": {"item_ids": canonical_ids, "active": body.active}},
+        update,
         upsert=True,
     )
     # This is a no-op unless this account is configured as a location's
